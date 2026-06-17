@@ -1,0 +1,29 @@
+Introduction:
+  - This is a web app that lets you post to linkedin from the command line.
+  - Start with the absolutely minimum viable product (MVP) and then iterate on it.
+  - The app has a minimalistic UI, use monospace font and terminal-like style.
+  - The homepage has minimal text that explains what the app does and a login button to connect to LinkedIn.
+  - The auth route does the login flow (Linkedin callback url)
+  - The code is version controlled using git and hosted on GitHub.
+  - The app is hosted on Digital Ocean app platform (xxs droplet).
+  - The domain is claudein.org.
+
+TODO:
+  - restructure the project as a multi-package monorepo:
+      - web:
+          - This is the current project, a nextjs app that login the user and generates an access token.
+      - cli:
+          - This is a command line tool that interacts with the web app to download the access token locally.
+Done:
+  - replace the favicon with the logo
+  - app.yml:
+      - create a minimal app.yml spec
+  - access token:
+      - After a successful login, the user should be able to download a JSON file with the access token. Check if the linkedin cookie is set and if so allow the user to download the access token (JSON file).
+  - privacy.txt:
+      - create a public/privacy.txt file with basic information about data collection and usage, link to it from the homepage
+  - login:
+      - Implement LinkedIn authentication flow:
+          - User click on the login button and redirect to linkedin auth page
+          - User confirm and redirect back to the app with an auth code
+          - ...

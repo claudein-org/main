@@ -1,66 +1,45 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { cookies } from "next/headers"
+import { env } from "@/lib/env"
+import styles from "./page.module.css"
 
-export default function Home() {
+const PROD = process.env.NODE_ENV === "production"
+export default async function Home() {
+  const cookieStore = await cookies()
+  const isLoggedIn = cookieStore.has('linkedin_access_token')
+
+  const host = PROD
+    ? 'claudein.org'
+    : 'localhost:3000'
+
+  const redirectUri = `https://${host}/auth/linkedin/`
+
+  const params = new URLSearchParams({
+    response_type: "code",
+    client_id: env.CLIENT_ID,
+    redirect_uri: redirectUri,
+    scope: "w_member_social",
+  })
+
+  const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params}`
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+    <main className={styles.main}>
+      <div className={styles.hero}>
+        <h1 className={styles.title}>claudein</h1>
+        <p className={styles.tagline}>post to linkedin from the command line.</p>
+      </div>
+      {isLoggedIn ? (
+        <a className={styles.loginButton} href="/api/token">
+          download token
+        </a>
+      ) : (
+        <a className={styles.loginButton} href={linkedinUrl} target="_blank">
+          connect linkedin
+        </a>
+      )}
+      <footer className={styles.footer}>
+        <a href="/privacy.txt">privacy</a>
+      </footer>
+    </main>
+  )
 }

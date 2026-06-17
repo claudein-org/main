@@ -1,0 +1,25 @@
+name: claudein
+region: nyc
+services:
+  - name: web
+    github:
+      repo: claudein-org/web
+      branch: main
+      deploy_on_push: true
+    build_command: bun run build
+    run_command: bun run start
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    instance_count: 1
+    http_port: 3000
+    envs:
+      - key: CLIENT_ID
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: CLIENT_SECRET
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+    routes:
+      - path: /
+domains:
+  - domain: claudein.org
+    type: PRIMARY

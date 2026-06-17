@@ -1,0 +1,23 @@
+claudein.org – Privacy Policy
+Last updated: 2026-06-17
+
+WHAT WE COLLECT
+We collect only what is necessary to provide the service:
+  - Your LinkedIn access token (stored in a session cookie, never persisted to disk)
+  - Your LinkedIn profile ID and display name (used to post on your behalf)
+
+We do not collect email addresses, passwords, or any other personal data.
+
+HOW WE USE IT
+  - To authenticate you with LinkedIn via OAuth 2.0
+  - To post content to LinkedIn on your behalf when you run the CLI
+
+WHO WE SHARE IT WITH
+Nobody. We do not sell, rent, or share your data with third parties.
+
+DATA RETENTION
+Session tokens are stored in a short-lived cookie that expires when your browser
+session ends. We retain no data on our servers after you log out.
+
+CONTACT
+Questions? Email: gilad.kutiel@gmail.com
