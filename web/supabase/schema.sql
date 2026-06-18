@@ -1,0 +1,8 @@
+-- Supabase schema
+
+CREATE TABLE IF NOT EXISTS  (
+    ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    email text UNIQUE NOT NULL
+    token text NOT NULL,
+);

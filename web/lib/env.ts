@@ -4,6 +4,7 @@ const Env = z.object({
     CLIENT_ID: z.string(),
     CLIENT_SECRET: z.string(),
     DB_PASS: z.string(),
+    DB_URL: z.string(),
 })
 
 
