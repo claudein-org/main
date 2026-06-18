@@ -1,0 +1,7 @@
+.vscode
+.next
+.env
+*.tsbuildinfo
+
+node_modules
+certificates

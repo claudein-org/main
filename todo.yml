@@ -9,12 +9,12 @@ Introduction:
   - The domain is claudein.org.
 
 TODO:
+Done:
   - restructure the project as a multi-package monorepo:
       - web:
           - This is the current project, a nextjs app that login the user and generates an access token.
       - cli:
           - This is a command line tool that interacts with the web app to download the access token locally.
-Done:
   - replace the favicon with the logo
   - app.yml:
       - create a minimal app.yml spec
