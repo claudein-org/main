@@ -15,9 +15,11 @@ const dialect = new PostgresDialect({
 
 interface UsersTable {
     id: Generated<string>
-    linkedin_id: string
-    linkedin_access_token: string
-    api_key: string
+    google_id: string
+    email: string
+    linkedin_id: string | null
+    linkedin_access_token: string | null
+    api_key: string | null
     created_at: Generated<Date>
     updated_at: Generated<Date>
 }

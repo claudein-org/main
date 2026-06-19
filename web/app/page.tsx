@@ -1,31 +1,45 @@
 import { env } from "@/lib/env"
+import { db } from "@/lib/db"
 import { cookies } from "next/headers"
+import { unsign } from "cookie-signature"
 import styles from "./page.module.css"
 
 const PROD = process.env.NODE_ENV === "production"
-export default async function Home() {
+
+async function getUser() {
   const cookieStore = await cookies()
-  const isLoggedIn = cookieStore.has('api_key')
+  const session = cookieStore.get('session')
+  if (!session) return null
 
-  const host = PROD
-    ? 'claudein.org'
-    : 'localhost:3000'
+  const userId = unsign(session.value, env.COOKIE_SECRET)
+  if (!userId) return null
 
-  const redirectUri = `https://${host}/auth/linkedin/`
+  return db.selectFrom('users')
+    .select(['api_key'])
+    .where('id', '=', userId)
+    .executeTakeFirst()
+}
 
-  const scope = [
-    "w_member_social",
-    'r_emailaddress',
-  ].join(' ')
+export default async function Home() {
+  const user = await getUser()
 
-  const params = new URLSearchParams({
+  const host = PROD ? 'claudein.org' : 'localhost:3000'
+
+  const googleParams = new URLSearchParams({
+    response_type: "code",
+    client_id: env.GOOGLE_CLIENT_ID,
+    redirect_uri: `https://${host}/auth/google/`,
+    scope: "openid email",
+  })
+  const googleUrl = `https://accounts.google.com/o/oauth2/v2/auth?${googleParams}`
+
+  const linkedinParams = new URLSearchParams({
     response_type: "code",
     client_id: env.CLIENT_ID,
-    redirect_uri: redirectUri,
-    scope,
+    redirect_uri: `https://${host}/auth/linkedin/`,
+    scope: ["w_member_social", "r_emailaddress"].join(' '),
   })
-
-  const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params}`
+  const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${linkedinParams}`
 
   return (
     <main className={styles.main}>
@@ -33,7 +47,11 @@ export default async function Home() {
         <h1 className={styles.title}>claudein</h1>
         <p className={styles.tagline}>post to linkedin from the command line.</p>
       </div>
-      {isLoggedIn ? (
+      {!user ? (
+        <a className={styles.loginButton} href={googleUrl}>
+          login with google
+        </a>
+      ) : user.api_key ? (
         <a className={styles.loginButton} href="/api/token">
           download token
         </a>
