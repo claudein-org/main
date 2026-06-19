@@ -1,13 +1,12 @@
-import { env } from '@/lib/env'
+import { auth } from '@/lib/auth'
+import { cook } from '@/lib/cookie'
 import { db } from '@/lib/db'
-import { cookies } from 'next/headers'
+import { env } from '@/lib/env'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
-import { sign } from 'cookie-signature'
 import type { NextRequest } from 'next/server'
 import z from 'zod'
 
-const PROD = process.env.NODE_ENV === "production"
 
 const Token = z.object({
   access_token: z.string(),
@@ -27,8 +26,7 @@ export async function GET(request: NextRequest) {
     redirect('/?error=auth_failed')
   }
 
-  const host = PROD ? 'claudein.org' : 'localhost:3000'
-  const redirectUri = `https://${host}/auth/google/`
+  const redirectUri = auth.getRedirectUri('google')
 
   const tokenRes = await ky.post('https://oauth2.googleapis.com/token', {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -47,20 +45,18 @@ export async function GET(request: NextRequest) {
     headers: { Authorization: `Bearer ${access_token}` },
   })
 
-  const { id: google_id, email } = UserInfo.parse(await userInfoRes.json())
+  const { email } = UserInfo.parse(await userInfoRes.json())
 
-  const user = await db.insertInto('users')
-    .values({ google_id, email })
+  const user = await db
+    .insertInto('users')
+    .ignore()
+    .values({ email })
     .onConflict(oc => oc.column('google_id').doUpdateSet({ email }))
     .returning('id')
     .executeTakeFirstOrThrow()
 
-  const cookieStore = await cookies()
-  cookieStore.set('session', sign(user.id, env.COOKIE_SECRET), {
-    httpOnly: true,
-    secure: PROD,
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30,
+  await cook.set({
+    user_id: user.id,
   })
 
   redirect('/')

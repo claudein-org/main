@@ -25,10 +25,14 @@ export default async function Home() {
 
   const host = PROD ? 'claudein.org' : 'localhost:3000'
 
+  const googleRedirectUri = PROD
+    ? 'https://claudein.org/auth/google/'
+    : 'http://localhost:3000/auth/google'
+
   const googleParams = new URLSearchParams({
     response_type: "code",
     client_id: env.GOOGLE_CLIENT_ID,
-    redirect_uri: `https://${host}/auth/google/`,
+    redirect_uri: googleRedirectUri,
     scope: "openid email",
   })
   const googleUrl = `https://accounts.google.com/o/oauth2/v2/auth?${googleParams}`
