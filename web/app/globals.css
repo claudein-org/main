@@ -36,3 +36,16 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* Hover states can't be expressed as React inline styles, so they live here. */
+.btn:hover {
+  opacity: 0.85;
+}
+
+.footer-link {
+  transition: color 0.15s;
+}
+
+.footer-link:hover {
+  color: var(--text-primary);
+}

@@ -10,6 +10,10 @@ Use Bun: `bun run dev` (dev), `bun run build`, `bun run start`. `bun run dev-htt
 
 `CLIENT_ID` and `CLIENT_SECRET` (LinkedIn OAuth) are validated at startup by `lib/env.ts` via zod. Import `env` from there rather than reading `process.env` directly.
 
+## Styling
+
+Inline all styles via the `style` prop. **Never use `.module.css` (CSS Modules) files.** Define static styles as a module-scope `const styles: Record<string, CSSProperties>` object and spread them onto elements. The only things that belong in `globals.css` are things inline styles can't express — pseudo-classes like `:hover`, and global element/`:root` rules.
+
 ## Routes
 
 - `app/auth/linkedin/route.ts` — LinkedIn OAuth callback
