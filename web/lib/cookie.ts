@@ -3,20 +3,20 @@ import { cookies } from "next/headers"
 import { env } from "./env"
 
 interface Cookies {
-    user_id: string
+    user_id: number
 }
 
 type Key = keyof Cookies
 
 const parser: { [K in Key]: (value: string) => Cookies[K] } = {
-    user_id: (val) => val,
+    user_id: (val) => Number(val),
 }
 
 export namespace cook {
     export async function set(cs: Partial<Cookies>) {
         const store = await cookies()
         for (const [key, value] of Object.entries(cs)) {
-            store.set(key, sign(value, env.COOKIE_SECRET), {
+            store.set(key, sign(String(value), env.COOKIE_SECRET), {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",

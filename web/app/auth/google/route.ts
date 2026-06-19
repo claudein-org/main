@@ -47,16 +47,20 @@ export async function GET(request: NextRequest) {
 
   const { email } = UserInfo.parse(await userInfoRes.json())
 
-  const user = await db
+  await db
     .insertInto('users')
     .ignore()
     .values({ email })
-    .onConflict(oc => oc.column('google_id').doUpdateSet({ email }))
-    .returning('id')
+    .executeTakeFirstOrThrow()
+
+  const { user_id } = await db
+    .selectFrom('users')
+    .where('email', '=', email)
+    .select('user_id')
     .executeTakeFirstOrThrow()
 
   await cook.set({
-    user_id: user.id,
+    user_id,
   })
 
   redirect('/')

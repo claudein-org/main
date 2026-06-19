@@ -21,7 +21,7 @@ Read `web/init.sql` and update `web/lib/db.ts` to match, keeping `init.sql` as t
 
 ## Steps
 
-1. Read `web/supabase/schema.sql` and `web/lib/db.ts`.
+1. Read `web/init.sql` and `web/lib/db.ts`.
 2. For each `CREATE TABLE` in `schema.sql`, diff its columns against the corresponding interface in `web/lib/db.ts`.
 3. Apply the minimal edits needed to bring `web/lib/db.ts` in sync — add missing tables, update changed columns, and remove interfaces/DB entries for tables that no longer exist in `schema.sql`.
 4. Report a short summary: which tables were added, updated, removed, or already in sync.
