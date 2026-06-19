@@ -6,6 +6,6 @@ create table if not exists users (
 
 create table if not exists linkedin (
     user_id int primary key references users(user_id) on delete cascade,
-    token varchar(256) not null
+    token varchar(1000) not null
 );
 

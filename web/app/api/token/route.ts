@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const user_id = await cook.get('user_id')
+  const { user_id } = await cook.get()
 
   if (!user_id) {
     return NextResponse.json({ error: 'not authenticated' }, { status: 401 })

@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import { env } from "@/lib/env"
-import { redirect } from "next/navigation"
+import assert from "assert"
 import type { CSSProperties } from "react"
 
 const styles: Record<string, CSSProperties> = {
@@ -70,8 +70,9 @@ const styles: Record<string, CSSProperties> = {
 }
 
 export default async function Dashboard() {
-  const user_id = await cook.get('user_id')
-  if (!user_id) redirect('/')
+  const { user_id } = await cook.get()
+
+  assert(user_id, 'User not authenticated')
 
   const linkedin = await db
     .selectFrom('linkedin')
