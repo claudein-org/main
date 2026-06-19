@@ -1,28 +1,29 @@
+import { auth } from '@/lib/auth'
+import { cook } from '@/lib/cookie'
+import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
 import z from 'zod'
 
-const PROD = process.env.NODE_ENV === "production"
-
 const Token = z.object({
-})
-
-const UserInfo = z.object({
+  access_token: z.string(),
 })
 
 export async function GET(request: NextRequest) {
+  const user_id = await cook.get('user_id')
+  if (!user_id) redirect('/')
+
   const { searchParams } = request.nextUrl
   const code = searchParams.get('code')
   const error = searchParams.get('error')
 
   if (error || !code) {
-    redirect('/?error=auth_failed')
+    redirect('/dash?error=linkedin_failed')
   }
 
-  const host = PROD ? 'claudein.org' : 'localhost:3000'
-  const redirectUri = `https://${host}/auth/linkedin/`
+  const redirectUri = auth.getRedirectUri('linkedin')
 
   const res = await ky.post('https://www.linkedin.com/oauth/v2/accessToken', {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -35,13 +36,13 @@ export async function GET(request: NextRequest) {
     }),
   })
 
-  const data = await res.json()
+  const { access_token } = Token.parse(await res.json())
 
-  console.dir(data, { depth: null })
+  await db
+    .insertInto('linkedin')
+    .values({ user_id, token: access_token })
+    .onConflict((oc) => oc.column('user_id').doUpdateSet({ token: access_token }))
+    .execute()
 
-  // const userInfo = await ky.get('https://api.linkedin.com/v2/userinfo', {
-  //   headers: { Authorization: `Bearer ${access_token}` },
-  // }).json() as { sub: string }
-
-  return Response.json({ message: 'ok' }, { status: 200 })
+  redirect('/dash')
 }

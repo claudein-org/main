@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import { randomBytes } from 'node:crypto'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
@@ -47,11 +48,14 @@ export async function GET(request: NextRequest) {
 
   const { email } = UserInfo.parse(await userInfoRes.json())
 
+  // Issue a random API key for first-time users. Existing users keep theirs.
+  const api_key = randomBytes(16).toString('hex')
+
   await db
     .insertInto('users')
-    .ignore()
-    .values({ email })
-    .executeTakeFirstOrThrow()
+    .values({ email, api_key })
+    .onConflict((oc) => oc.column('email').doNothing())
+    .execute()
 
   const { user_id } = await db
     .selectFrom('users')
@@ -63,5 +67,5 @@ export async function GET(request: NextRequest) {
     user_id,
   })
 
-  redirect('/')
+  redirect('/dash')
 }

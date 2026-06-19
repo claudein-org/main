@@ -16,6 +16,7 @@ const dialect = new PostgresDialect({
 interface UsersTable {
     user_id: Generated<number>
     email: string
+    api_key: string
 }
 
 interface LinkedinTable {
@@ -23,15 +24,9 @@ interface LinkedinTable {
     token: string
 }
 
-interface ApiKeyTable {
-    user_id: number
-    api_key: string
-}
-
 interface DB {
     users: UsersTable
     linkedin: LinkedinTable
-    api_key: ApiKeyTable
 }
 
 export const db = new Kysely<DB>({ dialect })
