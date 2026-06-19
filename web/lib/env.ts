@@ -1,4 +1,3 @@
-import { config } from "dotenv"
 import z from "zod"
 
 const Env = z.object({
@@ -17,13 +16,4 @@ const Env = z.object({
     COOKIE_SECRET: z.string(),
 })
 
-function load() {
-    try {
-        return Env.parse(process.env)
-    } catch {
-        config()
-        return Env.parse(process.env)
-    }
-}
-
-export const env = load()
+export const env = Env.parse(process.env)
