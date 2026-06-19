@@ -10,6 +10,10 @@ const dialect = new PostgresDialect({
         user: DB_USER,
         password: DB_PASS,
         database: DB_NAME,
+        ssl: {
+            allowPartialTrustChain: true,
+            // rejectUnauthorized: false 
+        },
     }),
 })
 
@@ -30,3 +34,11 @@ interface DB {
 }
 
 export const db = new Kysely<DB>({ dialect })
+
+
+if (import.meta.main) {
+    require('dotenv').config()
+    const users = await db.selectFrom('users').execute()
+
+    console.log(users)
+}
