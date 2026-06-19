@@ -5,6 +5,7 @@ Introduction:
   - After a successful connection, the user can download a JSON file with their API key which they can use from a command line tool to interact with the web app.
 
 TODO:
-  - replace the design of the app use a clean, claude.ai like design and combine the color scheme from claude.ai and LinkedIn.com
+
 Done:
   - Implement the google login flow, after a successful login add the user to the database and set a signed cookie with the user id.
+  - replace the design of the app use a clean, claude.ai like design and combine the color scheme from claude.ai and LinkedIn.com

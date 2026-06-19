@@ -44,22 +44,27 @@ export default async function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.hero}>
-        <h1 className={styles.title}>claudein</h1>
+        <h1 className={styles.title}>
+          <span className={styles.titleClaude}>claude</span>
+          <span className={styles.titleIn}>in</span>
+        </h1>
         <p className={styles.tagline}>post to linkedin from the command line.</p>
       </div>
+
       {!user ? (
-        <a className={styles.loginButton} href={googleUrl}>
+        <a className={`${styles.btn} ${styles.btnGoogle}`} href={googleUrl}>
           login with google
         </a>
       ) : user.api_key ? (
-        <a className={styles.loginButton} href="/api/token">
+        <a className={`${styles.btn} ${styles.btnDownload}`} href="/api/token">
           download token
         </a>
       ) : (
-        <a className={styles.loginButton} href={linkedinUrl} target="_blank">
+        <a className={`${styles.btn} ${styles.btnLinkedin}`} href={linkedinUrl} target="_blank">
           connect linkedin
         </a>
       )}
+
       <footer className={styles.footer}>
         <a href="/privacy.txt">privacy</a>
       </footer>
