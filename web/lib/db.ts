@@ -36,9 +36,3 @@ interface DB {
 export const db = new Kysely<DB>({ dialect })
 
 
-if (import.meta.main) {
-    require('dotenv').config()
-    const users = await db.selectFrom('users').execute()
-
-    console.log(users)
-}

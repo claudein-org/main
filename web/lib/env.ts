@@ -16,5 +16,14 @@ const Env = z.object({
     COOKIE_SECRET: z.string(),
 })
 
+function load() {
+    try {
 
-export const env = Env.parse(process.env)
+        return Env.parse(process.env)
+    } catch (e) {
+        // TODO load manually from .env file (using dotenv?)
+        return Env.parse()
+    }
+}
+
+export const env = load()
