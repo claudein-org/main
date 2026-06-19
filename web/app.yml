@@ -6,7 +6,7 @@ databases:
   - cluster_name: claudin-org
     db_name: defaultdb
     db_user: doadmin
-    engine: POSTGRESQL
+    engine: PG
     version: "18"
     name: claudin
     production: true
@@ -33,7 +33,7 @@ services:
     github:
       branch: main
       deploy_on_push: true
-      repo: claudin-org/main
+      repo: claudein-org/main
 
     source_dir: /
     dockerfile_path: /web/Dockerfile
