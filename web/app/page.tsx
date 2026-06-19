@@ -1,8 +1,6 @@
 import { auth } from "@/lib/auth"
-import { cook } from "@/lib/cookie"
 import { env } from "@/lib/env"
 import Image from "next/image"
-import { redirect } from "next/navigation"
 import type { CSSProperties } from "react"
 
 const styles: Record<string, CSSProperties> = {
@@ -66,9 +64,6 @@ const styles: Record<string, CSSProperties> = {
 }
 
 export default async function Home() {
-  const user_id = await cook.get('user_id')
-  if (user_id) redirect('/dash')
-
   const googleParams = new URLSearchParams({
     response_type: "code",
     client_id: env.GOOGLE_CLIENT_ID,

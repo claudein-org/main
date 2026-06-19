@@ -24,12 +24,16 @@ export namespace cook {
         }
     }
 
-    export async function get(key: Key): Promise<Cookies[Key] | undefined> {
+    export async function get(): Promise<Partial<Cookies>> {
         const store = await cookies()
-        const value = store.get(key)?.value
-        if (!value) return undefined
-        const unsigned = unsign(value, env.COOKIE_SECRET)
-        if (!unsigned) return undefined
-        return parser[key](unsigned)
+        return Object.fromEntries(
+            Object.entries(parser).map(([k, parse]) => {
+                const raw = store.get(k)?.value
+                if (!raw) return [k, undefined]
+                const unsigned = unsign(raw, env.COOKIE_SECRET)
+                if (!unsigned) return [k, undefined]
+                return [k, parse(unsigned)]
+            }),
+        )
     }
 }

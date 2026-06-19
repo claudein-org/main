@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import assert from 'assert'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
@@ -12,8 +13,10 @@ const Token = z.object({
 })
 
 export async function GET(request: NextRequest) {
-  const user_id = await cook.get('user_id')
-  if (!user_id) redirect('/')
+
+  const { user_id } = await cook.get()
+
+  assert(user_id, 'User not authenticated')
 
   const { searchParams } = request.nextUrl
   const code = searchParams.get('code')
@@ -36,12 +39,12 @@ export async function GET(request: NextRequest) {
     }),
   })
 
-  const { access_token } = Token.parse(await res.json())
+  const { access_token: token } = Token.parse(await res.json())
 
   await db
     .insertInto('linkedin')
-    .values({ user_id, token: access_token })
-    .onConflict((oc) => oc.column('user_id').doUpdateSet({ token: access_token }))
+    .values({ user_id, token })
+    .onConflict((oc) => oc.column('user_id').doUpdateSet({ token }))
     .execute()
 
   redirect('/dash')
