@@ -1,5 +1,5 @@
-import { cookies } from "next/headers"
 import { env } from "@/lib/env"
+import { cookies } from "next/headers"
 import styles from "./page.module.css"
 
 const PROD = process.env.NODE_ENV === "production"
@@ -13,11 +13,16 @@ export default async function Home() {
 
   const redirectUri = `https://${host}/auth/linkedin/`
 
+  const scope = [
+    "w_member_social",
+    'r_emailaddress',
+  ].join(' ')
+
   const params = new URLSearchParams({
     response_type: "code",
     client_id: env.CLIENT_ID,
     redirect_uri: redirectUri,
-    scope: "w_member_social",
+    scope,
   })
 
   const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${params}`

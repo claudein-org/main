@@ -9,6 +9,11 @@ const Env = z.object({
     DB_HOST: z.string(),
     DB_PORT: z.coerce.number(),
     DB_NAME: z.string(),
+
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+
+    COOKIE_SECRET: z.string(),
 })
 
 

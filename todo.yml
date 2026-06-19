@@ -1,14 +1,11 @@
 Introduction:
-  - This is a web app that lets you post to linkedin from the command line.
-  - Start with the absolutely minimum viable product (MVP) and then iterate on it.
-  - The app has a minimalistic UI, use monospace font and terminal-like style.
-  - The homepage has minimal text that explains what the app does and a login button to connect to LinkedIn.
-  - The auth route does the login flow (Linkedin callback url)
-  - The code is version controlled using git and hosted on GitHub.
-  - The app is hosted on Digital Ocean app platform (xxs droplet).
-  - The domain is claudein.org.
+  - This is a web app that has an API to publish posts to linkedin.
+  - A new user login to the app using their google account.
+  - After a successful login, the user can connect their LinkedIn account.
+  - After a successful connection, the user can download a JSON file with their API key which they can use from a command line tool to interact with the web app.
 
 TODO:
+  - Implement the google login flow, after a successful login add the user to the database and set a signed cookie with the user id.
 Done:
   - web:
       - Create a minimalistic web app that lets users login with LinkedIn then store their token in the db and generate them an api key.
