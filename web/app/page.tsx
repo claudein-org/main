@@ -5,7 +5,7 @@ import styles from "./page.module.css"
 const PROD = process.env.NODE_ENV === "production"
 export default async function Home() {
   const cookieStore = await cookies()
-  const isLoggedIn = cookieStore.has('linkedin_access_token')
+  const isLoggedIn = cookieStore.has('api_key')
 
   const host = PROD
     ? 'claudein.org'

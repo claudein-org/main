@@ -9,9 +9,9 @@ Introduction:
   - The domain is claudein.org.
 
 TODO:
+Done:
   - web:
       - Create a minimalistic web app that lets users login with LinkedIn then store their token in the db and generate them an api key.
-Done:
   - restructure the project as a multi-package monorepo:
       - web:
           - This is the current project, a nextjs app that login the user and generates an access token.

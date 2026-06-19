@@ -3,18 +3,18 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   const cookieStore = await cookies()
-  const token = cookieStore.get('linkedin_access_token')
+  const token = cookieStore.get('api_key')
 
   if (!token) {
     return NextResponse.json({ error: 'not authenticated' }, { status: 401 })
   }
 
-  const body = JSON.stringify({ access_token: token.value }, null, 2)
+  const body = JSON.stringify({ api_key: token.value }, null, 2)
 
   return new NextResponse(body, {
     headers: {
       'Content-Type': 'application/json',
-      'Content-Disposition': 'attachment; filename="linkedin_token.json"',
+      'Content-Disposition': 'attachment; filename="claudein_token.json"',
     },
   })
 }
