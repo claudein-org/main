@@ -1,3 +1,4 @@
+import { config } from "dotenv"
 import z from "zod"
 
 const Env = z.object({
@@ -18,11 +19,10 @@ const Env = z.object({
 
 function load() {
     try {
-
         return Env.parse(process.env)
-    } catch (e) {
-        // TODO load manually from .env file (using dotenv?)
-        return Env.parse()
+    } catch {
+        config()
+        return Env.parse(process.env)
     }
 }
 

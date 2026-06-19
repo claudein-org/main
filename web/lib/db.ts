@@ -36,3 +36,8 @@ interface DB {
 export const db = new Kysely<DB>({ dialect })
 
 
+if (import.meta.main) {
+    const res = await db.selectFrom('users').selectAll().execute()
+    console.log(res)
+    process.exit(0)
+}
