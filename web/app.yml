@@ -36,7 +36,7 @@ services:
       repo: claudein-org/main
 
     source_dir: /
-    dockerfile_path: /web/Dockerfile
+    dockerfile_path: /Dockerfile
 
     http_port: 3000
     instance_count: 1

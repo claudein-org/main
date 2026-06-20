@@ -1,0 +1,8 @@
+node_modules
+web/node_modules
+web/.next
+web/.env
+web/certificates
+cli/node_modules
+cli/src
+cli/dist
