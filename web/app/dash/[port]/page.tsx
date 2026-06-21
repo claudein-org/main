@@ -1,9 +1,11 @@
+import WS from "@/component/WS"
 import { auth } from "@/lib/auth"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import { env } from "@/lib/env"
 import assert from "assert"
 import type { CSSProperties } from "react"
+import z from "zod"
 
 const styles: Record<string, CSSProperties> = {
   main: {
@@ -69,7 +71,16 @@ const styles: Record<string, CSSProperties> = {
   },
 }
 
-export default async function Dashboard() {
+const Params = z.object({
+  port: z.coerce.number().int()
+})
+
+type Params = {
+  params: Promise<z.infer<typeof Params>>
+}
+
+export default async function page({ params }: Params) {
+  const { port } = Params.parse(await params)
   const { user_id } = await cook.get()
 
   assert(user_id, 'User not authenticated')
@@ -90,34 +101,33 @@ export default async function Dashboard() {
   })
   const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${linkedinParams}`
 
-  return (
-    <main style={styles.main}>
-      <div style={styles.hero}>
-        <h1 style={styles.title}>
-          <span style={styles.titleClaude}>claude</span>
-          <span style={styles.titleIn}>in</span>
-        </h1>
-        <p style={styles.tagline}>your dashboard</p>
-      </div>
+  return <main style={styles.main}>
+    <div style={styles.hero}>
+      <h1 style={styles.title}>
+        <span style={styles.titleClaude}>claude</span>
+        <span style={styles.titleIn}>in</span>
+      </h1>
+      <p style={styles.tagline}>your dashboard</p>
+      <WS port={port} />
+    </div>
 
-      {connected ? (
-        <div style={styles.panel}>
-          <p style={styles.status}>
-            <span style={styles.check}>✓</span> your linkedin account is connected.
-          </p>
-          <a className="btn" style={{ ...styles.btn, ...styles.btnDownload }} href="/api/token">
-            download token
-          </a>
-        </div>
-      ) : (
-        <a className="btn" style={{ ...styles.btn, ...styles.btnLinkedin }} href={linkedinUrl}>
-          connect linkedin
+    {connected ? (
+      <div style={styles.panel}>
+        <p style={styles.status}>
+          <span style={styles.check}>✓</span> your linkedin account is connected.
+        </p>
+        <a className="btn" style={{ ...styles.btn, ...styles.btnDownload }} href="/api/token">
+          download token
         </a>
-      )}
+      </div>
+    ) : (
+      <a className="btn" style={{ ...styles.btn, ...styles.btnLinkedin }} href={linkedinUrl}>
+        connect linkedin
+      </a>
+    )}
 
-      <footer style={styles.footer}>
-        <a className="footer-link" href="/privacy.txt">privacy</a>
-      </footer>
-    </main>
-  )
+    <footer style={styles.footer}>
+      <a className="footer-link" href="/privacy.txt">privacy</a>
+    </footer>
+  </main>
 }

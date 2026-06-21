@@ -8,7 +8,6 @@ import open from 'open'
 const start = command('start')
   .action(async ({ }) => {
     const DEV = process.env.CIN_ENV === 'dev'
-    console.log(`Starting ${DEV ? 'development' : 'production'} server...`)
     const server = createServer()
     const wss = new WebSocketServer({ noServer: true })
 
@@ -21,11 +20,11 @@ const start = command('start')
 
     server.listen(0, () => {
       const { port } = server.address() as AddressInfo
-      const url = DEV
-        ? `https://localhost:3000`
-        : 'https://claudein.org'
+      const host = DEV
+        ? `localhost:3000`
+        : 'claudein.org'
 
-      open(url)
+      open(`https://${host}/dash/${port}`)
     })
   })
 
