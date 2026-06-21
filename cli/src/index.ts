@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { createServer } from 'http'
 import { AddressInfo, WebSocketServer } from 'ws'
 
 import { cli, command } from '@versecafe/zcli'
@@ -8,24 +7,19 @@ import open from 'open'
 const start = command('start')
   .action(async ({ }) => {
     const DEV = process.env.CIN_ENV === 'dev'
-    const server = createServer()
-    const wss = new WebSocketServer({ noServer: true })
+    const wss = new WebSocketServer({ port: 0 })
 
-    server.on('upgrade', (req, socket, head) => {
-      // validate JWT, then:
-      wss.handleUpgrade(req, socket, head, (ws) => {
-        wss.emit('connection', ws, req)
-      })
+    wss.on('connection', (ws) => {
+      console.log('Client connected')
+      ws.send(JSON.stringify({ message: 'Hello from the WebSocket server!' }))
     })
 
-    server.listen(0, () => {
-      const { port } = server.address() as AddressInfo
-      const host = DEV
-        ? `localhost:3000`
-        : 'claudein.org'
+    const { port } = wss.address() as AddressInfo
+    const host = DEV
+      ? `localhost:3000`
+      : 'claudein.org'
 
-      open(`https://${host}/dash/${port}`)
-    })
+    open(`https://${host}/dash/${port}`)
   })
 
 cli('cin').use(start).run()
