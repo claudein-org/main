@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { env } from "@/lib/env"
+import { api } from "@claudein.org/common/api"
 import Image from "next/image"
 import type { CSSProperties } from "react"
 
@@ -84,6 +85,7 @@ export default async function Home() {
           priority
         />
         <div style={styles.heroText}>
+          <code>{api()}</code>
           <h1 style={styles.title}>
             <span style={styles.claudeWord}>Claude</span><span style={styles.inWord}>In</span>
           </h1>

@@ -1,9 +1,10 @@
 {
-  "name": "claudein",
+  "name": "claudein.org",
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "web",
-    "cli"
+    "common",
+    "cli",
+    "web"
   ]
 }

@@ -1,7 +1,11 @@
 .vscode
 .next
 .env
-*.tsbuildinfo
 
+
+tmp
 node_modules
 certificates
+
+
+*.tsbuildinfo

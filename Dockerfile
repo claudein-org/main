@@ -1,27 +1,21 @@
-FROM oven/bun:1 AS deps
+# BUILDER
+FROM oven/bun:latest AS builder
+
 WORKDIR /app
-COPY web/package.json ./
-RUN bun install
 
-FROM oven/bun:1 AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY web/ .
-RUN bun run build
+# DEBUG
+RUN apt-get update && apt-get install -y tree && rm -rf /var/lib/apt/lists/*
 
-FROM node:22-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
+RUN mkdir web cli common
 
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+COPY package.json bun.lock ./
 
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY common/package.json ./common/
+COPY web/package.json ./web/
+COPY cli/package.json ./cli/
 
-USER nextjs
-EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+RUN bun install --frozen-lockfile 
 
-CMD ["node", "server.js"]
+COPY . . 
+
+RUN cd web && bun run build

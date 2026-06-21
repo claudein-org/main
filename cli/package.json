@@ -1,5 +1,5 @@
 {
-  "name": "claudein",
+  "name": "@claudein/cli",
   "version": "0.1.0",
   "description": "Post to LinkedIn from the command line",
   "type": "module",
@@ -12,14 +12,17 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@versecafe/zcli": "^0.1.2",
     "open": "^10.1.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
     "@types/node": "^20",
     "eslint": "^9",
     "tsx": "^4",
-    "typescript": "^5",
     "typescript-eslint": "^8.61.1"
   }
 }
