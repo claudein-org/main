@@ -3,9 +3,6 @@ FROM oven/bun:latest AS builder
 
 WORKDIR /build
 
-# DEBUG
-RUN apt-get update && apt-get install -y tree && rm -rf /var/lib/apt/lists/*
-
 COPY package.json bun.lock ./
 
 COPY common/package.json ./common/
