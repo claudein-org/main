@@ -1,15 +1,24 @@
-#!/usr/bin/env node
+import { createServer } from 'http'
+import { AddressInfo, WebSocketServer } from 'ws'
 
-const WEB_URL = "https://claudein.org";
+import { cli, command } from '@versecafe/zcli'
 
-async function main() {
-  const { default: open } = await import("open");
-  console.log("Opening browser for LinkedIn authentication...");
-  await open(`${WEB_URL}/auth/login`);
-  console.log(`Visit ${WEB_URL} to download your access token.`);
-}
+const start = command('start')
+  .action(async ({ }) => {
+    const server = createServer()
+    const wss = new WebSocketServer({ noServer: true })
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+    server.on('upgrade', (req, socket, head) => {
+      // validate JWT, then:
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit('connection', ws, req)
+      })
+    })
+
+    server.listen(0, () => {
+      const { port } = server.address() as AddressInfo
+      console.log(`Listening on port ${port}`)
+    })
+  })
+
+cli('cin').use(start).run()

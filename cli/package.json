@@ -12,8 +12,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@types/ws": "^8.18.1",
     "@versecafe/zcli": "^0.1.2",
-    "open": "^10.1.0"
+    "open": "^10.1.0",
+    "ws": "^8.21.0",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "typescript": "^5"
