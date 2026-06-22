@@ -2,16 +2,23 @@ Introduction:
   - This is a web app that has an API to publish posts to linkedin.
   - A new user login to the app using their google account.
   - After a successful login, the user can connect their LinkedIn account.
-  - After a successful connection, the user can download a JSON file with their API key which they can use from a command line tool to interact with the web app.
+  - The service has a web app and a local cli client:
+      - All the data is managed by the client and the web app serves as a UI and as a proxy to the LinkedIn API.
+      - the cli and web communicate via websockets.
+      - client manage the data in a claudein.yml file.
+      - the web only saves post_id, post_url (after the post is published) and post_date (when it was published).
+      - client can query the web app for all the history of published posts.
+      - client can send to the UI new posts, the UI then shows a preview of the post and lets the user edit, delete or publish it (if the user edit/delete the post the cli updates the local file).
+      - local file can be edited by user and external tools (e.g. claud code) directly, the cli will watch for changes and update the web app accordingly.
 
 TODO:
+  - design a .yml schema to store the data for posts (text, images, pdf and other media), write a matching zod schema to validate the data.
+  - design a client web protocol, the protocol must be as simple and as generic as possible:
+      - client can query for history.
+      - client can send new posts to the web app (for preview, edit, delete, or publish).
+      - web can send updates to the client.
+      - most/all fields in the yml schema should be optional and the schema must be extendible to allow for future fields without breaking the protocol.
+      - the protocol and schema must be type safe and implemented in a common package that can be used by both the client and the web app.
+      - start with a minimal schema (text and images), generate a simple claudein.yml file and implement the preview view in the Poster component.
+      - the Poster component list all new draft posts.
 Done:
-  - Use the logo.svg in the home page and also use it in the favicon.
-  - Implement the google login flow, after a successful login add the user to the database and set a signed cookie with the user id.
-  - replace the design of the app use a clean, claude.ai like design and combine the color scheme from claude.ai and LinkedIn.com
-  - I added an api_key column to the user table and removed the api table. Please fix the project accordantly. When user logged in for the first time generate a random  api key for them.
-    Currently the project is broken, fix all errors as well.
-    After this task the web app should -
-    - 1. Allow users to login and go to their dashboard.
-    - 2. Allow users to connect their linkedin account.
-    - 3. Allow users to download a JSON file with their API key.
