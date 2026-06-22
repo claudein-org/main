@@ -1,3 +1,4 @@
+import "@/css/panda.css"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
@@ -16,11 +17,11 @@ export const metadata: Metadata = {
   description: "Post to LinkedIn from claude code.",
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+interface Props {
   children: React.ReactNode
-}>) {
+}
+
+export default function layout({ children }: Props) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>{children}</body>

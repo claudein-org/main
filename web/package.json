@@ -3,17 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "panda codegen && next dev",
+    "build": "panda codegen && next build",
     "start": "next start",
-    "dev-https": "bun --bun next dev --turbopack --experimental-https",
+    "dev-https": "panda codegen && bun --bun next dev --turbopack --experimental-https",
     "lint": "eslint ."
   },
   "dependencies": {
     "@claudein.org/common": "workspace:*",
     "@types/cookie-signature": "^1.1.2",
     "@types/pg": "^8.20.0",
-    "@vanilla-extract/css": "^1.20.1",
     "cookie-signature": "^1.2.2",
     "ky": "^2.0.2",
     "kysely": "^0.29.2",
@@ -24,6 +23,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@pandacss/dev": "^1.11.3",
     "@types/bun": "^1.3.14",
     "@types/node": "^20",
     "@types/react": "^19",

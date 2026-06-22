@@ -99,6 +99,7 @@ export default async function page({ params }: Params) {
     redirect_uri: auth.getRedirectUri('linkedin'),
     scope: "w_member_social",
   })
+
   const linkedinUrl = `https://www.linkedin.com/oauth/v2/authorization?${linkedinParams}`
 
   return <main style={styles.main}>

@@ -11,6 +11,8 @@ export const links = {
         google: `/auth/google`,
         linkedin: `/auth/linkedin`,
     },
+    close: `/close`,
+    guide: `/guide`,
     post: {
         port: (port: number) => `/post/${port}`,
     },
