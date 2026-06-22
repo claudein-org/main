@@ -1,5 +1,7 @@
 import { defineGlobalStyles } from "@pandacss/dev"
 
+// TODO: form and input style goes here.
+
 /**
  * Global, semantic styles — applied to elements, never to classes.
  * Base element styling that should hold across the whole app. Reusable,

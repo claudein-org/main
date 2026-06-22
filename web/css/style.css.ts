@@ -1,10 +1,13 @@
 import { css, cva } from "../styled-system/css"
 
-/**
- * Style utility classes — color, typography, surfaces, buttons.
- * Layout/positioning concerns belong in layout.css.ts; base element styling
- * belongs in global.css.ts; design tokens live in panda.config.ts.
- */
+/* 
+TODO: make a minimal style.css.ts file that covers all aspects of style:
+- colors
+- typography
+- basic components (buttons, cards, etc.)
+
+*/
+
 
 /* Typography */
 export const font = {
@@ -26,11 +29,6 @@ export const color = {
   claude: css({ color: "claude" }),
   linkedin: css({ color: "linkedin" }),
 }
-export const muted = color.textSecondary
-export const claude = color.claude
-export const linkedin = color.linkedin
-/* Media */
-export const logo = css({ width: "min(300px, 20vw)", height: "auto" })
 
 /* Button */
 export const btn = cva({

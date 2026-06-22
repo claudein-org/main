@@ -15,7 +15,7 @@ Use Bun: `bun run dev` (dev), `bun run build`, `bun run start`. `bun run dev-htt
 Styling uses **Panda CSS** (build-time, zero-runtime). You may author styles in **only these three files** — never inline `style={{...}}`, never `.module.css`, never any other `.css`/`.css.ts`:
 
 - `css/global.css.ts` — semantic, element-level global styles via `defineGlobalStyles`. Applied to **elements** (`body`, `main`, `footer`, `a`, `h1`, `code`, …), never to classes. Imported by `panda.config.ts` as `globalCss`.
-- `css/layout.css.ts` — **layout** utility classes (flex, direction, alignment, gap, positioning) via `css()`.
+- `css/layout.css.ts` — **layout** utility classes via `css()`: `row`/`col` (flex direction), `align.{start,center,end}` (alignItems), `justify.{start,center,end,between}` (justifyContent), `gap.{xs,sm,md,lg,xl}`, `textAlign.center`, `w.full`, `grow`.
 - `css/style.css.ts` — **style** utility classes (color, typography, button) via `css()` / `cva()`.
 
 Rules:

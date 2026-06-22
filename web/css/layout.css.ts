@@ -1,20 +1,19 @@
 import { css } from "../styled-system/css"
 
-/**
- * Layout utility classes — flex direction, alignment, spacing, positioning.
- * Compose these on elements; keep visual/typographic concerns in style.css.ts.
- */
-
 export const row = css({ display: "flex", flexDirection: "row" })
 export const col = css({ display: "flex", flexDirection: "column" })
 
 export const align = {
     start: css({ alignItems: "flex-start" }),
     center: css({ alignItems: "center" }),
+    end: css({ alignItems: "flex-end" }),
 }
 
-export const textAlign = {
-    center: css({ textAlign: "center" }),
+export const justify = {
+    start: css({ justifyContent: "flex-start" }),
+    center: css({ justifyContent: "center" }),
+    end: css({ justifyContent: "flex-end" }),
+    between: css({ justifyContent: "space-between" }),
 }
 
 export const gap = {
@@ -22,5 +21,16 @@ export const gap = {
     sm: css({ gap: "1rem" }),
     md: css({ gap: "1.25rem" }),
     lg: css({ gap: "1.5rem" }),
+    xl: css({ gap: "2.5rem" }),
 }
+
+export const textAlign = {
+    center: css({ textAlign: "center" }),
+}
+
+export const w = {
+    full: css({ width: "100%" }),
+}
+
+export const grow = css({ flexGrow: 1 })
 
