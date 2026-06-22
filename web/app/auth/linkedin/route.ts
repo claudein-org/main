@@ -12,7 +12,7 @@ import z from 'zod'
 
 const Token = z.object({
   access_token: z.string(),
-  expires_in: z.number(),
+  expires_in: z.number().int(),
 })
 
 export async function GET(request: NextRequest) {
