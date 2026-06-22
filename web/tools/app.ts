@@ -1,7 +1,7 @@
 /*
  * Tool: auto-generates type-safe path links from the Next.js app directory.
  * Run: bun tools/app.ts
- * Output: lib/links.ts  (auto-generated — do not edit manually)
+ * Output: common/links.ts  (auto-generated — do not edit manually)
  *
  * To add a new dynamic segment [param], add it to `configure.params` below.
  * If the type is a custom import (not number/string/boolean), add `from`.
@@ -214,12 +214,12 @@ if (import.meta.main) {
     // @ts-ignore
     const appDir = join(import.meta.dir, '..', 'app')
     // @ts-ignore
-    const outFile = join(import.meta.dir, '..', '..', 'common', 'index.ts')
+    const outFile = join(import.meta.dir, '..', '..', 'common', 'links.ts')
 
     try {
         const code = generateLinks(appDir)
         writeFileSync(outFile, code)
-        console.log(`✓ Generated lib/links.ts`)
+        console.log(`✓ Generated common/links.ts`)
     } catch (e) {
         console.error(`✗ ${(e as Error).message}`)
         process.exit(1)

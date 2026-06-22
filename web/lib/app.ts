@@ -1,6 +1,6 @@
+import { links } from "@claudein.org/common"
 import { auth } from "./auth"
 import { env } from "./env"
-import { links } from "./links"
 
 const DOMAIN = 'claudein.org'
 
