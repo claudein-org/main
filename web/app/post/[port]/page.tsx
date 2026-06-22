@@ -1,8 +1,8 @@
+import LoginPage from "@/component/LoginPage"
 import WS from "@/component/WS"
 import { app } from "@/lib/app"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
-import assert from "assert"
 import z from "zod"
 
 
@@ -18,7 +18,7 @@ export default async function page({ params }: Params) {
   const { port } = Params.parse(await params)
   const { user_id } = await cook.get()
 
-  assert(user_id, 'User not authenticated')
+  if (!user_id) return <LoginPage />
 
   const linkedin = await db
     .selectFrom('linkedin')

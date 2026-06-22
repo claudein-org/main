@@ -16,23 +16,24 @@ const dialect = new PostgresDialect({
     }),
 })
 
-interface UsersTable {
-    user_id: Generated<number>
-    email: string
-    api_key: string
+namespace db {
+    interface Users {
+        user_id: Generated<number>
+        email: string
+    }
+
+    interface Linkedin {
+        user_id: number
+        token: string
+    }
+
+    export interface DB {
+        users: Users
+        linkedin: Linkedin
+    }
 }
 
-interface LinkedinTable {
-    user_id: number
-    token: string
-}
-
-interface DB {
-    users: UsersTable
-    linkedin: LinkedinTable
-}
-
-export const db = new Kysely<DB>({ dialect })
+export const db = new Kysely<db.DB>({ dialect })
 
 
 if (import.meta.main) {

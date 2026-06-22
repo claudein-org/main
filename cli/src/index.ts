@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { AddressInfo, WebSocketServer } from 'ws'
 
+import { links } from '@claudein.org/common'
 import { cli, command } from '@versecafe/zcli'
 import open from 'open'
-import { links } from '@claudein.org/common'
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
