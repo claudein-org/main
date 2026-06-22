@@ -6,5 +6,8 @@
     "common",
     "cli",
     "web"
-  ]
+  ],
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
 }
