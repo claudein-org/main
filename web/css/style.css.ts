@@ -1,17 +1,15 @@
 import { css, cva } from "../styled-system/css"
 
-/* 
-TODO: make a minimal style.css.ts file that covers all aspects of style:
-- colors
-- typography
-- basic components (buttons, cards, etc.)
-
-*/
-
+/**
+ * Style utility classes — color, typography, surfaces, buttons.
+ * Layout/positioning concerns belong in layout.css.ts; base element styling
+ * belongs in global.css.ts; design tokens live in panda.config.ts.
+ */
 
 /* Typography */
 export const font = {
   size: {
+    sm: css({ fontSize: "0.8125rem" }),
     base: css({ fontSize: "0.9375rem" }),
     lg: css({ fontSize: "1.0625rem" }),
   },
@@ -22,13 +20,23 @@ export const font = {
   },
 }
 
+export const tracking = {
+  sm: css({ letterSpacing: "-0.01em" }),
+  tight: css({ letterSpacing: "-0.04em" }),
+}
+
 /* Color */
 export const color = {
   text: css({ color: "text" }),
-  textSecondary: css({ color: "textSecondary" }),
+  muted: css({ color: "textSecondary" }),
   claude: css({ color: "claude" }),
   linkedin: css({ color: "linkedin" }),
 }
+
+export const muted = color.muted
+
+/* Media */
+export const logo = css({ width: "min(300px, 20vw)", height: "auto" })
 
 /* Button */
 export const btn = cva({

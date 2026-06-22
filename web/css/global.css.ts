@@ -1,7 +1,5 @@
 import { defineGlobalStyles } from "@pandacss/dev"
 
-// TODO: form and input style goes here.
-
 /**
  * Global, semantic styles — applied to elements, never to classes.
  * Base element styling that should hold across the whole app. Reusable,
@@ -50,5 +48,30 @@ export const globalCss = defineGlobalStyles({
   },
   "footer a:hover": {
     textDecoration: "underline",
+  },
+  // Form elements — reset and minimal base styling.
+  "input, textarea, select": {
+    fontFamily: "sans",
+    fontSize: "0.9375rem",
+    color: "text",
+    background: "transparent",
+    border: "1px solid #d4d4d4",
+    borderRadius: "8px",
+    padding: "0.5rem 0.75rem",
+    outline: "none",
+    width: "100%",
+    boxSizing: "border-box",
+  },
+  "input:focus, textarea:focus, select:focus": {
+    borderColor: "text",
+  },
+  label: {
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    color: "text",
+  },
+  button: {
+    cursor: "pointer",
+    fontFamily: "sans",
   },
 })
