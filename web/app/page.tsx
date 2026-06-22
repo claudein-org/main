@@ -1,3 +1,6 @@
+import { btn } from "@/css/style.css"
+import { app } from "@/lib/app"
+import { cx } from "@/styled-system/css"
 import Image from "next/image"
 
 
@@ -16,7 +19,7 @@ export default async function page() {
       <div>
         <h1>ClaudeIn</h1>
         <p>a claude code plugin that lets you post to linkedin.</p>
-        <a>Start Posting</a>
+        <a className={cx(btn({ color: "claude" }))} href={app.guide}>Start Posting</a>
       </div>
     </div>
 
