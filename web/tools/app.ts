@@ -1,3 +1,5 @@
+// TODO: generate the links into a common code so both web and cli can use it.
+
 /*
  * Tool: auto-generates type-safe path links from the Next.js app directory.
  * Run: bun tools/app.ts
