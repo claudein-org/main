@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import { GOOGLE_CLIENT_ID } from '@/lib/settings'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
       grant_type: 'authorization_code',
       code: code!,
       redirect_uri: redirectUri,
-      client_id: env.GOOGLE_CLIENT_ID,
+      client_id: GOOGLE_CLIENT_ID,
       client_secret: env.GOOGLE_CLIENT_SECRET,
     }),
   })

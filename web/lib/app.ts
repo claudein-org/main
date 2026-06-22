@@ -1,19 +1,19 @@
 import { links } from "@claudein.org/common"
 import { auth } from "./auth"
-import { env } from "./env"
+import { GOOGLE_CLIENT_ID, LINKEDIN_CLIENT_ID } from "./settings"
 
 const DOMAIN = 'claudein.org'
 
 const googleParams = new URLSearchParams({
     response_type: "code",
-    client_id: env.GOOGLE_CLIENT_ID,
+    client_id: GOOGLE_CLIENT_ID,
     redirect_uri: auth.getRedirectUri('google'),
     scope: "openid email",
 })
 
 const linkedinParams = new URLSearchParams({
     response_type: "code",
-    client_id: env.CLIENT_ID,
+    client_id: LINKEDIN_CLIENT_ID,
     redirect_uri: auth.getRedirectUri('linkedin'),
     scope: "w_member_social",
 })

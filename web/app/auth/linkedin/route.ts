@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
+import { LINKEDIN_CLIENT_ID } from '@/lib/settings'
 import assert from 'assert'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
       grant_type: 'authorization_code',
       code: code!,
       redirect_uri: redirectUri,
-      client_id: env.CLIENT_ID,
+      client_id: LINKEDIN_CLIENT_ID,
       client_secret: env.CLIENT_SECRET,
     }),
   })

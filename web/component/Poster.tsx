@@ -11,9 +11,10 @@ const ONE_HOUR_MS = 60 * 60 * 1000
 interface Props {
     port: number
     expires_at: number | undefined
+
 }
 
-export default function Poster({ expires_at }: Props) {
+export default function Poster({ port, expires_at }: Props) {
     const [now, setNow] = useState(() => Date.now())
 
     useEffect(() => {
