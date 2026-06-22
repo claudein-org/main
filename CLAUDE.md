@@ -68,6 +68,5 @@ Required vars:
 
 ## In-progress / known gaps
 
-- **LinkedIn callback** (`app/auth/linkedin/route.ts`) is not yet complete — it exchanges the code but doesn't write to the DB or issue an `api_key`
+- **LinkedIn callback** (`app/auth/linkedin/route.ts`) is not yet complete — it exchanges the code but doesn't write the token to the DB
 - **CLI** opens `https://claudein.org/auth/login`, but that route doesn't exist yet in the web app
-- **Token download** in `/api/token` reads an `api_key` cookie, but the landing page shows the download button based on `users.api_key` from the DB — these two paths need to be reconciled

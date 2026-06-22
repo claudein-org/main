@@ -4,3 +4,5 @@ certificates
 .env
 .next
 .vscode
+
+migration.sql
