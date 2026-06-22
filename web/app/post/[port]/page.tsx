@@ -1,8 +1,10 @@
 import LoginPage from "@/component/LoginPage"
 import WS from "@/component/WS"
+import { btn } from "@/css/style.css"
 import { app } from "@/lib/app"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
+import { cx } from "@/styled-system/css"
 import z from "zod"
 
 
@@ -20,13 +22,12 @@ export default async function page({ params }: Params) {
 
   if (!user_id) return <LoginPage />
 
-  const linkedin = await db
+  const connected = await db
     .selectFrom('linkedin')
     .select('user_id')
     .where('user_id', '=', user_id)
     .executeTakeFirst()
-
-  const connected = Boolean(linkedin)
+    .then(res => Boolean(res))
 
   return <main>
     <div>
@@ -43,12 +44,12 @@ export default async function page({ params }: Params) {
         <p>
           <span>✓</span> your linkedin account is connected.
         </p>
-        <a className="btn" href="/api/token">
-          download token
-        </a>
       </div>
 
-      : <a className="btn" target="_blank" href={app.linkedin}>
+      : <a
+        className={cx(btn({ color: 'dark' }))}
+        target="_blank"
+        href={app.linkedin}>
         connect linkedin
       </a>
     }

@@ -1,6 +1,6 @@
+import { app } from '@/lib/app'
 import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
-import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import assert from 'assert'
 import ky from 'ky'
@@ -39,13 +39,15 @@ export async function GET(request: NextRequest) {
     }),
   })
 
-  const { access_token: token } = Token.parse(await res.json())
+  const data = await res.json()
+  console.dir(data, { depth: null })
+  const { access_token: token } = Token.parse(data)
 
-  await db
-    .insertInto('linkedin')
-    .values({ user_id, token })
-    .onConflict((oc) => oc.column('user_id').doUpdateSet({ token }))
-    .execute()
+  // await db
+  //   .insertInto('linkedin')
+  //   .values({ user_id, token })
+  //   .onConflict((oc) => oc.column('user_id').doUpdateSet({ token }))
+  //   .execute()
 
-  redirect('/dash')
+  redirect(app.close)
 }

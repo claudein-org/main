@@ -50,8 +50,8 @@ export async function GET(request: NextRequest) {
 
   await db
     .insertInto('users')
-    .ignore()
     .values({ email })
+    .onConflict(oc => oc.doNothing())
     .execute()
 
   const { user_id } = await db
