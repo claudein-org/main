@@ -20,11 +20,6 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = request.nextUrl
   const code = searchParams.get('code')
-  const error = searchParams.get('error')
-
-  if (error || !code) {
-    redirect('/dash?error=linkedin_failed')
-  }
 
   const redirectUri = auth.getRedirectUri('linkedin')
 

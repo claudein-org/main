@@ -19,7 +19,7 @@ export namespace cook {
             store.set(key, sign(String(value), env.COOKIE_SECRET), {
                 httpOnly: true,
                 secure: true,
-                sameSite: "strict",
+                sameSite: "lax",
             })
         }
     }
