@@ -30,14 +30,7 @@ export default async function page({ params }: Params) {
     .then(res => Boolean(res))
 
   return <main>
-    <div>
-      <h1>
-        <span>claude</span>
-        <span>in</span>
-      </h1>
-      <p>your dashboard</p>
-      <WS port={port} />
-    </div>
+    {connected && <WS port={port} />}
 
     {connected
       ? <div>

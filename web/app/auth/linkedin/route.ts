@@ -1,6 +1,7 @@
 import { app } from '@/lib/app'
 import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
+import { db } from '@/lib/db'
 import { env } from '@/lib/env'
 import assert from 'assert'
 import ky from 'ky'
@@ -10,6 +11,7 @@ import z from 'zod'
 
 const Token = z.object({
   access_token: z.string(),
+  expires_in: z.number(),
 })
 
 export async function GET(request: NextRequest) {
@@ -35,14 +37,13 @@ export async function GET(request: NextRequest) {
   })
 
   const data = await res.json()
-  console.dir(data, { depth: null })
-  const { access_token: token } = Token.parse(data)
+  const { access_token, expires_in } = Token.parse(data)
 
-  // await db
-  //   .insertInto('linkedin')
-  //   .values({ user_id, token })
-  //   .onConflict((oc) => oc.column('user_id').doUpdateSet({ token }))
-  //   .execute()
+  await db
+    .insertInto('linkedin')
+    .values({ user_id, access_token, expires_in })
+    .onConflict((oc) => oc.column('user_id').doUpdateSet({ access_token, expires_in }))
+    .execute()
 
   redirect(app.close)
 }
