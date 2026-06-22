@@ -1,3 +1,4 @@
+import { createHash } from "crypto"
 import z from "zod"
 
 const Image = z.object({
@@ -15,6 +16,7 @@ export const Claudin = z.object({
     posts: z.array(Post)
 })
 
-export function hash(post: Post) {
-    // TODO: fast hash on the entire post, extract the first bigint, hash is for collision detection, not for security.
+export function hash(post: Post): bigint {
+    const digest = createHash("sha256").update(JSON.stringify(post)).digest()
+    return digest.readBigUInt64BE(0)
 }
