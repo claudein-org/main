@@ -19,11 +19,8 @@ properties:
             properties:
               src:
                 type: string
-              base64:
-                type: string
             required:
               - src
-              - base64
             additionalProperties: false
       required:
         - date

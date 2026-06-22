@@ -5,7 +5,6 @@ import z from "zod"
 
 const Image = z.object({
     src: z.string(),
-    base64: z.string()
 })
 
 export type Post = z.infer<typeof Post>
