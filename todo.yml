@@ -12,8 +12,7 @@ Introduction:
       - local file can be edited by user and external tools (e.g. claud code) directly, the cli will watch for changes and update the web app accordingly.
 
 TODO:
-  - design a .yml schema to store the data for posts (text, images, pdf and other media), write a matching zod schema to validate the data.
-  - design a client web protocol, the protocol must be as simple and as generic as possible:
+  - design a claudein.yml schema and  a client web protocol, the protocol must be as simple and as generic as possible:
       - client can query for history.
       - client can send new posts to the web app (for preview, edit, delete, or publish).
       - web can send updates to the client.
