@@ -1,11 +1,12 @@
+import { app } from '@/lib/app'
 import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
-import { randomBytes } from 'node:crypto'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
 import type { NextRequest } from 'next/server'
+import { randomBytes } from 'node:crypto'
 import z from 'zod'
 
 
@@ -67,5 +68,5 @@ export async function GET(request: NextRequest) {
     user_id,
   })
 
-  redirect('/dash')
+  redirect(app.close)
 }

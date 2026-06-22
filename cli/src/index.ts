@@ -3,10 +3,12 @@ import { AddressInfo, WebSocketServer } from 'ws'
 
 import { cli, command } from '@versecafe/zcli'
 import open from 'open'
+import { links } from '@claudein.org/common'
+
+const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
 const start = command('start')
   .action(async ({ }) => {
-    const DEV = process.env.CIN_ENV === 'dev'
     const wss = new WebSocketServer({ port: 0 })
 
     wss.on('connection', (ws) => {
@@ -15,11 +17,7 @@ const start = command('start')
     })
 
     const { port } = wss.address() as AddressInfo
-    const host = DEV
-      ? `localhost:3000`
-      : 'claudein.org'
-
-    open(`https://${host}/dash/${port}`)
+    open(`https://${DOMAIN}${links.post.port(port)}`)
   })
 
 cli('cin').use(start).run()

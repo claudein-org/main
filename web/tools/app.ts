@@ -1,5 +1,3 @@
-// TODO: generate the links into a common code so both web and cli can use it.
-
 /*
  * Tool: auto-generates type-safe path links from the Next.js app directory.
  * Run: bun tools/app.ts
@@ -216,7 +214,7 @@ if (import.meta.main) {
     // @ts-ignore
     const appDir = join(import.meta.dir, '..', 'app')
     // @ts-ignore
-    const outFile = join(import.meta.dir, '..', 'lib', 'links.ts')
+    const outFile = join(import.meta.dir, '..', '..', 'common', 'index.ts')
 
     try {
         const code = generateLinks(appDir)

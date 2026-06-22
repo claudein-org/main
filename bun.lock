@@ -12,6 +12,7 @@
         "claudein": "./dist/index.js",
       },
       "dependencies": {
+        "@claudein.org/common": "workspace:*",
         "@types/ws": "^8.18.1",
         "@versecafe/zcli": "^0.1.2",
         "open": "^10.1.0",
