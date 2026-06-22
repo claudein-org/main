@@ -1,7 +1,7 @@
 import { createHash } from "crypto"
 import { writeFile } from "fs/promises"
+import { stringify } from 'yaml'
 import z from "zod"
-import { zodToJsonSchema } from "zod-to-json-schema"
 
 const Image = z.object({
     src: z.string(),
@@ -10,7 +10,7 @@ const Image = z.object({
 
 export type Post = z.infer<typeof Post>
 const Post = z.object({
-    date: z.coerce.date(),
+    date: z.iso.datetime(),
     text: z.string().optional(),
     images: z.array(Image).optional(),
 })
@@ -25,6 +25,6 @@ export function hash(post: Post): bigint {
 }
 
 if (import.meta.main) {
-    // TODO: export schema
-    await writeFile('claudein.schema.json', zodToJsonSchema(Claudin, 'ClaudinSchema'))
+    const schema = Claudin.toJSONSchema()
+    await writeFile('claudein.schema.yml', stringify(schema))
 }
