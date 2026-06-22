@@ -1,10 +1,7 @@
 import LoginPage from "@/component/LoginPage"
-import WS from "@/component/WS"
-import { btn } from "@/css/style.css"
-import { app } from "@/lib/app"
+import Poster from "@/component/Poster"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
-import { cx } from "@/styled-system/css"
 import z from "zod"
 
 
@@ -22,33 +19,16 @@ export default async function page({ params }: Params) {
 
   if (!user_id) return <LoginPage />
 
-  const connected = await db
+  const expires_at = await db
     .selectFrom('linkedin')
-    .select('user_id')
+    .select(['expires_at'])
     .where('user_id', '=', user_id)
     .executeTakeFirst()
-    .then(res => Boolean(res))
+    .then((res) => res?.expires_at)
 
   return <main>
-    {connected && <WS port={port} />}
-
-    {connected
-      ? <div>
-        <p>
-          <span>✓</span> your linkedin account is connected.
-        </p>
-      </div>
-
-      : <a
-        className={cx(btn({ color: 'dark' }))}
-        target="_blank"
-        href={app.linkedin}>
-        connect linkedin
-      </a>
-    }
-
-    <footer>
-      <a className="footer-link" href="/privacy.txt">privacy</a>
-    </footer>
+    <Poster
+      port={port}
+      expires_at={expires_at} />
   </main>
 }

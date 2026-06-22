@@ -25,7 +25,7 @@ namespace db {
     interface Linkedin {
         user_id: number
         access_token: string
-        expires_in: number
+        expires_at: number
     }
 
     export interface DB {

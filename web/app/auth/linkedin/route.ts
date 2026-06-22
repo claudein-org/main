@@ -38,11 +38,12 @@ export async function GET(request: NextRequest) {
 
   const data = await res.json()
   const { access_token, expires_in } = Token.parse(data)
+  const expires_at = Math.floor(Date.now() / 1000) + expires_in
 
   await db
     .insertInto('linkedin')
-    .values({ user_id, access_token, expires_in })
-    .onConflict((oc) => oc.column('user_id').doUpdateSet({ access_token, expires_in }))
+    .values({ user_id, access_token, expires_at })
+    .onConflict((oc) => oc.column('user_id').doUpdateSet({ access_token, expires_at }))
     .execute()
 
   redirect(app.close)
