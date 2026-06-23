@@ -35,3 +35,15 @@ export const w = {
 
 export const grow = css({ flexGrow: 1 })
 
+export const pageCentered = css({
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    flexGrow: 1,
+    gap: "2.5rem",
+    padding: "2rem",
+})
+
+export const wrap = css({ flexWrap: "wrap" })
+

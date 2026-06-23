@@ -12,6 +12,7 @@ export const font = {
     sm: css({ fontSize: "0.8125rem" }),
     base: css({ fontSize: "0.9375rem" }),
     lg: css({ fontSize: "1.0625rem" }),
+    xl: css({ fontSize: "2rem", lineHeight: "1.1" }),
     hero: css({ fontSize: "3.5rem", lineHeight: 1.05 }),
   },
   weight: {
@@ -75,6 +76,94 @@ export const avatar = css({
   background: "#c0c0c0",
   flexShrink: 0,
 })
+
+/* Navigation */
+export const navInner = css({
+  maxWidth: "1128px",
+  width: "100%",
+  margin: "0 auto",
+  padding: "0 2rem",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  height: "52px",
+})
+
+/* Home hero */
+export const heroSection = css({
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: "3rem",
+  padding: "5rem 2rem",
+  maxWidth: "1128px",
+  margin: "0 auto",
+  width: "100%",
+})
+
+export const heroLeft = css({
+  flex: "1 1 360px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1.75rem",
+})
+
+export const heroRight = css({
+  flex: "1 1 300px",
+})
+
+/* Alternate-background section (LinkedIn #F3F2EF) */
+export const altSection = css({
+  background: "#F3F2EF",
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "2.5rem",
+  padding: "4rem 2rem 6rem",
+})
+
+/* Terminal widget */
+export const terminal = css({
+  background: "#1B1F24",
+  borderRadius: "12px",
+  overflow: "hidden",
+  width: "100%",
+  fontFamily: "mono",
+  fontSize: "0.875rem",
+  boxShadow: "0 4px 32px rgba(0,0,0,0.15)",
+})
+
+export const terminalHeader = css({
+  background: "#2D333B",
+  padding: "0.75rem 1rem",
+  display: "flex",
+  gap: "6px",
+  alignItems: "center",
+})
+
+export const terminalBody = css({
+  padding: "1.25rem 1.5rem",
+  color: "#CDD9E5",
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.625rem",
+  lineHeight: "1.7",
+})
+
+export const terminalSuccess = css({ color: "#57AB5A" })
+
+export const terminalDot = css({
+  width: "12px",
+  height: "12px",
+  borderRadius: "50%",
+  flexShrink: 0,
+})
+
+export const terminalDotRed = css({ background: "#F47067" })
+export const terminalDotYellow = css({ background: "#DAAA3F" })
+export const terminalDotGreen = css({ background: "#57AB5A" })
 
 /* Button */
 export const btn = cva({

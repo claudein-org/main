@@ -16,7 +16,7 @@ export const globalCss = defineGlobalStyles({
     color: "text",
     background: "#ffffff",
   },
-  "h1, p": {
+  "h1, h2, h3, p": {
     margin: 0,
   },
   code: {
@@ -30,15 +30,20 @@ export const globalCss = defineGlobalStyles({
     color: "inherit",
     textDecoration: "none",
   },
-  // The page shell: every route is a centered, full-height column.
   main: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
     minHeight: "100vh",
-    gap: "2.5rem",
-    padding: "2rem",
+  },
+  nav: {
+    position: "sticky",
+    top: 0,
+    background: "#ffffff",
+    borderBottom: "1px solid #E0DDD8",
+    zIndex: 10,
+  },
+  "nav a:hover": {
+    color: "text",
   },
   // The fixed footer (privacy link) is the same on every page.
   footer: {

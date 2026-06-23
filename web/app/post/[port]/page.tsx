@@ -1,5 +1,6 @@
 import LoginPage from "@/component/LoginPage"
 import Poster from "@/component/Poster"
+import { pageCentered } from "@/css/layout.css"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import z from "zod"
@@ -34,9 +35,11 @@ export default async function page({ params }: Params) {
     .then((res) => Object.fromEntries(res.map(({ post_id, post_urn }) => [post_id, post_urn])))
 
   return <main>
-    <Poster
-      port={port}
-      expires_at={expires_at}
-      published={published} />
+    <div className={pageCentered}>
+      <Poster
+        port={port}
+        expires_at={expires_at}
+        published={published} />
+    </div>
   </main>
 }
