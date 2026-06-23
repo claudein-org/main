@@ -30,9 +30,9 @@ jobs:
           node -e "
             const fs = require('fs');
             const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            const parts = pkg.version.split('.');
-            parts[2] = String(parseInt(parts[2]) + 1);
-            pkg.version = parts.join('.');
+            const match = pkg.version.match(/^(\d+)\.(\d+)\.(\d+)$/);
+            if (!match) throw new Error('Unexpected version format: ' + pkg.version);
+            pkg.version = match[1] + '.' + match[2] + '.' + (parseInt(match[3]) + 1);
             fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
             console.log('v' + pkg.version);
           "
