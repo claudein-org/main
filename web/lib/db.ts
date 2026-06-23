@@ -30,9 +30,9 @@ namespace db {
     }
 
     interface Posts {
+        post_date: Generated<Date>
         user_id: number
         post_id: number
-        post_date: Generated<Date>
         post_urn: string
     }
 

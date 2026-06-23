@@ -22,5 +22,14 @@ export async function post(raw: proto.Post) {
 
     assert(expires_at > Date.now() / 1000 + MIN_MS, 'Linkedin access token expired')
 
-    return await linkedin.post({ access_token, author_urn }, post)
+    const { urn } = await linkedin.post({ access_token, author_urn }, post)
+
+    if (!urn) return
+
+    await db
+        .insertInto('posts')
+        .values({ post_urn: urn, user_id, post_id: post.post_id })
+        .execute()
+
+    return { urn }
 }

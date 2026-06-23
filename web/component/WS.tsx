@@ -30,8 +30,9 @@ export default function WS({ port, published }: Props) {
     async function handlePost(p: proto.Post) {
         setPosting(prev => ({ ...prev, [p.post_id]: true }))
         try {
-            const { urn } = await post(p)
-            setLinks(prev => ({ ...prev, [p.post_id]: `https://www.linkedin.com/feed/update/${urn}` }))
+            const res = await post(p)
+            if (!res) return
+            setLinks(prev => ({ ...prev, [p.post_id]: `https://www.linkedin.com/feed/update/${res.urn}` }))
         } finally {
             setPosting(prev => ({ ...prev, [p.post_id]: false }))
         }
