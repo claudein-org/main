@@ -2,7 +2,7 @@ import { readFile, writeFile } from "fs/promises"
 import { stringify } from 'yaml'
 import z from "zod"
 
-namespace yml {
+export namespace yml {
     export type Image = z.infer<typeof Image>
     export const Image = z.object({
         src: z.string(),
@@ -22,7 +22,7 @@ namespace yml {
     })
 }
 
-namespace ws {
+export namespace ws {
     type Image = z.infer<typeof Image>
     const Image = yml.Image.extend({
         base64: z.string(),

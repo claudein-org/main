@@ -2,18 +2,36 @@
 import { AddressInfo, WebSocketServer } from 'ws'
 
 import { links } from '@claudein.org/common'
-import { cli, command } from '@versecafe/zcli'
+import { ws, yml } from '@claudein.org/common/'
+import { cli, command, positional } from '@versecafe/zcli'
+import { readFile } from 'fs/promises'
 import open from 'open'
+import { parse } from 'yaml'
+import z from 'zod'
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
 const start = command('start')
-  .action(async ({ }) => {
+
+  .meta({
+    description: 'Start the client server and open a preview of a posts .yml file in the browser',
+    examples: ['cin start my-posts.yml'],
+  })
+
+  .inputs({
+    file: positional(z.string().describe('Path to a .yml posts file'), 0),
+  })
+
+  .action(async ({ inputs: { file } }) => {
+    const data = await readFile(file, 'utf-8')
+    const posts = yml.Posts.parse(parse(data))
+    const wsPosts = await ws.ps2ps(posts)
+
     const wss = new WebSocketServer({ port: 0 })
 
     wss.on('connection', (ws) => {
       console.log('Client connected')
-      ws.send(JSON.stringify({ message: 'Hello from the WebSocket server!' }))
+      ws.send(JSON.stringify(wsPosts))
     })
 
     const { port } = wss.address() as AddressInfo
