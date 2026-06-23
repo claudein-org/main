@@ -12,7 +12,7 @@ databases:
     production: true
 
 domains:
-  - domain: claudin.org
+  - domain: claudein.org
     type: PRIMARY
 
 features:
