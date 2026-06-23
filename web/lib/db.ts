@@ -33,7 +33,7 @@ namespace db {
         user_id: number
         post_id: number
         post_date: Generated<Date>
-        link: string
+        post_urn: string
     }
 
     export interface DB {
