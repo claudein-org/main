@@ -65,8 +65,9 @@ function buildTree(appDir: string): { root: Map<string, Node>; rootIsLeaf: boole
 
         let cur = root
         for (let i = 0; i < segs.length; i++) {
-            if (!cur.has(segs[i])) cur.set(segs[i], makeNode(segs[i]))
-            const n = cur.get(segs[i])!
+            const seg = segs[i]!
+            if (!cur.has(seg)) cur.set(seg, makeNode(seg))
+            const n = cur.get(seg)!
             if (i === segs.length - 1) n.isLeaf = true
             cur = n.children
         }
@@ -127,7 +128,7 @@ function genValue(
 ): string {
     if (n.isDynamic) {
         const p = n.param!
-        const type = configure.params[p].type
+        const type = configure.params[p]!.type
         const newVar = `$${p}`
         const fullPath = tpl(pathVar, suffix, `/\${${p}}`)
 

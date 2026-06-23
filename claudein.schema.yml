@@ -4,30 +4,61 @@ properties:
   posts:
     type: array
     items:
-      type: object
-      properties:
-        post_id:
-          type: integer
-          minimum: -9007199254740991
-          maximum: 9007199254740991
-        date:
-          type: string
-          format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-        text:
-          type: string
-        image:
-          type: object
+      oneOf:
+        - type: object
           properties:
-            src:
+            created:
+              type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            post_id:
+              type: integer
+              minimum: -9007199254740991
+              maximum: 9007199254740991
+            type:
+              type: string
+              const: text
+            text:
               type: string
           required:
-            - src
+            - created
+            - post_id
+            - type
+            - text
           additionalProperties: false
-      required:
-        - post_id
-        - date
-      additionalProperties: false
+        - type: object
+          properties:
+            created:
+              type: string
+              format: date-time
+              pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            post_id:
+              type: integer
+              minimum: -9007199254740991
+              maximum: 9007199254740991
+            type:
+              type: string
+              const: image
+            text:
+              type: string
+            image:
+              type: object
+              properties:
+                src:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+              required:
+                - src
+              additionalProperties: false
+          required:
+            - created
+            - post_id
+            - type
+            - image
+          additionalProperties: false
 required:
   - posts
 additionalProperties: false

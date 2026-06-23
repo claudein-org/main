@@ -11,19 +11,10 @@ import z from 'zod'
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
-async function i2i(image: yml.Image): Promise<ws.Image> {
-  const data = await readFile(image.src)
-  return {
-    ...image,
-    base64: data.toString('base64'),
-  }
-}
-
 async function p2p(post: yml.Post): Promise<ws.Post> {
-  return {
-    ...post,
-    image: post.image ? await i2i(post.image) : undefined,
-  }
+  if (post.type !== 'image') return post
+  const data = await readFile(post.image.src)
+  return { ...post, image: { ...post.image, base64: data.toString('base64') } }
 }
 
 export async function ps2ps({ posts }: yml.Posts): Promise<ws.Payload> {

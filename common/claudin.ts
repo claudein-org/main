@@ -26,17 +26,22 @@ export namespace yml {
 
     export type Post = z.infer<typeof Post>
     export const Post = z.discriminatedUnion('type', [PostText, PostImage])
+
+    export type Posts = z.infer<typeof Posts>
+    export const Posts = z.object({ posts: z.array(Post) })
 }
 
 export namespace proto {
-    const PostImage = yml.PostImage.extend({
+    const PostImageSchema = yml.PostImage.extend({
         image: yml.Image.extend({
             base64: z.string(),
         })
     })
 
+    export type Image = yml.Image & { base64: string }
+
     export type Post = z.infer<typeof Post>
-    const Post = z.discriminatedUnion('type', [yml.PostText, PostImage])
+    export const Post = z.discriminatedUnion('type', [yml.PostText, PostImageSchema])
 
     export type Payload = z.infer<typeof Payload>
     export const Payload = z.object({

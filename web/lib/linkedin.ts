@@ -172,7 +172,7 @@ export namespace linkedin {
         }
 
         function handle<T extends proto.Post['type']>(post: Extract<proto.Post, { type: T }>) {
-            return postHandler[post.type](post)
+            return postHandler[post.type]!(post)
         }
 
         return await handle(post)

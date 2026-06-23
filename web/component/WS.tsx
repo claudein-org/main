@@ -39,7 +39,8 @@ export default function WS({ port, published }: Props) {
 
     return <div className={cx(col, gap.lg)}>
         {payload?.posts.map((p) => {
-            const { post_id, date, text, image } = p
+            const { post_id, created, text } = p
+            const image = p.type === 'image' ? p.image : undefined
             const link = links[post_id]
             const isPosting = posting[post_id]
             return (
@@ -49,7 +50,7 @@ export default function WS({ port, published }: Props) {
                         <div className={cx(col, gap.xs)}>
                             <span className={font.weight.medium}>LinkedIn User</span>
                             <span className={cx(muted, font.size.sm)}>
-                                {new Date(date).toLocaleDateString()}
+                                {new Date(created).toLocaleDateString()}
                             </span>
                         </div>
                     </div>
