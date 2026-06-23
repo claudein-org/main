@@ -6,6 +6,10 @@ properties:
     items:
       type: object
       properties:
+        post_id:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
         date:
           type: string
           format: date-time
@@ -23,6 +27,7 @@ properties:
               - src
             additionalProperties: false
       required:
+        - post_id
         - date
       additionalProperties: false
 required:

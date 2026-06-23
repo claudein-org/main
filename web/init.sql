@@ -11,7 +11,8 @@ create table if not exists linkedin (
 
 create table if not exists posts (
   user_id int references users(user_id) on delete cascade,
-  post_id bigint not null,
+  post_id int not null,
+  
   -- APP level enum (linkedin, x, etc, currently only linkedin)
   app int not null,
 
