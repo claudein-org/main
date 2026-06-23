@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +21,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: oven-sh/setup-bun@v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: bun install
@@ -42,6 +48,6 @@ jobs:
 
       - name: Publish to npm
         working-directory: cli
-        run: bun publish --access public
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          jq 'del(.devDependencies["@claudein.org/common"])' package.json > package.tmp.json && mv package.tmp.json package.json
+          npm publish --provenance --access public

@@ -15,7 +15,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@claudein.org/common": "workspace:*",
     "@types/ws": "^8.18.1",
     "@versecafe/zcli": "^0.1.2",
     "open": "^10.1.0",
@@ -26,6 +25,7 @@
     "typescript": "^5"
   },
   "devDependencies": {
+    "@claudein.org/common": "workspace:*",
     "@types/bun": "^1.3.14",
     "@types/node": "^20",
     "eslint": "^9",
