@@ -1,12 +1,8 @@
-import { btn } from "@/css/style.css"
-import { app } from "@/lib/app"
-import { cx } from "@/styled-system/css"
 import Image from "next/image"
 
-
+const GITHUB_URL = "https://github.com/claudein-org/main"
 
 export default async function page() {
-
   return <main>
     <div>
       <Image
@@ -18,14 +14,17 @@ export default async function page() {
       />
       <div>
         <h1>ClaudeIn</h1>
-        <p>a claude code plugin that lets you post to linkedin.</p>
-        <a className={cx(btn({ color: "claude" }))} href={app.guide}>Start Posting</a>
+        <p>Coming Soon</p>
+        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+          <Image
+            src={`https://img.shields.io/github/stars/claudein-org/main?style=social`}
+            alt="GitHub Stars"
+            width={90}
+            height={20}
+            unoptimized
+          />
+        </a>
       </div>
     </div>
-
-
-    <footer>
-      <a href="/privacy.txt">privacy</a>
-    </footer>
   </main>
 }

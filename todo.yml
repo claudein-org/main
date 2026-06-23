@@ -12,12 +12,16 @@ Introduction:
       - local file can be edited by user and external tools (e.g. claud code) directly, the cli will watch for changes and update the web app accordingly.
 
 TODO:
-  - design a claudein.yml schema and  a client web protocol, the protocol must be as simple and as generic as possible:
-      - client can query for history.
-      - client can send new posts to the web app (for preview, edit, delete, or publish).
-      - web can send updates to the client.
-      - most/all fields in the yml schema should be optional and the schema must be extendible to allow for future fields without breaking the protocol.
-      - the protocol and schema must be type safe and implemented in a common package that can be used by both the client and the web app.
-      - start with a minimal schema (text and images), generate a simple claudein.yml file and implement the preview view in the Poster component.
-      - the Poster component list all new draft posts.
+  - cli:
+      - on each push to main make a git action that patch the version and publish to npm.
+  - web:
+      - design:
+          - use linkedin style across the site, add a touch of claude.ai style when possible.
+      - home page:
+          - remove all links just say "Coming Soon"
+
 Done:
+  - web:
+      - home page:
+          - remove all links just say "Coming Soon"
+          - link to the github repo and add a github star budge.
