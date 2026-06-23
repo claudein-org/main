@@ -1,5 +1,6 @@
 {
   "name": "@claudein.org/common",
+  "version": "0.1.0",
   "module": "index.ts",
   "main": "index.ts",
   "types": "index.ts",
