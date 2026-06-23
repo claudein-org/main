@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { AddressInfo, WebSocketServer } from 'ws'
+import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
 import { links, ws, yml } from '@claudein.org/common'
 import { cli, command, positional } from '@versecafe/zcli'
@@ -49,7 +49,7 @@ const start = command('start')
     const wsPosts = await ps2ps(posts)
 
     const wss = new WebSocketServer({ port: 0 })
-    const cons = []
+    const cons: WebSocket[] = []
 
     async function broadcast() {
       const data = await readFile(file, 'utf-8')

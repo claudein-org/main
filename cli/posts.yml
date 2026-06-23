@@ -3,6 +3,6 @@
 posts:
   - post_id: 0
     date: 2024-06-05T12:00:00Z
-    text: "This is a sample post with an image."
+    text: "I'm starting to build ClaudeIn"
     image:
       src: "image.png"

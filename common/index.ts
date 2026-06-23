@@ -1,3 +1,3 @@
-export { proto as ws, proto, yml } from './claudin.ts'
-export { links } from './links.ts'
+export { proto, proto as ws, yml } from './claudin'
+export { links } from './links'
 

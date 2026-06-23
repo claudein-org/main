@@ -1,6 +1,6 @@
 import { proto } from '@claudein.org/common'
 import ky from 'ky'
-
+// https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin
 export namespace linkedin {
     const BASE = 'https://api.linkedin.com'
     const VERSION = '202501'
@@ -10,15 +10,6 @@ export namespace linkedin {
         'LinkedIn-Version': VERSION,
         'X-Restli-Protocol-Version': '2.0.0',
     })
-
-    async function getAuthorUrn(access_token: string): Promise<string> {
-        const { sub } = await ky
-            .get(`${BASE}/v2/userinfo`, {
-                headers: { Authorization: `Bearer ${access_token}` },
-            })
-            .json<{ sub: string }>()
-        return sub
-    }
 
     interface UploadImage {
         access_token: string,
@@ -76,12 +67,12 @@ export namespace linkedin {
 
     interface Post {
         access_token: string,
+        author_urn: string,
         post: proto.Post
     }
 
-    export async function post({ access_token, post }: Post) {
-        const authorUrn = await getAuthorUrn(access_token)
-        const imageUrn = post.image ? await uploadImage({ access_token, authorUrn, image: new Blob([Buffer.from(post.image.base64, 'base64')], { type: 'image/*' }) }) : undefined
-        return await publish({ access_token, authorUrn, text: post.text ?? '', imageUrn })
+    export async function post({ access_token, author_urn, post }: Post) {
+        const imageUrn = post.image ? await uploadImage({ access_token, authorUrn: author_urn, image: new Blob([Buffer.from(post.image.base64, 'base64')], { type: 'image/*' }) }) : undefined
+        return await publish({ access_token, authorUrn: author_urn, text: post.text ?? '', imageUrn })
     }
 }

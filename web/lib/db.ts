@@ -26,6 +26,7 @@ namespace db {
         user_id: number
         access_token: string
         expires_at: number
+        author_urn: string
     }
 
     interface Posts {

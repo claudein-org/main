@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       code: code!,
       redirect_uri: redirectUri,
       client_id: LINKEDIN_CLIENT_ID,
-      client_secret: env.CLIENT_SECRET,
+      client_secret: env.LINKEDIN_CLIENT_SECRET,
     }),
   })
 
@@ -41,10 +41,16 @@ export async function GET(request: NextRequest) {
   const { access_token, expires_in } = Token.parse(data)
   const expires_at = Math.floor(Date.now() / 1000) + expires_in
 
+  const { sub: author_urn } = await ky
+    .get('https://api.linkedin.com/v2/userinfo', {
+      headers: { Authorization: `Bearer ${access_token}` },
+    })
+    .json<{ sub: string }>()
+
   await db
     .insertInto('linkedin')
-    .values({ user_id, access_token, expires_at })
-    .onConflict((oc) => oc.column('user_id').doUpdateSet({ access_token, expires_at }))
+    .values({ user_id, access_token, expires_at, author_urn })
+    .onConflict((oc) => oc.column('user_id').doUpdateSet({ access_token, expires_at, author_urn }))
     .execute()
 
   redirect(app.close)

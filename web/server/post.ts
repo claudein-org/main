@@ -14,13 +14,13 @@ export async function post(raw: proto.Post) {
 
     assert(user_id, 'User not logged in')
 
-    const { access_token, expires_at } = await db
+    const { access_token, expires_at, author_urn } = await db
         .selectFrom('linkedin')
-        .select(['access_token', 'expires_at'])
+        .select(['access_token', 'expires_at', 'author_urn'])
         .where('user_id', '=', user_id)
         .executeTakeFirstOrThrow()
 
-    assert(expires_at > Date.now() + MIN_MS, 'Linkedin access token expired')
+    assert(expires_at > Date.now() / 1000 + MIN_MS, 'Linkedin access token expired')
 
-    return await linkedin.post({ access_token, post })
+    return await linkedin.post({ access_token, author_urn, post })
 }
