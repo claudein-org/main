@@ -1,3 +1,4 @@
+import { readFile } from 'fs/promises'
 import ky from 'ky'
 import z from 'zod'
 import { db } from './db'
@@ -7,10 +8,11 @@ export namespace linkedin {
     const POST = `${BASE}/ugcPosts`
     const REGISTER = `${BASE}/assets?action=registerUpload`
 
-    function headers(access_token: string) {
+    function headers(access_token: string, more: Record<string, string> = {}) {
         return {
             Authorization: `Bearer ${access_token}`,
             'X-Restli-Protocol-Version': '2.0.0',
+            ...more
         }
     }
 
@@ -50,7 +52,7 @@ export namespace linkedin {
     }
 
     // UPLOAD IMAGE
-    interface RegisterImage {
+    interface RegisterBinary {
         registerUploadRequest: {
             recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
             owner: string,
@@ -64,16 +66,46 @@ export namespace linkedin {
     const RegisterResponse = z.object({
         value: z.object({
             asset: z.string(),
+            uploadMechanism: z.object({
+                "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest": z.object({
+                    uploadUrl: z.string()
+                })
+            })
         })
     })
 
-    async function registerImage(access_token: string, body: RegisterImage) {
-        const res = await ky.post(REGISTER, {
+    async function uploadBinary(access_token: string, body: RegisterBinary, data: Blob) {
+
+        const regRes = await ky.post(REGISTER, {
             headers: headers(access_token),
             json: body
         })
 
-        return RegisterResponse.parse(await res.json())
+        const {
+            value: {
+                asset,
+                uploadMechanism: {
+                    "com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest": {
+                        uploadUrl
+                    } } } } = RegisterResponse.parse(await regRes.json())
+
+        const res = await ky.put(uploadUrl, {
+            headers: headers(access_token, {
+                'Content-Type': 'application/octet-stream'
+            }),
+            body: data
+        })
+
+        console.log('Upload response status:', res.status)
+        return {
+            status: res.status,
+            asset
+        }
+    }
+
+
+    async function registerAndUpload() {
+
     }
 
     interface ShareMedia {
@@ -86,11 +118,6 @@ export namespace linkedin {
 
 
 
-    function mimeType(src: string) {
-        const ext = src.split('.').pop()?.toLowerCase()
-        return ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : ext === 'webp' ? 'image/webp' : 'image/jpeg'
-    }
-
     export async function main() {
         const { access_token, author_urn } = await db
             .selectFrom('linkedin')
@@ -98,8 +125,10 @@ export namespace linkedin {
             .where('user_id', '=', 1)
             .executeTakeFirstOrThrow()
 
-        // REGISTER IMAGE
-        const res = await registerImage(access_token, {
+        // UPLOAD IMAGE
+        const data = await readFile('test.jpg')
+        const blob = new Blob([data], { type: 'image/*' })
+        const res = await uploadBinary(access_token, {
             registerUploadRequest: {
                 recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
                 owner: urnPerson(author_urn),
@@ -108,7 +137,7 @@ export namespace linkedin {
                     identifier: 'urn:li:userGeneratedContent'
                 }]
             }
-        })
+        }, blob)
 
         console.log('Register image response:', res)
         // SHARE POST
