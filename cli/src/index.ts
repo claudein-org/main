@@ -10,6 +10,27 @@ import z from 'zod'
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
+async function i2i(image: yml.Image): Promise<ws.Image> {
+  const data = await readFile(image.src)
+  return {
+    ...image,
+    base64: data.toString('base64'),
+  }
+}
+
+async function p2p(post: yml.Post): Promise<ws.Post> {
+  return {
+    ...post,
+    images: post.images ? await Promise.all(post.images.map(i2i)) : undefined,
+  }
+}
+
+export async function ps2ps({ posts }: yml.Posts): Promise<ws.Posts> {
+  return {
+    posts: await Promise.all(posts.map(p2p))
+  }
+}
+
 const start = command('start')
 
   .meta({
@@ -24,7 +45,7 @@ const start = command('start')
   .action(async ({ inputs: { file } }) => {
     const data = await readFile(file, 'utf-8')
     const posts = yml.Posts.parse(parse(data))
-    const wsPosts = await ws.ps2ps(posts)
+    const wsPosts = await ps2ps(posts)
 
     const wss = new WebSocketServer({ port: 0 })
 
