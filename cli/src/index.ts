@@ -25,7 +25,7 @@ async function p2p(post: yml.Post): Promise<ws.Post> {
   }
 }
 
-export async function ps2ps({ posts }: yml.Posts): Promise<ws.Posts> {
+export async function ps2ps({ posts }: yml.Posts): Promise<ws.Payload> {
   return {
     posts: await Promise.all(posts.map(p2p))
   }

@@ -5,6 +5,7 @@ import { app } from "@/lib/app"
 import { cx } from "@/styled-system/css"
 import { useEffect, useState } from "react"
 import Reload from "./Reload"
+import WS from "./WS"
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
@@ -36,6 +37,7 @@ export default function Poster({ port, expires_at }: Props) {
     </>
 
     return <div>
+        <WS port={port} />
         You can post to Linkedin
     </div>
 }

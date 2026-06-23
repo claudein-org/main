@@ -20,7 +20,7 @@ export namespace yml {
     })
 }
 
-export namespace ws {
+export namespace proto {
     export type Image = z.infer<typeof Image>
     export const Image = yml.Image.extend({
         base64: z.string(),
@@ -31,8 +31,8 @@ export namespace ws {
         images: z.array(Image).optional(),
     })
 
-    export type Posts = z.infer<typeof Posts>
-    export const Posts = yml.Posts.extend({
+    export type Payload = z.infer<typeof Payload>
+    export const Payload = yml.Posts.extend({
         posts: z.array(Post),
     })
 }
