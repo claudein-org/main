@@ -21,7 +21,7 @@ async function i2i(image: yml.Image): Promise<ws.Image> {
 async function p2p(post: yml.Post): Promise<ws.Post> {
   return {
     ...post,
-    images: post.images ? await Promise.all(post.images.map(i2i)) : undefined,
+    image: post.image ? await i2i(post.image) : undefined,
   }
 }
 

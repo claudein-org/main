@@ -11,7 +11,7 @@ export namespace yml {
         post_id: z.number().int(),
         date: z.iso.datetime(),
         text: z.string().optional(),
-        images: z.array(Image).optional(),
+        image: Image.optional(),
     })
 
     export type Posts = z.infer<typeof Posts>
@@ -28,7 +28,7 @@ export namespace proto {
 
     export type Post = z.infer<typeof Post>
     export const Post = yml.Post.extend({
-        images: z.array(Image).optional(),
+        image: Image.optional(),
     })
 
     export type Payload = z.infer<typeof Payload>

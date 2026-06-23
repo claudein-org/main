@@ -1,34 +1,35 @@
+import { proto } from '@claudein.org/common'
 import ky from 'ky'
 
 export namespace linkedin {
     const BASE = 'https://api.linkedin.com'
     const VERSION = '202501'
 
-    const restHeaders = (accessToken: string) => ({
-        Authorization: `Bearer ${accessToken}`,
+    const restHeaders = (access_token: string) => ({
+        Authorization: `Bearer ${access_token}`,
         'LinkedIn-Version': VERSION,
         'X-Restli-Protocol-Version': '2.0.0',
     })
 
-    export async function getAuthorUrn(accessToken: string): Promise<string> {
+    async function getAuthorUrn(access_token: string): Promise<string> {
         const { sub } = await ky
             .get(`${BASE}/v2/userinfo`, {
-                headers: { Authorization: `Bearer ${accessToken}` },
+                headers: { Authorization: `Bearer ${access_token}` },
             })
             .json<{ sub: string }>()
         return sub
     }
 
     interface UploadImage {
-        accessToken: string,
+        access_token: string,
         authorUrn: string,
         image: Blob,
     }
 
-    export async function uploadImage({ accessToken, authorUrn, image }: UploadImage) {
+    async function uploadImage({ access_token, authorUrn, image }: UploadImage) {
         const { value } = await ky
             .post(`${BASE}/rest/images?action=initializeUpload`, {
-                headers: restHeaders(accessToken),
+                headers: restHeaders(access_token),
                 json: { initializeUploadRequest: { owner: authorUrn } },
             })
             .json<{ value: { uploadUrl: string; image: string } }>()
@@ -42,13 +43,13 @@ export namespace linkedin {
     }
 
     interface Publish {
-        accessToken: string,
+        access_token: string,
         authorUrn: string,
         text: string,
         imageUrn?: string,
     }
 
-    export async function publish({ accessToken, authorUrn, text, imageUrn }: Publish) {
+    async function publish({ access_token, authorUrn, text, imageUrn }: Publish) {
         const body: Record<string, unknown> = {
             author: authorUrn,
             lifecycleState: 'PUBLISHED',
@@ -66,8 +67,19 @@ export namespace linkedin {
         }
 
         await ky.post(`${BASE}/rest/posts`, {
-            headers: restHeaders(accessToken),
+            headers: restHeaders(access_token),
             json: body,
         })
+    }
+
+    interface Post {
+        access_token: string,
+        post: proto.Post
+    }
+
+    export async function post({ access_token, post }: Post) {
+        const authorUrn = await getAuthorUrn(access_token)
+        const imageUrn = post.image ? await uploadImage({ access_token, authorUrn, image: new Blob([Buffer.from(post.image.base64, 'base64')], { type: 'image/*' }) }) : undefined
+        return await publish({ access_token, authorUrn, text: post.text ?? '', imageUrn })
     }
 }

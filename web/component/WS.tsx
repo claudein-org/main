@@ -1,6 +1,6 @@
 'use client'
+import { proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
-import { proto } from "../../common/claudin"
 
 interface Props {
     published: { [post_id: number]: string }
@@ -21,20 +21,20 @@ export default function WS({ port, published }: Props) {
 
     return <div>
         {
-            payload?.posts.map(({ post_id, date, text, images }) =>
+            payload?.posts.map(({ post_id, date, text, image }) =>
                 /*
                     TODO: 
                     1. For each post create a preview that looks like a real linkedin post.
-                    2. Add a post button that will publish the post to linkedin using the linkedin api.
+                    2. Add a post button that will publish the post to linkedin using the server/post.ts server function.
                     3. After publishing the post, add a link to the post on linkedin. 
                     4. If the post has already been published, show the link to the post on linkedin instead of the post button.
                 */
                 <div key={post_id}>
                     <h3>{post_id} - {date}</h3>
                     <p>{text}</p>
-                    {images?.map(({ src, base64 }) =>
-                        <img key={src} src={`data:image/*;base64,${base64}`} alt={src} />
-                    )}
+                    {image &&
+                        <img key={image.src} src={`data:image/*;base64,${image.base64}`} alt={image.src} />
+                    }
                 </div>
             )
         }
