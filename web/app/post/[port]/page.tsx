@@ -26,9 +26,17 @@ export default async function page({ params }: Params) {
     .executeTakeFirst()
     .then((res) => res?.expires_at)
 
+  const published = await db
+    .selectFrom('posts')
+    .select(['post_id', 'link'])
+    .where('user_id', '=', user_id)
+    .execute()
+    .then((res) => Object.fromEntries(res.map(({ post_id, link }) => [post_id, link])))
+
   return <main>
     <Poster
       port={port}
-      expires_at={expires_at} />
+      expires_at={expires_at}
+      published={published} />
   </main>
 }

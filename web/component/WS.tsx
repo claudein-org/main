@@ -3,10 +3,11 @@ import { useEffect, useState } from "react"
 import { proto } from "../../common/claudin"
 
 interface Props {
+    published: { [post_id: number]: string }
     port: number
 }
 
-export default function WS({ port }: Props) {
+export default function WS({ port, published }: Props) {
     const [payload, setPayload] = useState<proto.Payload>()
 
     useEffect(() => {
@@ -21,6 +22,13 @@ export default function WS({ port }: Props) {
     return <div>
         {
             payload?.posts.map(({ post_id, date, text, images }) =>
+                /*
+                    TODO: 
+                    1. For each post create a preview that looks like a real linkedin post.
+                    2. Add a post button that will publish the post to linkedin using the linkedin api.
+                    3. After publishing the post, add a link to the post on linkedin. 
+                    4. If the post has already been published, show the link to the post on linkedin instead of the post button.
+                */
                 <div key={post_id}>
                     <h3>{post_id} - {date}</h3>
                     <p>{text}</p>

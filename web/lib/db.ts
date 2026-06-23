@@ -28,9 +28,17 @@ namespace db {
         expires_at: number
     }
 
+    interface Posts {
+        user_id: number
+        post_id: number
+        post_date: Generated<Date>
+        link: string
+    }
+
     export interface DB {
         users: Users
         linkedin: Linkedin
+        posts: Posts
     }
 }
 

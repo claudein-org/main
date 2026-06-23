@@ -13,12 +13,8 @@ create table if not exists posts (
   user_id int references users(user_id) on delete cascade,
   post_id int not null,
   
-  -- APP level enum (linkedin, x, etc, currently only linkedin)
-  app int not null,
+  post_date timestamp default current_timestamp,
+  link varchar(1000) not null,
 
-  -- NULL if not posted yet
-  post_date int null,
-  link varchar(1000) null,
-
-  primary key (user_id, post_id, app)
+  primary key (user_id, post_id)
 );

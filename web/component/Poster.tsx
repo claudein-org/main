@@ -13,10 +13,10 @@ const ONE_HOUR_MS = 60 * 60 * 1000
 interface Props {
     port: number
     expires_at: number | undefined
-
+    published: { [post_id: number]: string }
 }
 
-export default function Poster({ port, expires_at }: Props) {
+export default function Poster({ port, expires_at, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function Poster({ port, expires_at }: Props) {
     </>
 
     return <div>
-        <WS port={port} />
+        <WS port={port} published={published} />
         You can post to Linkedin
     </div>
 }
