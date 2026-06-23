@@ -35,6 +35,9 @@
     },
     "common": {
       "name": "@claudein.org/common",
+      "dependencies": {
+        "zod": "^4.4.3",
+      },
       "devDependencies": {
         "@types/bun": "latest",
       },
