@@ -28,10 +28,10 @@ export default async function page({ params }: Params) {
 
   const published = await db
     .selectFrom('posts')
-    .select(['post_id', 'link'])
+    .select(['post_id', 'post_urn'])
     .where('user_id', '=', user_id)
     .execute()
-    .then((res) => Object.fromEntries(res.map(({ post_id, link }) => [post_id, link])))
+    .then((res) => Object.fromEntries(res.map(({ post_id, post_urn }) => [post_id, post_urn])))
 
   return <main>
     <Poster

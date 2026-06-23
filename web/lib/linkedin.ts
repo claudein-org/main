@@ -1,3 +1,4 @@
+import { proto } from '@claudein.org/common'
 import { readFile } from 'fs/promises'
 import ky from 'ky'
 import z from 'zod'
@@ -33,6 +34,14 @@ export namespace linkedin {
         visibility: {
             'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
         }
+    }
+
+    interface ShareMedia {
+        status: 'READY',
+        description?: Text,
+        media?: string,
+        originalUrl?: string,
+        title?: Text,
     }
 
     interface ShareContent {
@@ -104,16 +113,69 @@ export namespace linkedin {
     }
 
 
-    async function registerAndUpload() {
-
+    interface Author {
+        access_token: string,
+        author_urn: string
     }
 
-    interface ShareMedia {
-        status: 'READY',
-        description?: Text,
-        media?: string,
-        originalUrl?: string,
-        title?: Text,
+    export async function post({ access_token, author_urn }: Author, post: proto.Post) {
+        const postHandler: { [key in proto.Post['type']]: (args: Extract<proto.Post, { type: key }>) => ReturnType<typeof share> } = {
+            async text({ text }) {
+                return await share(access_token, {
+                    author: urnPerson(author_urn),
+                    lifecycleState: 'PUBLISHED',
+                    specificContent: {
+                        'com.linkedin.ugc.ShareContent': {
+                            shareCommentary: { text },
+                            shareMediaCategory: 'NONE',
+                            media: [],
+                        }
+                    },
+                    visibility: {
+                        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+                    }
+                })
+            },
+
+            async image({ text, image: { base64, title, description } }) {
+                const { asset, status } = await uploadBinary(access_token, {
+                    registerUploadRequest: {
+                        recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
+                        owner: urnPerson(author_urn),
+                        serviceRelationships: [{
+                            relationshipType: 'OWNER',
+                            identifier: 'urn:li:userGeneratedContent'
+                        }]
+                    }
+                }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: 'image/*' }))
+
+                return await share(access_token, {
+                    author: urnPerson(author_urn),
+                    lifecycleState: 'PUBLISHED',
+                    specificContent: {
+                        'com.linkedin.ugc.ShareContent': {
+                            shareCommentary: { text: text ?? '' },
+                            shareMediaCategory: 'IMAGE',
+                            media: [{
+                                status: 'READY',
+                                description: description ? { text: description } : undefined,
+                                media: asset,
+                                title: title ? { text: title } : undefined,
+                            }],
+                        }
+                    },
+                    visibility: {
+                        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+                    }
+                })
+            }
+        }
+
+        function handle<T extends proto.Post['type']>(post: Extract<proto.Post, { type: T }>) {
+            return postHandler[post.type](post)
+        }
+
+        return await handle(post)
     }
 
 
@@ -125,38 +187,21 @@ export namespace linkedin {
             .where('user_id', '=', 1)
             .executeTakeFirstOrThrow()
 
-        // UPLOAD IMAGE
+        // IMAGE POST
         const data = await readFile('test.jpg')
-        const blob = new Blob([data], { type: 'image/*' })
-        const res = await uploadBinary(access_token, {
-            registerUploadRequest: {
-                recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
-                owner: urnPerson(author_urn),
-                serviceRelationships: [{
-                    relationshipType: 'OWNER',
-                    identifier: 'urn:li:userGeneratedContent'
-                }]
+        await post({ access_token, author_urn }, {
+            post_id: 1,
+            created: new Date().toISOString(),
+            type: 'image',
+            text: 'Test image post from Claudein',
+            image: {
+                src: 'test.jpg',
+                base64: data.toString('base64'),
+                title: 'Test Image',
+                description: 'This is a test image post from Claudein'
             }
-        }, blob)
+        })
 
-        console.log('Register image response:', res)
-        // SHARE POST
-        // const urn = await share(access_token, {
-        //     author: urnPerson(author_urn),
-        //     lifecycleState: 'PUBLISHED',
-        //     specificContent: {
-        //         'com.linkedin.ugc.ShareContent': {
-        //             shareCommentary: { text: 'Hello, LinkedIn!' },
-        //             shareMediaCategory: 'NONE',
-        //             media: [],
-        //         }
-        //     },
-        //     visibility: {
-        //         'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-        //     }
-        // })
-
-        // console.log('LinkedIn post created with URN:', urn.urn)
     }
 }
 
