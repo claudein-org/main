@@ -18,11 +18,12 @@ TODO:
       - design:
           - use linkedin style across the site, add a touch of claude.ai style when possible.
       - home page:
-          - make the logo bigger
 
 Done:
+  - generate a README file that explains everything about the project, what is does, how to use it, how to contribute, etc.
   - web:
       - home page:
           - remove all links just say "Coming Soon"
           - link to the github repo and add a github star budge.
           - Fix the design and layout, Make the title Big position it on the right of the logo, move the "coming soon below the title"
+          - make the logo bigger
