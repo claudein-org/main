@@ -1,10 +1,10 @@
 'use client'
-import { proto } from "@claudein.org/common"
-import { useEffect, useState } from "react"
+import { align, col, gap, row } from "@/css/layout.css"
+import { avatar, btn, card, color, font, muted, postImg } from "@/css/style.css"
 import { post } from "@/server/post"
 import { cx } from "@/styled-system/css"
-import { col, row, align, gap } from "@/css/layout.css"
-import { avatar, btn, card, color, font, muted, postImg } from "@/css/style.css"
+import { proto } from "@claudein.org/common"
+import { useEffect, useState } from "react"
 
 interface Props {
     published: { [post_id: number]: string }
@@ -30,8 +30,8 @@ export default function WS({ port, published }: Props) {
     async function handlePost(p: proto.Post) {
         setPosting(prev => ({ ...prev, [p.post_id]: true }))
         try {
-            const url = await post(p)
-            if (url) setLinks(prev => ({ ...prev, [p.post_id]: url }))
+            const { urn } = await post(p)
+            setLinks(prev => ({ ...prev, [p.post_id]: `https://www.linkedin.com/feed/update/${urn}` }))
         } finally {
             setPosting(prev => ({ ...prev, [p.post_id]: false }))
         }

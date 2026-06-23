@@ -22,6 +22,5 @@ export async function post(raw: proto.Post) {
 
     assert(expires_at > Date.now() / 1000 + MIN_MS, 'Linkedin access token expired')
 
-    const { urn } = await linkedin.post({ access_token, author_urn }, post)
-    return urn
+    return await linkedin.post({ access_token, author_urn }, post)
 }

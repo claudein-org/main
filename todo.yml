@@ -18,10 +18,11 @@ TODO:
       - design:
           - use linkedin style across the site, add a touch of claude.ai style when possible.
       - home page:
-          - remove all links just say "Coming Soon"
+          - make the logo bigger
 
 Done:
   - web:
       - home page:
           - remove all links just say "Coming Soon"
           - link to the github repo and add a github star budge.
+          - Fix the design and layout, Make the title Big position it on the right of the logo, move the "coming soon below the title"

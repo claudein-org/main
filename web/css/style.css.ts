@@ -12,6 +12,7 @@ export const font = {
     sm: css({ fontSize: "0.8125rem" }),
     base: css({ fontSize: "0.9375rem" }),
     lg: css({ fontSize: "1.0625rem" }),
+    hero: css({ fontSize: "3.5rem", lineHeight: 1.05 }),
   },
   weight: {
     normal: css({ fontWeight: 400 }),
