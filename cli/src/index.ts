@@ -3,6 +3,7 @@ import { AddressInfo, WebSocketServer } from 'ws'
 
 import { links, ws, yml } from '@claudein.org/common'
 import { cli, command, positional } from '@versecafe/zcli'
+import { watch } from 'fs'
 import { readFile } from 'fs/promises'
 import open from 'open'
 import { parse } from 'yaml'
@@ -50,12 +51,20 @@ const start = command('start')
     const wss = new WebSocketServer({ port: 0 })
     const cons = []
 
-    // TODO: watch the file for changes and update the clients
+    async function broadcast() {
+      const data = await readFile(file, 'utf-8')
+      const posts = yml.Posts.parse(parse(data))
+      const payload = JSON.stringify(await ps2ps(posts))
+      for (const con of cons) con.send(payload)
+    }
+
+    watch(file, () => broadcast().catch(console.error))
 
     wss.on('connection', (ws) => {
       console.log('Client connected')
       cons.push(ws)
       ws.send(JSON.stringify(wsPosts))
+      ws.on('close', () => cons.splice(cons.indexOf(ws), 1))
     })
 
     const { port } = wss.address() as AddressInfo
