@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import { AddressInfo, WebSocketServer } from 'ws'
 
-import { links } from '@claudein.org/common'
-import { ws, yml } from '@claudein.org/common/'
+import { links, ws, yml } from '@claudein.org/common'
 import { cli, command, positional } from '@versecafe/zcli'
 import { readFile } from 'fs/promises'
 import open from 'open'
