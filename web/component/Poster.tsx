@@ -38,6 +38,5 @@ export default function Poster({ port, expires_at, published }: Props) {
 
     return <div>
         <WS port={port} published={published} />
-        You can post to Linkedin
     </div>
 }

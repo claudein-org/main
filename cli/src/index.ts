@@ -48,9 +48,13 @@ const start = command('start')
     const wsPosts = await ps2ps(posts)
 
     const wss = new WebSocketServer({ port: 0 })
+    const cons = []
+
+    // TODO: watch the file for changes and update the clients
 
     wss.on('connection', (ws) => {
       console.log('Client connected')
+      cons.push(ws)
       ws.send(JSON.stringify(wsPosts))
     })
 
