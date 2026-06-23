@@ -13,13 +13,16 @@ Introduction:
 
 TODO:
   - cli:
-      - on each push to main make a git action that patch the version and publish to npm.
   - web:
       - design:
-          - use linkedin style across the site, add a touch of claude.ai style when possible.
       - home page:
 
 Done:
+  - web:
+      - design:
+          - use linkedin style across the site, add a touch of claude.ai style when possible.
+  - cli:
+      - on each push to main make a git action that patch the version and publish to npm.
   - generate a README file that explains everything about the project, what is does, how to use it, how to contribute, etc.
   - web:
       - home page:

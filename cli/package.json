@@ -4,10 +4,13 @@
   "description": "Post to LinkedIn from the command line",
   "type": "module",
   "bin": {
-    "claudein": "./dist/index.js"
+    "cin": "./dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "bun build src/index.ts --target=node --outfile=dist/index.js",
     "dev": "tsx src/index.ts",
     "lint": "eslint ."
   },

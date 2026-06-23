@@ -19,12 +19,11 @@ export default async function page() {
         <h1 className={cx(font.size.hero, font.weight.bold, tracking.tight)}>ClaudeIn</h1>
         <p className={cx(muted)}>Coming Soon</p>
         <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="https://img.shields.io/github/stars/claudein-org/main?style=social"
             alt="GitHub Stars"
-            width={90}
             height={20}
-            unoptimized
           />
         </a>
       </div>

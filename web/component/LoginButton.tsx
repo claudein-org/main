@@ -4,5 +4,5 @@ import { cx } from "@/styled-system/css"
 
 interface Props { }
 export default function LoginButton({ }: Props) {
-    return <a className={cx(btn({ color: "dark" }))} target="_blank" href={app.google}>Login With Google</a>
+    return <a className={cx(btn({ color: "claude" }))} target="_blank" href={app.google}>Sign in with Google</a>
 }

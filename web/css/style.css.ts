@@ -41,6 +41,21 @@ export const logo = css({ width: "min(300px, 20vw)", height: "auto" })
 
 export const postImg = css({ width: "100%", height: "auto", borderRadius: "8px", display: "block" })
 
+/* Step number badge */
+export const stepNum = css({
+  width: "2.25rem",
+  height: "2.25rem",
+  borderRadius: "50%",
+  background: "linkedin",
+  color: "#ffffff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "0.875rem",
+  fontWeight: 700,
+  flexShrink: 0,
+})
+
 /* Card */
 export const card = css({
   border: "1px solid #e0e0e0",

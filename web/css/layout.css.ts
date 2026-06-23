@@ -30,6 +30,7 @@ export const textAlign = {
 
 export const w = {
     full: css({ width: "100%" }),
+    content: css({ width: "100%", maxWidth: "552px" }),
 }
 
 export const grow = css({ flexGrow: 1 })

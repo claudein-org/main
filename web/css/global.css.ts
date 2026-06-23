@@ -21,6 +21,10 @@ export const globalCss = defineGlobalStyles({
   },
   code: {
     fontFamily: "mono",
+    fontSize: "0.875em",
+    background: "#f3f2ee",
+    borderRadius: "4px",
+    padding: "2px 6px",
   },
   a: {
     color: "inherit",
