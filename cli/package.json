@@ -1,10 +1,13 @@
 {
-  "name": "@claudein/cli",
+  "name": "@claudein.org/cli",
   "version": "0.1.2",
   "description": "Post to LinkedIn from the command line",
   "type": "module",
   "bin": {
     "cin": "./dist/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "dist"
