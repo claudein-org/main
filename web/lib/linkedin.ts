@@ -66,10 +66,12 @@ export namespace linkedin {
             body.content = { media: { id: imageUrn } }
         }
 
-        await ky.post(`${BASE}/rest/posts`, {
+        const response = await ky.post(`${BASE}/rest/posts`, {
             headers: restHeaders(access_token),
             json: body,
         })
+        const urn = response.headers.get('x-restli-id')
+        return urn ? `https://www.linkedin.com/feed/update/${urn}/` : undefined
     }
 
     interface Post {

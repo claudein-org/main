@@ -38,6 +38,28 @@ export const muted = color.muted
 /* Media */
 export const logo = css({ width: "min(300px, 20vw)", height: "auto" })
 
+export const postImg = css({ width: "100%", height: "auto", borderRadius: "8px", display: "block" })
+
+/* Card */
+export const card = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.25rem",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+  maxWidth: "552px",
+  width: "100%",
+})
+
+export const avatar = css({
+  width: "48px",
+  height: "48px",
+  borderRadius: "50%",
+  background: "#c0c0c0",
+  flexShrink: 0,
+})
+
 /* Button */
 export const btn = cva({
   base: {
