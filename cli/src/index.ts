@@ -2,7 +2,8 @@
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
 import { links, PostType, proto, yml } from '@claudein.org/common'
-import { cli, command, positional } from '@versecafe/zcli'
+import { cli, command, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
+import type { Shell } from '@versecafe/zcli'
 import crypto from 'crypto'
 import { watch } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
@@ -11,6 +12,9 @@ import open from 'open'
 import { stableHash } from 'stable-hash'
 import { parse, stringify } from 'yaml'
 import z from 'zod'
+import { createRequire } from 'module'
+
+const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
@@ -61,23 +65,12 @@ const sample = [
   stringify(posts)
 ].join('\n\n')
 
-/*
- TODO: 
- 1. add version command to output the version
- 2. in the start command, make the file optional and default to posts.yml
- 3. add a command for shell autocomplete generation
- 4. Update the description of the start command, make sure it explains the typical flow: 
-    - user start the server
-    - claude code generate posts to a .yml file
-    - user see live preview and can click to post to Linkedin.
- */
-
 // COMMANDS
 const start = command('start')
 
   .meta({
-    description: 'Start the client server and open a preview of a posts .yml file in the browser',
-    examples: ['cin start my-posts.yml'],
+    description: 'Start the live preview server. Claude Code writes posts to a .yml file, you see them in the browser in real time, and can click to post to LinkedIn.',
+    examples: ['cin start', 'cin start my-posts.yml'],
   })
 
   .inputs({
@@ -150,6 +143,32 @@ const start = command('start')
     open(`https://${DOMAIN}${links.post.port(port)}`)
   })
 
-cli('cin')
+const versionCmd = command('version')
+  .meta({ description: 'Print the version number' })
+  .action(() => {
+    console.log(generateVersion('cin', version))
+  })
+
+let cinRef: ReturnType<typeof cli>
+
+const completionCmd = command('completion')
+  .meta({
+    description: 'Generate shell completion script',
+    examples: ['cin completion bash >> ~/.bashrc', 'cin completion fish > ~/.config/fish/completions/cin.fish'],
+  })
+  .inputs({
+    shell: positional(
+      z.enum(['bash', 'zsh', 'fish', 'powershell']).describe('Shell to generate completions for'),
+      0
+    ),
+  })
+  .action(({ inputs: { shell } }) => {
+    console.log(generateCompletionScript(cinRef._config, shell as Shell))
+  })
+
+cinRef = cli('cin', { version })
   .use(start)
-  .run()
+  .use(versionCmd)
+  .use(completionCmd)
+
+cinRef.run()
