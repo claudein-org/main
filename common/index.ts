@@ -43,6 +43,8 @@ export namespace proto {
 
     export type Post = z.infer<typeof Post>
     export const Post = z.discriminatedUnion('type', [yml.PostText, PostImage])
+
+    export type Payload = z.infer<typeof Payload>
     export const Payload = z.object({
         hash: z.string(),
         post: Post

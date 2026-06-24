@@ -6,6 +6,7 @@ import { cli, command, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
 import { watch } from 'fs'
 import { readFile } from 'fs/promises'
+import { atom } from 'nanostores'
 import open from 'open'
 import { stableHash } from 'stable-hash'
 import { parse } from 'yaml'
@@ -59,28 +60,43 @@ const start = command('start')
   })
 
   .action(async ({ inputs: { file } }) => {
-    const data = await readFile(file, 'utf-8')
 
-    const wss = new WebSocketServer({ port: 0 })
     const cons: WebSocket[] = []
+    const wss = new WebSocketServer({ port: 0 })
+    const $payloads = atom<proto.Payload[]>([])
+    const $info = atom<string>('')
 
-    watch(file, async () => {
+    async function loadPosts() {
+      const data = await readFile(file, 'utf-8')
       const posts = yml.Posts.parse(parse(data))
       const protoPosts = await ps2ps(posts)
       const payloads = protoPosts
         .map((post) => ({ hash: hash(post), post }))
         .sort((a, b) => a.post.created.localeCompare(b.post.created))
 
-      const info = JSON.stringify(payloads)
-      wss.on('connection', (ws) => {
-        console.log('Client connected')
-        cons.push(ws)
-        ws.send(info)
-        ws.on('close', () => cons.splice(cons.indexOf(ws), 1))
-        for (const con of cons) con.send(info)
+      $payloads.set(payloads)
+    }
+
+
+    wss.on('connection', (ws) => {
+      console.log('Client connected')
+      cons.push(ws)
+      ws.send($info.get())
+      ws.on('close', () => cons.splice(cons.indexOf(ws), 1))
+    })
+
+    $payloads.subscribe((payloads) => {
+      $info.set(JSON.stringify(payloads))
+    })
+
+    $info.subscribe((info) => {
+      cons.forEach((ws) => {
+        if (ws.readyState === WebSocket.OPEN) ws.send(info)
       })
     })
 
+    watch(file, loadPosts)
+    await loadPosts()
 
     const { port } = wss.address() as AddressInfo
     open(`https://${DOMAIN}${links.post.port(port)}`)
