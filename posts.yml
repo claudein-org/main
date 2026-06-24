@@ -1,6 +1,10 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml
 
-# Posts to promote ClaudeIn on Linkedin. Short, one liner posts with a logo animation.
+# Posts to promote ClaudeIn on Linkedin.
+# Short, one liner posts with a logo animation.
+# Posts should be intentionally vague to create a tizzy and curiosity about what ClaudeIn is.
+# Animation must use the web/public/logo.svg logo
+
 posts:
   - type: media
     created: 2026-06-24T08:03:41.319Z
@@ -8,6 +12,13 @@ posts:
     media:
       type: video
       src: video/out/LinkedInLogo.mp4
+
+  - type: media
+    created: 2026-06-24T08:03:41.319Z
+    text: Post to LinkedIn with Claude — directly from the command line.
+    media:
+      type: video
+      src: video/out/ClaudeInText.mp4
 
   - type: text
     created: 2026-06-24T08:03:41.319Z

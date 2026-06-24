@@ -12,7 +12,7 @@ export namespace yml {
     })
 
     const Base = z.object({
-        created: z.iso.datetime(),
+        created: z.iso.date(),
     })
 
     export const PostText = Base.extend({
