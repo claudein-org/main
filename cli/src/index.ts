@@ -2,17 +2,17 @@
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
 import { links, PostType, proto, yml } from '@claudein.org/common'
-import { cli, command, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import type { Shell } from '@versecafe/zcli'
+import { cli, command, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
 import { watch } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
+import { createRequire } from 'module'
 import { atom } from 'nanostores'
 import open from 'open'
 import { stableHash } from 'stable-hash'
 import { parse, stringify } from 'yaml'
 import z from 'zod'
-import { createRequire } from 'module'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
 
@@ -52,10 +52,16 @@ function ps2ps(posts: yml.Posts): Promise<proto.Post[]> {
   return Promise.all(posts.posts.map((post) => p2p(post)))
 }
 
+const formatter = new Intl.DateTimeFormat('en-CA', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit'
+})
+
 const posts: yml.Posts = {
   posts: [{
     type: 'text',
-    created: new Date().toISOString(),
+    created: formatter.format(new Date()),
     text: "I'm using ClaudeIn to share my thoughts and ideas!"
   }]
 }
