@@ -1,6 +1,6 @@
 import { align, col, gap, row, w, wrap } from "@/css/layout.css"
 import {
-  altSection, btn, card, color, font,
+  altSection, card, color, font,
   heroLeft, heroRight, heroSection, muted, navInner,
   stepNum, terminal, terminalBody, terminalDot,
   terminalDotGreen, terminalDotRed, terminalDotYellow,
@@ -38,9 +38,7 @@ export default function page() {
             </span>
           </a>
           <div className={cx(row, align.center, gap.sm)}>
-            <a href="/guide" className={cx(muted)}>how it works</a>
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className={cx(muted)}>github</a>
-            <a href="/guide" className={cx(btn({ color: "linkedin" }))}>get started</a>
           </div>
         </div>
       </nav>
@@ -54,7 +52,6 @@ export default function page() {
             claudein connects Claude Code to LinkedIn. One command to share what you&apos;re building with the world.
           </p>
           <div className={cx(row, align.center, gap.sm, wrap)}>
-            <a href="/guide" className={cx(btn({ color: "linkedin" }))}>get started →</a>
             <code>npm install -g @claudein.org/cli</code>
           </div>
         </div>
