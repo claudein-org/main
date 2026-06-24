@@ -153,6 +153,10 @@ export namespace linkedin {
                     }
                 }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))]))
 
+                const shareMediaCategory: { [key in MediaType]: 'IMAGE' | 'VIDEO' } = {
+                    image: 'IMAGE',
+                    video: 'VIDEO'
+                }
 
                 return await share(access_token, {
                     author: urnPerson(author_urn),
@@ -160,7 +164,7 @@ export namespace linkedin {
                     specificContent: {
                         'com.linkedin.ugc.ShareContent': {
                             shareCommentary: { text: text ?? '' },
-                            shareMediaCategory: 'IMAGE',
+                            shareMediaCategory: shareMediaCategory[type],
                             media: [{
                                 status: 'READY',
                                 description: description ? { text: description } : undefined,
