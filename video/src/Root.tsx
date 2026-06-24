@@ -1,18 +1,9 @@
-import {Composition} from 'remotion';
-import {LogoAnimation} from './LogoAnimation';
-import {LinkedInLogoAnimation} from './LinkedInLogoAnimation';
+import { Composition } from 'remotion'
+import { LinkedInLogoAnimation } from './LinkedInLogoAnimation'
 
 export function RemotionRoot() {
   return (
     <>
-      <Composition
-        id="LogoAnimation"
-        component={LogoAnimation}
-        durationInFrames={120}
-        fps={30}
-        width={600}
-        height={600}
-      />
       <Composition
         id="LinkedInLogo"
         component={LinkedInLogoAnimation}
@@ -22,5 +13,5 @@ export function RemotionRoot() {
         height={800}
       />
     </>
-  );
+  )
 }
