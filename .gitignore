@@ -6,3 +6,5 @@ certificates
 .vscode
 
 migration.sql
+
+*.mp4
