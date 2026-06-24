@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { links, ws, yml } from '@claudein.org/common'
+import { links, proto, yml } from '@claudein.org/common'
 import { cli, command, positional } from '@versecafe/zcli'
 import { watch } from 'fs'
 import { readFile } from 'fs/promises'
@@ -11,13 +11,13 @@ import z from 'zod'
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
-async function p2p(post: yml.Post): Promise<ws.Post> {
+async function p2p(post: yml.Post): Promise<proto.Post> {
   if (post.type !== 'image') return post
   const data = await readFile(post.image.src)
   return { ...post, image: { ...post.image, base64: data.toString('base64') } }
 }
 
-export async function ps2ps({ posts }: yml.Posts): Promise<ws.Payload> {
+async function ps2ps({ posts }: yml.Posts): Promise<proto.Payload> {
   return {
     posts: await Promise.all(posts.map(p2p))
   }
