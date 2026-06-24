@@ -49,6 +49,8 @@ export const globalCss = defineGlobalStyles({
   footer: {
     position: "fixed",
     bottom: "1.75rem",
+    left: "50%",
+    transform: "translateX(-50%)",
     fontSize: "0.8125rem",
     color: "textSecondary",
   },

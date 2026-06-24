@@ -66,6 +66,9 @@ export default function page() {
           </div>
         </div>
       </div>
+      <footer>
+        <a href="/privacy.txt">privacy</a>
+      </footer>
     </main>
   )
 }
