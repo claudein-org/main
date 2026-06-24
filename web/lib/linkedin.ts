@@ -135,7 +135,7 @@ export namespace linkedin {
                 })
             },
 
-            async media({ text, media: { base64, title, description } }) {
+            async media({ text, media: { base64, title, description, mimeType } }) {
                 const { asset, status } = await uploadBinary(access_token, {
                     registerUploadRequest: {
                         recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
@@ -145,7 +145,8 @@ export namespace linkedin {
                             identifier: 'urn:li:userGeneratedContent'
                         }]
                     }
-                }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: 'image/*' }))
+                }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: mimeType }))
+
 
                 return await share(access_token, {
                     author: urnPerson(author_urn),

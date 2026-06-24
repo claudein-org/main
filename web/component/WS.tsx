@@ -43,7 +43,7 @@ export default function WS({ port, published }: Props) {
         }
     }
 
-    const Media: { [key in MediaType]: (media: Extract<yml.Media, { type: key }>) => ReactElement } = {
+    const Media: { [key in MediaType]: (media: Extract<proto.Media, { type: key }>) => ReactElement } = {
         image({ base64 }) {
             return <img className={postImg} src={`data:image/*;base64,${base64}`} alt="Post media" />
         },
@@ -55,7 +55,7 @@ export default function WS({ port, published }: Props) {
         }
     }
 
-    function showMedia<T extends MediaType>(media: Extract<yml.Media, { type: T }>) {
+    function showMedia<T extends MediaType>(media: Extract<proto.Media, { type: T }>) {
         return Media[media.type](media)
     }
 

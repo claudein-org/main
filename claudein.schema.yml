@@ -33,24 +33,53 @@ properties:
             text:
               type: string
             media:
-              type: object
-              properties:
-                type:
-                  anyOf:
-                    - type: string
+              oneOf:
+                - type: object
+                  properties:
+                    type:
+                      type: string
                       const: image
-                    - type: string
+                    src:
+                      type: string
+                    mimeType:
+                      anyOf:
+                        - type: string
+                          const: image/jpeg
+                        - type: string
+                          const: image/png
+                        - type: string
+                          const: image/gif
+                    title:
+                      type: string
+                    description:
+                      type: string
+                  required:
+                    - type
+                    - src
+                    - mimeType
+                  additionalProperties: false
+                - type: object
+                  properties:
+                    type:
+                      type: string
                       const: video
-                src:
-                  type: string
-                title:
-                  type: string
-                description:
-                  type: string
-              required:
-                - type
-                - src
-              additionalProperties: false
+                    src:
+                      type: string
+                    mimeType:
+                      anyOf:
+                        - type: string
+                          const: video/mp4
+                        - type: string
+                          const: video/mpeg
+                    title:
+                      type: string
+                    description:
+                      type: string
+                  required:
+                    - type
+                    - src
+                    - mimeType
+                  additionalProperties: false
           required:
             - created
             - type
