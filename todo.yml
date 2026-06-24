@@ -14,12 +14,12 @@ Introduction:
 TODO:
   - cli:
   - web:
-      - add a github star budge to the home page.
       - read and fully understand the command line and the web app and the entire process of publishing posts to linkedin and update the homepage accordingly.
       - In the home page -> how it works section, make sure the instructions are styled as a terminal window, write the explanations as a code comments.
 
 Done:
   - web:
+      - add a github star budge to the home page.
       - remove the "how it works" page and link.
       - remove the "get started" page and link.
   - web:

@@ -38,7 +38,10 @@ export default function page() {
             </span>
           </a>
           <div className={cx(row, align.center, gap.sm)}>
-            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className={cx(muted)}>github</a>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
+              <img src="https://img.shields.io/github/stars/claudein-org/main?style=social" alt="GitHub stars" height={20} />
+            </a>
           </div>
         </div>
       </nav>
