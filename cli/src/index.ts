@@ -66,14 +66,19 @@ const start = command('start')
     const $info = atom<string>('')
 
     async function loadPosts() {
-      const data = await readFile(file, 'utf-8')
-      const posts = yml.Posts.parse(parse(data))
-      const protoPosts = await ps2ps(posts)
-      const payloads = protoPosts
-        .map((post) => ({ hash: hash(post), post }))
-        .sort((a, b) => a.post.created.localeCompare(b.post.created))
+      try {
 
-      $payloads.set(payloads)
+        const data = await readFile(file, 'utf-8')
+        const posts = yml.Posts.parse(parse(data))
+        const protoPosts = await ps2ps(posts)
+        const payloads = protoPosts
+          .map((post) => ({ hash: hash(post), post }))
+          .sort((a, b) => a.post.created.localeCompare(b.post.created))
+
+        $payloads.set(payloads)
+      } catch (err) {
+        console.error('Failed to load posts:', err)
+      }
     }
 
 
