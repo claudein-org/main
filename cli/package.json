@@ -1,6 +1,6 @@
 {
   "name": "@claudein.org/cli",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Post to LinkedIn from the command line",
   "type": "module",
   "bin": {
