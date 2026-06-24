@@ -3,15 +3,18 @@ import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
 import { links, PostType, proto, yml } from '@claudein.org/common'
 import type { Shell } from '@versecafe/zcli'
-import { cli, command, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
+import { cli, command, fmt, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
 import { watch } from 'fs'
-import { readFile, writeFile } from 'fs/promises'
+import { cp, mkdir, readdir, readFile, writeFile } from 'fs/promises'
 import { createRequire } from 'module'
+import { homedir } from 'os'
+import { dirname, join } from 'path'
 import { atom } from 'nanostores'
 import open from 'open'
 import { stableHash } from 'stable-hash'
 import { parse, stringify } from 'yaml'
+import { fileURLToPath } from 'url'
 import z from 'zod'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
@@ -155,6 +158,28 @@ const versionCmd = command('version')
     console.log(generateVersion('cin', version))
   })
 
+const skillsInstallCmd = command('install')
+  .meta({ description: 'Install claudein skills into ~/.claude/skills/' })
+  .action(async () => {
+    const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
+    const skillsDir = join(pkgRoot, 'skills')
+    const targetBase = join(homedir(), '.claude', 'skills')
+
+    await mkdir(targetBase, { recursive: true })
+
+    const entries = await readdir(skillsDir, { withFileTypes: true })
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue
+      const dst = join(targetBase, entry.name)
+      await cp(join(skillsDir, entry.name), dst, { recursive: true })
+      console.log(fmt.success(`Installed ${entry.name} → ${dst}`))
+    }
+  })
+
+const skillsCmd = command('skills')
+  .meta({ description: 'Manage Claude Code skills' })
+  .use(skillsInstallCmd)
+
 let cinRef: ReturnType<typeof cli>
 
 const completionCmd = command('completion')
@@ -174,6 +199,7 @@ const completionCmd = command('completion')
 
 cinRef = cli('cin', { version })
   .use(start)
+  .use(skillsCmd)
   .use(versionCmd)
   .use(completionCmd)
 
