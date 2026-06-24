@@ -3,8 +3,8 @@ import { align, col, gap, row } from "@/css/layout.css"
 import { avatar, btn, card, color, font, muted, postImg } from "@/css/style.css"
 import { postToLinkedin } from "@/server/post"
 import { cx } from "@/styled-system/css"
-import { proto } from "@claudein.org/common"
-import { useEffect, useState } from "react"
+import { MediaType, PostType, proto, yml } from "@claudein.org/common"
+import { ReactElement, useEffect, useState } from "react"
 
 type Published = { [hash: string]: string }
 interface Props {
@@ -43,10 +43,39 @@ export default function WS({ port, published }: Props) {
         }
     }
 
+    const Media: { [key in MediaType]: (media: Extract<yml.Media, { type: key }>) => ReactElement } = {
+        image({ base64 }) {
+            return <img className={postImg} src={`data:image/*;base64,${base64}`} alt="Post media" />
+        },
+        video({ base64 }) {
+            return <video className={postImg} controls>
+                <source src={`data:video/*;base64,${base64}`} type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+        }
+    }
+
+    function showMedia<T extends MediaType>(media: Extract<yml.Media, { type: T }>) {
+        return Media[media.type](media)
+    }
+
+    const Poster: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) => ReactElement } = {
+        text({ text }) {
+            return <p style={{ whiteSpace: 'pre-wrap' }}>{text}</p>
+        },
+        media({ media }) {
+            return showMedia(media)
+        }
+    }
+
+    function poster<T extends PostType>(post: Extract<proto.Post, { type: T }>) {
+        return Poster[post.type](post)
+    }
+
+
     return <div className={cx(col, gap.lg)}>
         {payloads.map(({ hash, post }) => {
             const { created, text } = post
-            const image = post.type === 'image' ? post.image : undefined
             const link = links[hash]
             const isPosting = posting.has(hash)
             return (
@@ -60,8 +89,7 @@ export default function WS({ port, published }: Props) {
                             </span>
                         </div>
                     </div>
-                    {text && <p>{text}</p>}
-                    {image && <img className={postImg} src={`data:image/*;base64,${image.base64}`} alt={image.src} />}
+                    {poster(post)}
                     <div>
                         {link
                             ? <a href={link} target="_blank" rel="noopener noreferrer" className={color.linkedin}>

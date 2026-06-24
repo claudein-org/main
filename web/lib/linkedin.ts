@@ -135,7 +135,7 @@ export namespace linkedin {
                 })
             },
 
-            async image({ text, image: { base64, title, description } }) {
+            async media({ text, media: { base64, title, description } }) {
                 const { asset, status } = await uploadBinary(access_token, {
                     registerUploadRequest: {
                         recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],

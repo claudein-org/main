@@ -28,12 +28,12 @@ const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>) => Prom
     return post
   },
 
-  async image({ image, ...info }) {
+  async media({ media, ...info }) {
     return {
       ...info,
-      image: {
-        ...image,
-        base64: await readFile(image.src)
+      media: {
+        ...media,
+        base64: await readFile(media.src)
           .then((data) => data.toString('base64'))
       }
     }
