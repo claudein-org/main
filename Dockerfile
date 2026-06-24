@@ -8,6 +8,7 @@ COPY package.json bun.lock ./
 COPY common/package.json ./common/
 COPY web/package.json ./web/
 COPY cli/package.json ./cli/
+COPY video/package.json ./video/
 
 RUN bun install --frozen-lockfile 
 
