@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml
 
+# Posts to promote ClaudeIn on Linkedin. Short, one liner posts with a logo animation.
 posts:
   - type: media
     created: 2026-06-24T08:03:41.319Z
