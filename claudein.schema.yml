@@ -41,14 +41,6 @@ properties:
                       const: image
                     src:
                       type: string
-                    mimeType:
-                      anyOf:
-                        - type: string
-                          const: image/jpeg
-                        - type: string
-                          const: image/png
-                        - type: string
-                          const: image/gif
                     title:
                       type: string
                     description:
@@ -56,7 +48,6 @@ properties:
                   required:
                     - type
                     - src
-                    - mimeType
                   additionalProperties: false
                 - type: object
                   properties:
@@ -65,12 +56,6 @@ properties:
                       const: video
                     src:
                       type: string
-                    mimeType:
-                      anyOf:
-                        - type: string
-                          const: video/mp4
-                        - type: string
-                          const: video/mpeg
                     title:
                       type: string
                     description:
@@ -78,7 +63,6 @@ properties:
                   required:
                     - type
                     - src
-                    - mimeType
                   additionalProperties: false
           required:
             - created

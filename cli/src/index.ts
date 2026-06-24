@@ -4,6 +4,7 @@ import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 import { links, PostType, proto, yml } from '@claudein.org/common'
 import { cli, command, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
+import { fileTypeFromBuffer } from 'file-type'
 import { watch } from 'fs'
 import { readFile, writeFile } from 'fs/promises'
 import { atom } from 'nanostores'
@@ -29,13 +30,16 @@ const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>) => Prom
   },
 
   async media({ media, ...info }) {
+    const buf = await readFile(media.src)
+    const mimeType = await fileTypeFromBuffer(buf)
+    if (!mimeType) throw new Error(`Failed to detect mime type for ${media.src}`)
     return {
       ...info,
-      media: {
+      media: proto.Media.parse({
         ...media,
-        base64: await readFile(media.src)
-          .then((data) => data.toString('base64'))
-      }
+        base64: buf.toString('base64'),
+        mimeType: mimeType.mime
+      })
     }
   }
 }

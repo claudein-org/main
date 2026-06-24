@@ -2,12 +2,10 @@ export { links } from './links'
 
 import z from "zod"
 
-
 export namespace yml {
     export const ImageMedia = z.object({
         type: z.literal('image'),
         src: z.string(),
-        mimeType: z.union([z.literal('image/jpeg'), z.literal('image/png'), z.literal('image/gif')]),
         title: z.string().optional(),
         description: z.string().optional(),
     })
@@ -15,7 +13,6 @@ export namespace yml {
     export const VideoMedia = z.object({
         type: z.literal('video'),
         src: z.string(),
-        mimeType: z.union([z.literal('video/mp4'), z.literal('video/mpeg')]),
         title: z.string().optional(),
         description: z.string().optional(),
     })
@@ -46,8 +43,23 @@ export namespace yml {
 }
 
 export namespace proto {
-    const ImageMedia = yml.ImageMedia.extend({ base64: z.string() })
-    const VideoMedia = yml.VideoMedia.extend({ base64: z.string() })
+    const ImageMedia = yml.ImageMedia.extend({
+        base64: z.string(),
+        mimeType: z.union([
+            z.literal('image/jpeg'),
+            z.literal('image/png'),
+            z.literal('image/gif')
+        ]),
+    })
+
+    const VideoMedia = yml.VideoMedia.extend({
+        base64: z.string(),
+        mimeType: z.union([
+            z.literal('video/mp4'),
+            z.literal('video/mpeg')
+        ]),
+    })
+
     export type Media = z.infer<typeof Media>
     export const Media = z.discriminatedUnion('type', [ImageMedia, VideoMedia])
 
