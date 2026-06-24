@@ -48,37 +48,20 @@ function ps2ps(posts: yml.Posts): Promise<proto.Post[]> {
   return Promise.all(posts.posts.map((post) => p2p(post)))
 }
 
-const init = command('init')
-  .meta({
-    description: 'Initialize a new posts .yml file with a sample post',
-    examples: ['cin init my-posts.yml'],
-  })
+const posts: yml.Posts = {
+  posts: [{
+    type: 'text',
+    created: new Date().toISOString(),
+    text: "I'm using ClaudeIn to share my thoughts and ideas!"
+  }]
+}
 
-  .inputs({
-    file: positional(z
-      .string()
-      .describe('Path to a .yml posts file'), 0)
-      .default('posts.yml'),
-  })
+const sample = [
+  '# yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml',
+  stringify(posts)
+].join('\n\n')
 
-  .action(async ({ inputs: { file } }) => {
-    const posts: yml.Posts = {
-      posts: [{
-        type: 'text',
-        created: new Date().toISOString(),
-        text: "I'm using ClaudeIn to share my thoughts and ideas!"
-      }]
-    }
-
-    const sample = [
-      '# yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml',
-      stringify(posts)
-    ].join('\n\n')
-
-
-    await writeFile(file, sample)
-  })
-
+// COMMANDS
 const start = command('start')
 
   .meta({
@@ -94,6 +77,13 @@ const start = command('start')
   })
 
   .action(async ({ inputs: { file } }) => {
+
+    try {
+      await readFile(file)
+    } catch {
+      await writeFile(file, sample, 'utf-8')
+      console.log(`Created ${file} with a sample post`)
+    }
 
     const wss = new WebSocketServer({ port: 0 })
     const $payloads = atom<proto.Payload[]>([])
@@ -150,6 +140,5 @@ const start = command('start')
   })
 
 cli('cin')
-  .use(init)
   .use(start)
   .run()
