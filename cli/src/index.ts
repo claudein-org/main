@@ -5,11 +5,11 @@ import { links, PostType, proto, yml } from '@claudein.org/common'
 import { cli, command, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
 import { watch } from 'fs'
-import { readFile } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { atom } from 'nanostores'
 import open from 'open'
 import { stableHash } from 'stable-hash'
-import { parse } from 'yaml'
+import { parse, stringify } from 'yaml'
 import z from 'zod'
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
@@ -47,6 +47,35 @@ function p2p<T extends PostType>(post: Extract<yml.Post, { type: T }>): Promise<
 function ps2ps(posts: yml.Posts): Promise<proto.Post[]> {
   return Promise.all(posts.posts.map((post) => p2p(post)))
 }
+
+const init = command('init')
+
+  .meta({
+    description: 'Initialize a new posts .yml file with a sample post',
+    examples: ['cin init my-posts.yml'],
+  })
+
+  .inputs({
+    file: positional(z.string().describe('Path to a .yml posts file'), 0),
+  })
+
+  .action(async ({ inputs: { file } }) => {
+    const posts: yml.Posts = {
+      posts: [{
+        type: 'text',
+        created: new Date().toISOString(),
+        text: "I'm using ClaudeIn to share my thoughts and ideas!"
+      }]
+    }
+
+    const sample = [
+      '# yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml',
+      stringify(posts)
+    ].join('\n\n')
+
+
+    await writeFile(file, sample)
+  })
 
 const start = command('start')
 
@@ -104,4 +133,7 @@ const start = command('start')
     open(`https://${DOMAIN}${links.post.port(port)}`)
   })
 
-cli('cin').use(start).run()
+cli('cin')
+  .use(init)
+  .use(start)
+  .run()
