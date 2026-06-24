@@ -29,8 +29,10 @@ The default file is `posts.yml` but users can use any `.yml` file (pass it to `c
 
 When generating or sourcing images and videos (e.g. with Remotion), target LinkedIn's specs:
 
-**Images:** 1200×627 px (1.91:1 landscape) or 1080×1080 px (1:1 square) — PNG or JPG, high resolution
+**Both images and videos:** 1:1 to 4:5 aspect ratio, 1080×1080 px up to 1080×1350 px
 
-**Videos:** MP4, H.264, at least 1280×720 px, 16:9 aspect ratio — up to 4096×2304 supported
+**Images:** PNG or JPG
 
-Low resolution or non-standard aspect ratios may be cropped or rejected by LinkedIn.
+**Videos:** MP4, H.264
+
+Content outside the 1:1–4:5 range may be cropped or rejected by LinkedIn.
