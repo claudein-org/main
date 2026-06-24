@@ -153,6 +153,7 @@ export const terminalBody = css({
 })
 
 export const terminalSuccess = css({ color: "#57AB5A" })
+export const terminalComment = css({ color: "#768390" })
 
 export const terminalDot = css({
   width: "12px",

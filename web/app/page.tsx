@@ -1,8 +1,8 @@
-import { align, col, gap, row, w, wrap } from "@/css/layout.css"
+import { align, gap, row, w, wrap } from "@/css/layout.css"
 import {
-  altSection, card, color, font,
+  altSection, color, font,
   heroLeft, heroRight, heroSection, muted, navInner,
-  stepNum, terminal, terminalBody, terminalDot,
+  terminal, terminalBody, terminalComment, terminalDot,
   terminalDotGreen, terminalDotRed, terminalDotYellow,
   terminalHeader, terminalSuccess, tracking,
 } from "@/css/style.css"
@@ -10,21 +10,6 @@ import { cx } from "@/styled-system/css"
 import Image from "next/image"
 
 const GITHUB_URL = "https://github.com/claudein-org/main"
-
-const steps = [
-  {
-    label: "install",
-    body: <>Run <code>npm install -g @claudein.org/cli</code> to get the CLI tool.</>,
-  },
-  {
-    label: "connect",
-    body: <>Run <code>cin start</code> — it opens your browser to sign in with Google and connect your LinkedIn account.</>,
-  },
-  {
-    label: "post",
-    body: <>Tell Claude Code: <code>post this to LinkedIn</code>. It calls claudein. Done.</>,
-  },
-]
 
 export default function page() {
   return (
@@ -52,7 +37,7 @@ export default function page() {
             Post to LinkedIn,<br />from your terminal.
           </h1>
           <p className={cx(muted, font.size.lg)}>
-            claudein connects Claude Code to LinkedIn. One command to share what you&apos;re building with the world.
+            claudein connects Claude Code to LinkedIn. Write your posts in a local YAML file — or let Claude Code draft them — and publish to LinkedIn with one click.
           </p>
           <div className={cx(row, align.center, gap.sm, wrap)}>
             <code>npm install -g @claudein.org/cli</code>
@@ -67,8 +52,8 @@ export default function page() {
               <div className={cx(terminalDot, terminalDotGreen)} />
             </div>
             <div className={terminalBody}>
-              <p><span className={muted}>$</span> cin post &quot;Just launched dark mode 🌙&quot;</p>
-              <p className={terminalSuccess}>✓ Posted to LinkedIn</p>
+              <p><span className={muted}>$</span> cin start posts.yml</p>
+              <p className={terminalSuccess}>✓ Preview open — claudein.org/post/54321</p>
             </div>
           </div>
         </div>
@@ -78,16 +63,26 @@ export default function page() {
         <h2 className={cx(font.size.xl, font.weight.bold, tracking.tight)}>
           how it works
         </h2>
-        <div className={cx(col, gap.md, w.content)}>
-          {steps.map(({ label, body }, i) => (
-            <div key={label} className={cx(row, gap.md, align.center, card)}>
-              <div className={stepNum}>{i + 1}</div>
-              <div className={cx(col, gap.xs)}>
-                <span className={cx(font.weight.bold)}>{label}</span>
-                <p className={muted}>{body}</p>
-              </div>
+        <div className={w.content}>
+          <div className={terminal}>
+            <div className={terminalHeader}>
+              <div className={cx(terminalDot, terminalDotRed)} />
+              <div className={cx(terminalDot, terminalDotYellow)} />
+              <div className={cx(terminalDot, terminalDotGreen)} />
             </div>
-          ))}
+            <div className={terminalBody}>
+              <p className={terminalComment}># step 1 — install the CLI</p>
+              <p><span className={muted}>$</span> npm install -g @claudein.org/cli</p>
+              <p></p>
+              <p className={terminalComment}># step 2 — start the live preview server</p>
+              <p><span className={muted}>$</span> cin start posts.yml</p>
+              <p className={terminalSuccess}>✓ Preview open at claudein.org/post/54321</p>
+              <p></p>
+              <p className={terminalComment}># step 3 — write &amp; publish</p>
+              <p className={terminalComment}># edit posts.yml directly, or ask Claude Code to draft for you</p>
+              <p className={terminalComment}># the preview updates live — click &quot;Post to LinkedIn&quot; when ready</p>
+            </div>
+          </div>
         </div>
       </div>
     </main>
