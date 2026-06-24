@@ -92,13 +92,20 @@ export const navInner = css({
 /* Home hero */
 export const heroSection = css({
   display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  flexGrow: 1,
+  padding: "4rem 2rem",
+})
+
+export const heroInner = css({
+  display: "flex",
   flexDirection: "row",
   flexWrap: "wrap",
   alignItems: "center",
   gap: "3rem",
-  padding: "5rem 2rem",
   maxWidth: "1128px",
-  margin: "0 auto",
   width: "100%",
 })
 
@@ -110,7 +117,7 @@ export const heroLeft = css({
 })
 
 export const heroRight = css({
-  flex: "1 1 300px",
+  flex: "1 1 340px",
 })
 
 /* Alternate-background section (LinkedIn #F3F2EF) */

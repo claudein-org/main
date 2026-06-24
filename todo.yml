@@ -14,6 +14,9 @@ Introduction:
 TODO:
   - cli:
   - web:
+
+Done:
+  - web:
       - Rearrange the Homepage:
           - title: "Claude Code + Linkedin = ClaudeIn"
           - subtitle: "A tiny tool to publish posts to Linkedin using Claude Code."
@@ -21,9 +24,6 @@ TODO:
           - Move the "how it works" terminal to the right of the title.
           - Position everything in the center of the page.
           - Make it responsive.
-
-Done:
-  - web:
       - In the home page -> how it works section, make sure the instructions are styled as a terminal window, write the explanations as a code comments.
       - read and fully understand the command line and the web app and the entire process of publishing posts to linkedin and update the homepage accordingly.
       - add a github star budge to the home page.

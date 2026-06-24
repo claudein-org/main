@@ -1,7 +1,7 @@
-import { align, gap, row, w, wrap } from "@/css/layout.css"
+import { align, gap, row } from "@/css/layout.css"
 import {
-  altSection, color, font,
-  heroLeft, heroRight, heroSection, muted, navInner,
+  color, font,
+  heroInner, heroLeft, heroRight, heroSection, muted, navInner,
   terminal, terminalBody, terminalComment, terminalDot,
   terminalDotGreen, terminalDotRed, terminalDotYellow,
   terminalHeader, terminalSuccess, tracking,
@@ -32,55 +32,36 @@ export default function page() {
       </nav>
 
       <div className={heroSection}>
-        <div className={heroLeft}>
-          <h1 className={cx(font.size.hero, font.weight.bold, tracking.tight)}>
-            Post to LinkedIn,<br />from your terminal.
-          </h1>
-          <p className={cx(muted, font.size.lg)}>
-            claudein connects Claude Code to LinkedIn. Write your posts in a local YAML file — or let Claude Code draft them — and publish to LinkedIn with one click.
-          </p>
-          <div className={cx(row, align.center, gap.sm, wrap)}>
-            <code>npm install -g @claudein.org/cli</code>
+        <div className={heroInner}>
+          <div className={heroLeft}>
+            <h1 className={cx(font.size.hero, font.weight.bold, tracking.tight)}>
+              Claude Code + LinkedIn =&nbsp;
+              <span className={cx(color.claude)}>Claude</span><span className={cx(color.linkedin)}>In</span>
+            </h1>
+            <p className={cx(muted, font.size.lg)}>
+              A tiny tool to publish posts to LinkedIn using Claude Code.
+            </p>
           </div>
-        </div>
 
-        <div className={heroRight}>
-          <div className={terminal}>
-            <div className={terminalHeader}>
-              <div className={cx(terminalDot, terminalDotRed)} />
-              <div className={cx(terminalDot, terminalDotYellow)} />
-              <div className={cx(terminalDot, terminalDotGreen)} />
-            </div>
-            <div className={terminalBody}>
-              <p><span className={muted}>$</span> cin start posts.yml</p>
-              <p className={terminalSuccess}>✓ Preview open — claudein.org/post/54321</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className={altSection}>
-        <h2 className={cx(font.size.xl, font.weight.bold, tracking.tight)}>
-          how it works
-        </h2>
-        <div className={w.content}>
-          <div className={terminal}>
-            <div className={terminalHeader}>
-              <div className={cx(terminalDot, terminalDotRed)} />
-              <div className={cx(terminalDot, terminalDotYellow)} />
-              <div className={cx(terminalDot, terminalDotGreen)} />
-            </div>
-            <div className={terminalBody}>
-              <p className={terminalComment}># step 1 — install the CLI</p>
-              <p><span className={muted}>$</span> npm install -g @claudein.org/cli</p>
-              <p></p>
-              <p className={terminalComment}># step 2 — start the live preview server</p>
-              <p><span className={muted}>$</span> cin start posts.yml</p>
-              <p className={terminalSuccess}>✓ Preview open at claudein.org/post/54321</p>
-              <p></p>
-              <p className={terminalComment}># step 3 — write &amp; publish</p>
-              <p className={terminalComment}># edit posts.yml directly, or ask Claude Code to draft for you</p>
-              <p className={terminalComment}># the preview updates live — click &quot;Post to LinkedIn&quot; when ready</p>
+          <div className={heroRight}>
+            <div className={terminal}>
+              <div className={terminalHeader}>
+                <div className={cx(terminalDot, terminalDotRed)} />
+                <div className={cx(terminalDot, terminalDotYellow)} />
+                <div className={cx(terminalDot, terminalDotGreen)} />
+              </div>
+              <div className={terminalBody}>
+                <p className={terminalComment}># step 1 — install the CLI</p>
+                <p><span className={muted}>$</span> npm install -g @claudein.org/cli</p>
+                <p></p>
+                <p className={terminalComment}># step 2 — start the live preview server</p>
+                <p><span className={muted}>$</span> cin start posts.yml</p>
+                <p className={terminalSuccess}>✓ Preview open at claudein.org/post/54321</p>
+                <p></p>
+                <p className={terminalComment}># step 3 — write &amp; publish</p>
+                <p className={terminalComment}># edit posts.yml directly, or ask Claude Code to draft for you</p>
+                <p className={terminalComment}># the preview updates live — click &quot;Post to LinkedIn&quot; when ready</p>
+              </div>
             </div>
           </div>
         </div>
