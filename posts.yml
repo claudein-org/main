@@ -8,7 +8,7 @@
 posts:
   - type: media
     created: 2026-06-24
-    text: Something's different about how I post on LinkedIn. ClaudeIn.
+    text: Claude Code + Linkedin = ClaudeIn.
     media:
       type: video
       src: video/out/ClaudeInText.mp4
