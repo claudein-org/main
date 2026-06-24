@@ -48,8 +48,7 @@ export default function WS({ port, published }: Props) {
             return <img className={postImg} src={`data:image/*;base64,${base64}`} alt="Post media" />
         },
         video({ base64 }) {
-            // TODO: auto play and loop
-            return <video className={postImg} controls>
+            return <video className={postImg} autoPlay loop muted playsInline>
                 <source src={`data:video/*;base64,${base64}`} type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
@@ -64,8 +63,13 @@ export default function WS({ port, published }: Props) {
         text({ text }) {
             return <p style={{ whiteSpace: 'pre-wrap' }}>{text}</p>
         },
-        media({ media }) {
-            return showMedia(media)
+        media({ text, media }) {
+            return (
+                <>
+                    <p style={{ whiteSpace: 'pre-wrap' }}>{text}</p>
+                    {showMedia(media)}
+                </>
+            )
         }
     }
 
