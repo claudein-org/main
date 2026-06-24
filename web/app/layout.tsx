@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ClaudeIn",
   description: "Post to LinkedIn from claude code.",
+  openGraph: {
+    title: "ClaudeIn",
+    description: "Post to LinkedIn from claude code.",
+    images: [{ url: "/og.png" }],
+  },
 }
 
 interface Props {
