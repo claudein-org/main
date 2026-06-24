@@ -36,3 +36,25 @@ When generating or sourcing images and videos (e.g. with Remotion), target Linke
 **Videos:** MP4, H.264
 
 Content outside the 1:1–4:5 range may be cropped or rejected by LinkedIn.
+
+### Remotion
+
+Set the composition to exactly the target resolution:
+
+```ts
+<Composition width={1080} height={1080} ... />  // or height={1350} for 4:5
+```
+
+Any SVG used inside a composition must have its `width`, `height`, and `viewBox` match the composition dimensions — do not rely on SVG auto-scaling:
+
+```tsx
+<svg width={1080} height={1080} viewBox="0 0 1080 1080">...</svg>
+```
+
+Render with high quality settings:
+
+```bash
+npx remotion render --codec h264 --crf 18 --pixel-format yuv420p
+```
+
+Low CRF (≤18) means high quality. Do not use default CRF — it produces noticeably lower quality video.
