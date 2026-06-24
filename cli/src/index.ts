@@ -61,7 +61,6 @@ const start = command('start')
 
   .action(async ({ inputs: { file } }) => {
 
-    const cons: WebSocket[] = []
     const wss = new WebSocketServer({ port: 0 })
     const $payloads = atom<proto.Payload[]>([])
     const $info = atom<string>('')
@@ -80,19 +79,15 @@ const start = command('start')
 
     wss.on('connection', (ws) => {
       console.log('Client connected')
-      cons.push(ws)
-      ws.send($info.get())
-      ws.on('close', () => cons.splice(cons.indexOf(ws), 1))
+      const unsub = $info.subscribe((info) => {
+        if (ws.readyState === WebSocket.OPEN) ws.send(info)
+      })
+
+      ws.on('close', unsub)
     })
 
     $payloads.subscribe((payloads) => {
       $info.set(JSON.stringify(payloads))
-    })
-
-    $info.subscribe((info) => {
-      cons.forEach((ws) => {
-        if (ws.readyState === WebSocket.OPEN) ws.send(info)
-      })
     })
 
     watch(file, loadPosts)
