@@ -61,6 +61,17 @@ const sample = [
   stringify(posts)
 ].join('\n\n')
 
+/*
+ TODO: 
+ 1. add version command to output the version
+ 2. in the start command, make the file optional and default to posts.yml
+ 3. add a command for shell autocomplete generation
+ 4. Update the description of the start command, make sure it explains the typical flow: 
+    - user start the server
+    - claude code generate posts to a .yml file
+    - user see live preview and can click to post to Linkedin.
+ */
+
 // COMMANDS
 const start = command('start')
 
