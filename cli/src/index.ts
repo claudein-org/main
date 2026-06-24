@@ -99,11 +99,22 @@ const start = command('start')
     const $payloads = atom<proto.Payload[]>([])
     const $info = atom<string>('')
 
+    const mediaWatchers: ReturnType<typeof watch>[] = []
+
     async function loadPosts() {
       try {
 
         const data = await readFile(file, 'utf-8')
         const posts = yml.Posts.parse(parse(data))
+
+        mediaWatchers.forEach(w => w.close())
+        mediaWatchers.length = 0
+        posts.posts.forEach(post => {
+          if (post.type === 'media') {
+            mediaWatchers.push(watch(post.media.src, loadPosts))
+          }
+        })
+
         const protoPosts = await ps2ps(posts)
         const payloads = protoPosts
           .map((post) => ({ hash: hash(post), post }))
@@ -131,7 +142,6 @@ const start = command('start')
       })
     })
 
-    // TODO: watch all media sources as well
     watch(file, loadPosts)
     await loadPosts()
 
