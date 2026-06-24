@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Don't bump if this commit is itself a version bump (avoids recursion)
+if git log -1 --format="%s" | grep -q "^chore: bump cli version$"; then
+  exit 0
+fi
+
+if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -qE '^(cli|common)/'; then
+  (cd cli && bun pm version patch --no-git-tag-version)
+  git add cli/package.json
+  git commit --no-verify -m "chore: bump cli version"
+fi
