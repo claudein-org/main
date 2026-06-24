@@ -49,14 +49,16 @@ function ps2ps(posts: yml.Posts): Promise<proto.Post[]> {
 }
 
 const init = command('init')
-
   .meta({
     description: 'Initialize a new posts .yml file with a sample post',
     examples: ['cin init my-posts.yml'],
   })
 
   .inputs({
-    file: positional(z.string().describe('Path to a .yml posts file'), 0),
+    file: positional(z
+      .string()
+      .describe('Path to a .yml posts file'), 0)
+      .default('posts.yml'),
   })
 
   .action(async ({ inputs: { file } }) => {
@@ -85,7 +87,10 @@ const start = command('start')
   })
 
   .inputs({
-    file: positional(z.string().describe('Path to a .yml posts file'), 0),
+    file: positional(z
+      .string()
+      .describe('Path to a .yml posts file'), 0)
+      .default('posts.yml'),
   })
 
   .action(async ({ inputs: { file } }) => {
