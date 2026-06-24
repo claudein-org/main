@@ -1,7 +1,7 @@
 ---
 name: claudein
 description: Create LinkedIn posts using the claudein CLI. Use when the user wants to write, draft, or schedule LinkedIn posts, or when working with any .yml posts file.
-allowed-tools: Edit, Write, Bash(cin *), Bash(pgrep *)
+allowed-tools: Edit, Write, Bash(cin *), Bash(pgrep *), Bash(curl *)
 ---
 
 # claudein — LinkedIn posts from the CLI
