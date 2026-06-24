@@ -13,8 +13,14 @@ Introduction:
 
 TODO:
   - cli:
-  - cli:
   - web:
+      - Rearrange the Homepage:
+          - title: "Claude Code + Linkedin = ClaudeIn"
+          - subtitle: "A tiny tool to publish posts to Linkedin using Claude Code."
+          - Remove the small terminal.
+          - Move the "how it works" terminal to the right of the title.
+          - Position everything in the center of the page.
+          - Make it responsive.
 
 Done:
   - web:
