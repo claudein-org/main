@@ -48,6 +48,7 @@ export default function WS({ port, published }: Props) {
             return <img className={postImg} src={`data:image/*;base64,${base64}`} alt="Post media" />
         },
         video({ base64 }) {
+            // TODO: auto play and loop
             return <video className={postImg} controls>
                 <source src={`data:video/*;base64,${base64}`} type="video/mp4" />
                 Your browser does not support the video tag.

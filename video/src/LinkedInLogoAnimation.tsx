@@ -27,6 +27,7 @@ export function LinkedInLogoAnimation() {
 
   return (
     <svg width="800" height="800" viewBox="2 2 12 12" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="12" height="12" fill="#FFFFFF"/>
       {/* Blue background — scales from center */}
       <g transform={`translate(${BG_CX},${BG_CY}) scale(${bgScale}) translate(${-BG_CX},${-BG_CY})`}>
         <path fill="#0A66C2" d="M 13.11,2 L 2.885,2 A 0.88,0.88 0 0,0 2,2.866 l 0,10.268 a 0.88,0.88 0 0,0 0.885,0.866 l 10.226,0 a 0.882,0.882 0 0,0 0.889,-0.866 L 14,2.865 a 0.88,0.88 0 0,0 -0.889,-0.864 z"/>
