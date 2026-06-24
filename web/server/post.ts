@@ -7,8 +7,8 @@ import { proto } from "@claudein.org/common"
 import assert from "assert"
 
 const MIN_MS = 1000 * 60
-export async function post(raw: proto.Post) {
-    const post = proto.Post.parse(raw)
+export async function postToLinkedin(raw: proto.Payload) {
+    const { hash, post } = proto.Payload.parse(raw)
 
     const { user_id } = await cook.get()
 
@@ -28,7 +28,11 @@ export async function post(raw: proto.Post) {
 
     await db
         .insertInto('posts')
-        .values({ post_urn: urn, user_id, post_id: post.post_id })
+        .values({
+            post_id: hash,
+            post_urn: urn,
+            user_id
+        })
         .execute()
 
     return { urn }

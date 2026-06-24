@@ -83,16 +83,18 @@ const start = command('start')
 
 
     wss.on('connection', (ws) => {
-      console.log('Client connected')
-      const unsub = $info.subscribe((info) => {
-        if (ws.readyState === WebSocket.OPEN) ws.send(info)
-      })
-
-      ws.on('close', unsub)
+      const current = $info.get()
+      if (current) ws.send(current)
     })
 
     $payloads.subscribe((payloads) => {
       $info.set(JSON.stringify(payloads))
+    })
+
+    $info.subscribe((info) => {
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) client.send(info)
+      })
     })
 
     watch(file, loadPosts)

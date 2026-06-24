@@ -49,6 +49,9 @@ export namespace proto {
         hash: z.string(),
         post: Post
     })
+
+    export type Payloads = z.infer<typeof Payloads>
+    export const Payloads = z.array(Payload)
 }
 
 

@@ -1,20 +1,21 @@
 'use client'
 import { align, col, gap, row } from "@/css/layout.css"
 import { avatar, btn, card, color, font, muted, postImg } from "@/css/style.css"
-import { post } from "@/server/post"
+import { postToLinkedin } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
 
+type Published = { [hash: string]: string }
 interface Props {
-    published: { [post_id: number]: string }
+    published: Published
     port: number
 }
 
 export default function WS({ port, published }: Props) {
-    const [payload, setPayload] = useState<proto.Payload>()
-    const [links, setLinks] = useState<{ [post_id: number]: string }>(published)
-    const [posting, setPosting] = useState<{ [post_id: number]: boolean }>({})
+    const [payloads, setPayloads] = useState<proto.Payloads>([])
+    const [links, setLinks] = useState<Published>(published)
+    const [posting, setPosting] = useState<Set<string>>(new Set())
 
     useEffect(() => { setLinks(published) }, [published])
 
@@ -22,30 +23,34 @@ export default function WS({ port, published }: Props) {
         const ws = new WebSocket(`ws://localhost:${port}`)
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            setPayload(proto.Payload.parse(data))
+            setPayloads(proto.Payloads.parse(data))
         }
         return () => ws.close()
     }, [port])
 
-    async function handlePost(p: proto.Post) {
-        setPosting(prev => ({ ...prev, [p.post_id]: true }))
+    async function handlePost({ hash, post }: proto.Payload) {
         try {
-            const res = await post(p)
+            setPosting(prev => new Set(prev).add(hash))
+            const res = await postToLinkedin({ hash, post })
             if (!res) return
-            setLinks(prev => ({ ...prev, [p.post_id]: `https://www.linkedin.com/feed/update/${res.urn}` }))
+            setLinks(prev => ({ ...prev, [hash]: `https://www.linkedin.com/feed/update/${res.urn}` }))
         } finally {
-            setPosting(prev => ({ ...prev, [p.post_id]: false }))
+            setPosting(prev => {
+                const newSet = new Set(prev)
+                newSet.delete(hash)
+                return newSet
+            })
         }
     }
 
     return <div className={cx(col, gap.lg)}>
-        {payload?.posts.map((p) => {
-            const { post_id, created, text } = p
-            const image = p.type === 'image' ? p.image : undefined
-            const link = links[post_id]
-            const isPosting = posting[post_id]
+        {payloads.map(({ hash, post }) => {
+            const { created, text } = post
+            const image = post.type === 'image' ? post.image : undefined
+            const link = links[hash]
+            const isPosting = posting.has(hash)
             return (
-                <div key={post_id} className={card}>
+                <div key={hash} className={card}>
                     <div className={cx(row, align.center, gap.sm)}>
                         <div className={avatar} />
                         <div className={cx(col, gap.xs)}>
@@ -62,7 +67,7 @@ export default function WS({ port, published }: Props) {
                             ? <a href={link} target="_blank" rel="noopener noreferrer" className={color.linkedin}>
                                 View on LinkedIn
                             </a>
-                            : <button className={btn({ color: 'linkedin' })} onClick={() => handlePost(p)} disabled={isPosting}>
+                            : <button className={btn({ color: 'linkedin' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
                                 {isPosting ? 'Posting…' : 'Post to LinkedIn'}
                             </button>
                         }

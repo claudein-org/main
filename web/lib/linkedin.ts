@@ -1,8 +1,6 @@
 import { proto } from '@claudein.org/common'
-import { readFile } from 'fs/promises'
 import ky from 'ky'
 import z from 'zod'
-import { db } from './db'
 // https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin
 export namespace linkedin {
     const BASE = 'https://api.linkedin.com/v2'
@@ -177,38 +175,6 @@ export namespace linkedin {
 
         return await handle(post)
     }
-
-
-
-    export async function main() {
-        const { access_token, author_urn } = await db
-            .selectFrom('linkedin')
-            .select(['access_token', 'author_urn'])
-            .where('user_id', '=', 1)
-            .executeTakeFirstOrThrow()
-
-        // IMAGE POST
-        const data = await readFile('test.jpg')
-        await post({ access_token, author_urn }, {
-            post_id: 1,
-            created: new Date().toISOString(),
-            type: 'image',
-            text: 'Test image post from Claudein',
-            image: {
-                src: 'test.jpg',
-                base64: data.toString('base64'),
-                title: 'Test Image',
-                description: 'This is a test image post from Claudein'
-            }
-        })
-
-    }
 }
 
 
-if (import.meta.main) {
-    await linkedin.main().catch(err => {
-        console.dir(err, { depth: null })
-    })
-    process.exit(0)
-}
