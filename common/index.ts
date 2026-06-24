@@ -1,6 +1,7 @@
-export { links } from './links'
+export { links } from './links.js'
 
 import z from "zod"
+
 
 export namespace yml {
     export type Image = z.infer<typeof Image>
@@ -50,3 +51,4 @@ export namespace proto {
 
 
 
+export type PostType = yml.Post['type']

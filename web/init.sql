@@ -12,7 +12,7 @@ create table if not exists linkedin (
 
 create table if not exists posts (
   user_id int references users(user_id) on delete cascade,
-  post_id int not null,
+  post_id varchar(16) not null,
   
   post_date timestamp default current_timestamp,
   post_urn varchar(1000) not null,
