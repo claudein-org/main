@@ -33,37 +33,24 @@ properties:
             text:
               type: string
             media:
-              oneOf:
-                - type: object
-                  properties:
-                    type:
-                      type: string
+              type: object
+              properties:
+                type:
+                  anyOf:
+                    - type: string
                       const: image
-                    src:
-                      type: string
-                    title:
-                      type: string
-                    description:
-                      type: string
-                  required:
-                    - type
-                    - src
-                  additionalProperties: false
-                - type: object
-                  properties:
-                    type:
-                      type: string
+                    - type: string
                       const: video
-                    src:
-                      type: string
-                    title:
-                      type: string
-                    description:
-                      type: string
-                  required:
-                    - type
-                    - src
-                  additionalProperties: false
+                src:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+              required:
+                - type
+                - src
+              additionalProperties: false
           required:
             - created
             - type

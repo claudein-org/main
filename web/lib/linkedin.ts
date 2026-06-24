@@ -1,4 +1,4 @@
-import { proto } from '@claudein.org/common'
+import { MediaType, proto } from '@claudein.org/common'
 import ky from 'ky'
 import z from 'zod'
 // https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin
@@ -44,7 +44,7 @@ export namespace linkedin {
 
     interface ShareContent {
         shareCommentary: Text,
-        shareMediaCategory: 'NONE' | 'IMAGE' | 'ARTICLE'
+        shareMediaCategory: 'NONE' | 'IMAGE' | 'ARTICLE' | 'VIDEO',
         media: ShareMedia[]
     }
 
@@ -59,9 +59,10 @@ export namespace linkedin {
     }
 
     // UPLOAD IMAGE
+    type Recipe = 'urn:li:digitalmediaRecipe:feedshare-image' | 'urn:li:digitalmediaRecipe:feedshare-video'
     interface RegisterBinary {
         registerUploadRequest: {
-            recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
+            recipes: [Recipe],
             owner: string,
             serviceRelationships: [{
                 relationshipType: 'OWNER',
@@ -116,6 +117,11 @@ export namespace linkedin {
         author_urn: string
     }
 
+    const recipes: { [key in MediaType]: Recipe } = {
+        image: 'urn:li:digitalmediaRecipe:feedshare-image',
+        video: 'urn:li:digitalmediaRecipe:feedshare-video'
+    }
+
     export async function post({ access_token, author_urn }: Author, post: proto.Post) {
         const postHandler: { [key in proto.Post['type']]: (args: Extract<proto.Post, { type: key }>) => ReturnType<typeof share> } = {
             async text({ text }) {
@@ -135,17 +141,17 @@ export namespace linkedin {
                 })
             },
 
-            async media({ text, media: { base64, title, description, mimeType } }) {
+            async media({ text, media: { type, base64, title, description } }) {
                 const { asset, status } = await uploadBinary(access_token, {
                     registerUploadRequest: {
-                        recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
+                        recipes: [recipes[type]],
                         owner: urnPerson(author_urn),
                         serviceRelationships: [{
                             relationshipType: 'OWNER',
                             identifier: 'urn:li:userGeneratedContent'
                         }]
                     }
-                }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))], { type: mimeType }))
+                }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))]))
 
 
                 return await share(access_token, {

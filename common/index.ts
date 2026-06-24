@@ -3,22 +3,13 @@ export { links } from './links'
 import z from "zod"
 
 export namespace yml {
-    export const ImageMedia = z.object({
-        type: z.literal('image'),
-        src: z.string(),
-        title: z.string().optional(),
-        description: z.string().optional(),
-    })
-
-    export const VideoMedia = z.object({
-        type: z.literal('video'),
-        src: z.string(),
-        title: z.string().optional(),
-        description: z.string().optional(),
-    })
-
     export type Media = z.infer<typeof Media>
-    export const Media = z.discriminatedUnion('type', [ImageMedia, VideoMedia])
+    export const Media = z.object({
+        type: z.union([z.literal('image'), z.literal('video')]),
+        src: z.string(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+    })
 
     const Base = z.object({
         created: z.iso.datetime(),
@@ -43,25 +34,11 @@ export namespace yml {
 }
 
 export namespace proto {
-    const ImageMedia = yml.ImageMedia.extend({
-        base64: z.string(),
-        mimeType: z.union([
-            z.literal('image/jpeg'),
-            z.literal('image/png'),
-            z.literal('image/gif')
-        ]),
-    })
-
-    const VideoMedia = yml.VideoMedia.extend({
-        base64: z.string(),
-        mimeType: z.union([
-            z.literal('video/mp4'),
-            z.literal('video/mpeg')
-        ]),
-    })
-
     export type Media = z.infer<typeof Media>
-    export const Media = z.discriminatedUnion('type', [ImageMedia, VideoMedia])
+    const Media = yml.Media.extend({
+        base64: z.string(),
+    })
+
 
     const PostMedia = yml.PostMedia.extend({
         media: Media
