@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml
 
 posts:
-  - type: "image"
-    post_id: 0
+  - type: "media"
     created: 2024-06-05T12:00:00Z
     text: "I'm starting to build ClaudeIn"
-    image:
+    media:
+      type: "image"
       src: "image.png"
