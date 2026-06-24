@@ -131,6 +131,7 @@ const start = command('start')
       })
     })
 
+    // TODO: watch all media sources as well
     watch(file, loadPosts)
     await loadPosts()
 

@@ -7,19 +7,8 @@
 
 posts:
   - type: media
-    created: 2026-06-24T08:03:41.319Z
-    text: ClaudeIn is open source and free to use.
-    media:
-      type: video
-      src: video/out/LinkedInLogo.mp4
-
-  - type: media
-    created: 2026-06-24T08:03:41.319Z
-    text: Post to LinkedIn with Claude — directly from the command line.
+    created: 2026-06-24
+    text: Something's different about how I post on LinkedIn. ClaudeIn.
     media:
       type: video
       src: video/out/ClaudeInText.mp4
-
-  - type: text
-    created: 2026-06-24T08:03:41.319Z
-    text: I'm using ClaudeIn to share my thoughts and ideas!
