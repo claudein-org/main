@@ -3,11 +3,16 @@
   "version": "0.1.14",
   "description": "Post to LinkedIn from the command line",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/claudein-org/main.git"
+  },
   "bin": {
-    "cin": "./dist/index.js"
+    "cin": "dist/index.js"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "files": [
     "dist"
