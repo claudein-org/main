@@ -77,88 +77,73 @@ function Scene1() {
         [0, 1, 1, 0],
         { extrapolateRight: 'clamp', extrapolateLeft: 'clamp' }
     )
-    const scale = interpolate(frame, [S1_IN[0], S1_OUT[0]], [0.97, 1.03], {
-        extrapolateRight: 'clamp',
-        extrapolateLeft: 'clamp',
-    })
-
     const input = <span style={{ color: '#d97757' }}>&gt; </span>
     const output = <span style={{ color: '#ffffff' }}>● </span>
     return (
-        <Fill
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '1.5rem',
-                opacity,
-            }}
-        >
-            <div style={{ transform: `scale(${scale})`, width: '100%', maxWidth: '760px' }}>
-                <ClaudeCode>
-                    {frame >= S1_CMD1[0] && (
-                        <div>
-                            {input}
-                            <Typed text="/claudein" from={S1_CMD1[0]} to={S1_CMD1[1]} />
-                            {frame < S1_RESP1[0] && <Cursor from={S1_CMD1[1]} />}
-                        </div>
-                    )}
+        <Fill style={{ opacity }}>
+            <ClaudeCode>
+                {frame >= S1_CMD1[0] && (
+                    <div>
+                        {input}
+                        <Typed text="/claudein" from={S1_CMD1[0]} to={S1_CMD1[1]} />
+                        {frame < S1_RESP1[0] && <Cursor from={S1_CMD1[1]} />}
+                    </div>
+                )}
 
-                    {frame >= S1_RESP1[0] && (
-                        <div>
-                            {output}
+                {frame >= S1_RESP1[0] && (
+                    <div>
+                        {output}
+                        <Typed
+                            text="What do you want me to write?"
+                            from={S1_RESP1[0]}
+                            to={S1_RESP1[1]}
+                        />
+                    </div>
+                )}
+
+                {frame >= S1_CMD2[0] && (
+                    <div>
+                        {input}
+                        <Typed text={'Write a viral post and also add a short animated ClaudeIn logo, do your best, make no mistakes.'} from={S1_CMD2[0]} to={S1_CMD2[1]} />
+                        {frame >= S1_CMD2[1] && frame < S1_THINKING[0] && <Cursor from={S1_CMD2[1]} />}
+                    </div>
+                )}
+
+                <Thinking from={S1_THINKING[0]} to={S1_THINKING[1]} />
+
+                {frame >= S1_TOOL[0] && (
+                    <>
+                        <p style={{ paddingLeft: '1.5rem' }}>
                             <Typed
-                                text="What do you want me to write?"
-                                from={S1_RESP1[0]}
-                                to={S1_RESP1[1]}
+                                text="On it! Creating your viral post with the ClaudeIn logo animation..."
+                                from={S1_TOOL[0]}
+                                to={S1_TOOL[0] + 18}
                             />
-                        </div>
-                    )}
-
-                    {frame >= S1_CMD2[0] && (
-                        <div>
-                            {input}
-                            <Typed text={'Write a viral post and also add a short animated ClaudeIn logo, do your best, make no mistakes.'} from={S1_CMD2[0]} to={S1_CMD2[1]} />
-                            {frame >= S1_CMD2[1] && frame < S1_THINKING[0] && <Cursor from={S1_CMD2[1]} />}
-                        </div>
-                    )}
-
-                    <Thinking from={S1_THINKING[0]} to={S1_THINKING[1]} />
-
-                    {frame >= S1_TOOL[0] && (
-                        <>
-                            <p style={{ paddingLeft: '1.5rem' }}>
-                                <Typed
-                                    text="On it! Creating your viral post with the ClaudeIn logo animation..."
-                                    from={S1_TOOL[0]}
-                                    to={S1_TOOL[0] + 18}
-                                />
-                            </p>
-                            <p>
-                                <span style={{ color: '#6CB6FF' }}>●</span>{' '}
-                                <Typed
-                                    text="Bash(claudein write --viral --with-animation)"
-                                    from={S1_TOOL[0] + 8}
-                                    to={S1_TOOL[1]}
-                                />
-                            </p>
-                        </>
-                    )}
-
-                    {frame >= S1_SUCCESS && (
-                        <p style={{ paddingLeft: '1.5rem', color: '#57AB5A' }}>
-                            ✓ Published · 🚀 ClaudeIn logo animation added
                         </p>
-                    )}
-
-                    {frame >= S1_CURSOR && (
                         <p>
-                            <span style={{ color: '#d97757' }}>&gt;</span>{' '}
-                            <Cursor from={S1_CURSOR} />
+                            <span style={{ color: '#6CB6FF' }}>●</span>{' '}
+                            <Typed
+                                text="Bash(claudein write --viral --with-animation)"
+                                from={S1_TOOL[0] + 8}
+                                to={S1_TOOL[1]}
+                            />
                         </p>
-                    )}
-                </ClaudeCode>
-            </div>
+                    </>
+                )}
+
+                {frame >= S1_SUCCESS && (
+                    <p style={{ paddingLeft: '1.5rem', color: '#57AB5A' }}>
+                        ✓ Published · 🚀 ClaudeIn logo animation added
+                    </p>
+                )}
+
+                {frame >= S1_CURSOR && (
+                    <p>
+                        <span style={{ color: '#d97757' }}>&gt;</span>{' '}
+                        <Cursor from={S1_CURSOR} />
+                    </p>
+                )}
+            </ClaudeCode>
         </Fill>
     )
 }
@@ -169,7 +154,7 @@ function PostContent() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p>I just published a LinkedIn post with ClaudeIn. 🤯</p>
-            <div style={{ width: '70%', aspectRatio: '1', margin: '0 auto', position: 'relative' }}>
+            <div style={{ width: '100%', aspectRatio: '4/5' }}>
                 <ClaudeInTextAnimation />
             </div>
             <p style={{ color: '#0a66c2' }}>
@@ -217,18 +202,9 @@ function Scene2() {
     )
 
     return (
-        <Fill
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '1.5rem',
-                opacity,
-                transform: `translateY(${translateY}px)`,
-            }}
-        >
+        <Fill style={{ opacity, transform: `translateY(${translateY}px)` }}>
             <LinkedInPost likes={likes} comments={comments} reposts={reposts}>
-                <PostContent />
+                {/* <PostContent /> */}
             </LinkedInPost>
         </Fill>
     )
@@ -237,7 +213,7 @@ function Scene2() {
 // ─── Root Remotion composition ────────────────────────────────────────────────
 export function DemoComposition() {
     return (
-        <Fill style={{ background: '#F3F2EF' }}>
+        <Fill style={{ background: '#F3F2EF', fontSize: 32 }}>
             <Scene1 />
             <Scene2 />
         </Fill>

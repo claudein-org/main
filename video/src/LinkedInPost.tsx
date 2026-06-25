@@ -83,23 +83,22 @@ const engageBtn: React.CSSProperties = {
 export default function LinkedInPost({ likes, comments, reposts, children }: Props) {
     return (
         <div style={{
-            border: '1px solid #e0e0e0',
-            borderRadius: '12px',
             padding: '1.25rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
-            maxWidth: '552px',
+            gap: '1em',
             width: '100%',
+            height: '100%',
             background: '#ffffff',
+            containerType: 'inline-size',
         }}>
             {/* Header */}
             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '0.75rem' }}>
                 <img
                     src={staticFile('gilad.jpeg')}
                     style={{
-                        width: '48px',
-                        height: '48px',
+                        width: '10cqw',
+                        aspectRatio: 1,
                         borderRadius: '50%',
                         background: '#c0c0c0',
                         flexShrink: 0,
@@ -107,7 +106,7 @@ export default function LinkedInPost({ likes, comments, reposts, children }: Pro
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem', flex: 1 }}>
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.3rem' }}>
-                        <span style={{ fontWeight: 600, fontSize: '0.9375rem' }}>Gilad Kutiel</span>
+                        <span style={{ fontWeight: 600, fontSize: '2.3cqw' }}>Gilad Kutiel</span>
                         <IconLinkedIn />
                         <span style={{ fontSize: '0.8125rem', color: '#6b6b6b' }}>• You</span>
                     </div>
@@ -136,7 +135,7 @@ export default function LinkedInPost({ likes, comments, reposts, children }: Pro
             </div>
 
             {/* Content */}
-            <div style={{ fontSize: '0.9375rem' }}>{children}</div>
+            <div style={{ fontSize: '2cqw' }}>{children}</div>
 
             <div style={{ borderTop: '1px solid #e0e0e0' }} />
 

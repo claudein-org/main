@@ -27,8 +27,8 @@ export function RemotionRoot() {
         component={DemoComposition}
         durationInFrames={620}
         fps={30}
-        width={960}
-        height={580}
+        width={1080}
+        height={1350}
       />
     </>
   )

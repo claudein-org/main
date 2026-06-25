@@ -8,12 +8,10 @@ export default function Terminal({ children }: Props) {
     return (
         <div style={{
             background: '#1B1F24',
-            borderRadius: '12px',
-            overflow: 'hidden',
             width: '100%',
+            height: '100%',
             fontFamily: 'monospace',
-            fontSize: '0.875rem',
-            boxShadow: '0 4px 32px rgba(0,0,0,0.15)',
+            containerType: 'inline-size',
         }}>
             <div style={{
                 background: '#2D333B',
@@ -31,6 +29,7 @@ export default function Terminal({ children }: Props) {
                 color: '#CDD9E5',
                 display: 'flex',
                 flexDirection: 'column',
+                fontSize: '1.5cqw',
             }}>
                 {children}
             </div>

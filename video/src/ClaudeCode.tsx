@@ -7,12 +7,13 @@ interface Props {
 }
 
 export default function ClaudeCode({ children }: Props) {
+    const line = <div style={{ borderTop: '1px solid #6b7280' }} />
     return (
-        <div style={{ width: 'min(900px, 100%)' }}>
+        <div style={{ width: '100%', height: '100%' }}>
             <Terminal>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '1.2em', alignItems: 'center' }}>
                     <img src={staticFile('claudecode-color.svg')} style={{ width: '128px' }} />
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2em' }}>
                         <div style={{ fontSize: '1.1em', fontWeight: 'bold' }}>
                             Claude Code <span style={{ color: '#6b6b6b' }}>v3.14</span>
                         </div>
@@ -21,19 +22,19 @@ export default function ClaudeCode({ children }: Props) {
                     </div>
                 </div>
 
-                <div style={{ borderTop: '1px solid #373e47' }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75rem' }}>
+
+                {line}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75em', paddingBottom: '0.75em' }}>
                     {children}
                 </div>
+                {line}
 
                 <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     fontSize: '0.75rem',
                     color: '#768390',
-                    borderTop: '1px solid #373e47',
-                    paddingTop: '0.75rem',
-                    marginTop: '0.25rem',
+                    paddingTop: '0.75em',
                 }}>
                     <span>Sonnet 6.7 · ctx 1% | tok 0.9k | $0.001</span>
                     <span>claudein.org</span>
