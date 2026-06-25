@@ -67,6 +67,7 @@ export const card = css({
   gap: "1rem",
   maxWidth: "552px",
   width: "100%",
+  background: "#ffffff",
 })
 
 export const avatar = css({

@@ -1,8 +1,5 @@
 'use client'
 
-import { Player } from '@remotion/player'
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from 'remotion'
-import { cx } from '@/styled-system/css'
 import {
     terminalComment,
     terminalIndent,
@@ -10,6 +7,9 @@ import {
     terminalSuccess,
     terminalTool,
 } from '@/css/style.css'
+import { cx } from '@/styled-system/css'
+import { Player } from '@remotion/player'
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame } from 'remotion'
 import ClaudeCode from './ClaudeCode'
 import LinkedInPost from './LinkedInPost'
 
@@ -17,18 +17,19 @@ const FPS = 30
 const DURATION = 620
 
 // ─── Timing keyframes (absolute frames at 30fps) ─────────────────────────────
-const S1_IN:      [number, number] = [0, 25]
-const S1_CMD1:    [number, number] = [25, 55]      // "/claudein" types
-const S1_RESP1:   [number, number] = [70, 115]     // "What do you want me to write?"
-const S1_CMD2:    [number, number] = [130, 220]    // long user message
-const S1_TOOL:    [number, number] = [235, 265]    // tool call appears
-const S1_SUCCESS = 280                             // success line
-const S1_CURSOR  = 300                             // final blinking cursor
-const S1_OUT:     [number, number] = [355, 405]    // fade out
+const S1_IN: [number, number] = [0, 25]
+const S1_CMD1: [number, number] = [25, 55]      // "/claudein" types
+const S1_RESP1: [number, number] = [70, 115]     // "What do you want me to write?"
+const S1_CMD2: [number, number] = [130, 210]    // long user message
+const S1_THINKING: [number, number] = [215, 295]    // thinking before tool call
+const S1_TOOL: [number, number] = [295, 325]    // tool call appears
+const S1_SUCCESS = 340                              // success line
+const S1_CURSOR = 355                              // final blinking cursor
+const S1_OUT: [number, number] = [375, 420]    // fade out
 
-const S2_IN:       [number, number] = [375, 420]   // fade in
-const S2_COUNTERS: [number, number] = [435, 555]   // likes/comments/reposts
-const S2_OUT:      [number, number] = [575, 620]   // fade out
+const S2_IN: [number, number] = [395, 435]   // fade in
+const S2_COUNTERS: [number, number] = [450, 565]   // likes/comments/reposts
+const S2_OUT: [number, number] = [580, 620]   // fade out
 
 const USER_MSG =
     'Write a viral post and also add a short animated ClaudeIn logo, do your best, make no mistakes.'
@@ -44,6 +45,27 @@ function Typed({ text, from, to }: { text: string; from: number; to: number }) {
         })
     )
     return <>{text.slice(0, n)}</>
+}
+
+// ─── Claude Code thinking indicator (amber text, blue left border) ────────────
+const THINKING_SYMBOLS = ['+', '✦']
+const THINKING_MESSAGES = [
+    'thinking with high effort',
+    'thinking more with high effort',
+    'still thinking with high effort',
+]
+
+function Thinking({ from, to, startSeconds = 20 }: { from: number; to: number; startSeconds?: number }) {
+    const frame = useCurrentFrame()
+    if (frame < from || frame >= to) return null
+    const elapsed = startSeconds + Math.floor((frame - from) / FPS)
+    const symbol = THINKING_SYMBOLS[Math.floor((frame - from) / 15) % THINKING_SYMBOLS.length]
+    const msgIdx = Math.min(Math.floor((frame - from) / 35), THINKING_MESSAGES.length - 1)
+    return (
+        <div style={{ borderLeft: '3px solid #4493F8', paddingLeft: '0.75rem', color: '#DAAA3F' }}>
+            {symbol} Actioning… ({elapsed}s · {THINKING_MESSAGES[msgIdx]})
+        </div>
+    )
 }
 
 // ─── Blinking block cursor ────────────────────────────────────────────────────
@@ -104,9 +126,11 @@ function Scene1() {
                         <p>
                             <span className={terminalPrompt}>&gt;</span>{' '}
                             <Typed text={USER_MSG} from={S1_CMD2[0]} to={S1_CMD2[1]} />
-                            {frame < S1_TOOL[0] && <Cursor from={S1_CMD2[1]} />}
+                            {frame >= S1_CMD2[1] && frame < S1_THINKING[0] && <Cursor from={S1_CMD2[1]} />}
                         </p>
                     )}
+
+                    <Thinking from={S1_THINKING[0]} to={S1_THINKING[1]} />
 
                     {frame >= S1_TOOL[0] && (
                         <>
@@ -249,6 +273,7 @@ export default function Demo({ }: Props) {
             durationInFrames={DURATION}
             compositionWidth={960}
             compositionHeight={580}
+            acknowledgeRemotionLicense
             fps={FPS}
             style={{ width: '100%', borderRadius: '12px', overflow: 'hidden' }}
             autoPlay

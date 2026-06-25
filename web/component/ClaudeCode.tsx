@@ -21,20 +21,7 @@ export default function ClaudeCode({ children }: Props) {
             </div>
 
             <div className={terminalSep} />
-            {/*
-                EXAMPLE USAGE:
-
-                <p><span className={terminalPrompt}>&gt;</span> post to LinkedIn about ClaudeIn</p>
-
-                <p className={terminalIndent}>I'll post to your LinkedIn now.</p>
-
-                <div className={cx(col, gap.xs)}>
-                    <p><span className={terminalTool}>●</span> Bash(claudein post my-post.yml)</p>
-                    <p className={cx(terminalIndent, terminalSuccess)}>✓ Published · est. 2–3k impressions</p>
-                </div>
-
-                <p><span className={terminalPrompt}>&gt;</span> <span className={terminalComment}>▌</span></p>
-            */}
+            {children}
 
             <div className={terminalStatusBar}>
                 <span>Sonnet 6.7 · ctx 1% | tok 0.9k | $0.001</span>
