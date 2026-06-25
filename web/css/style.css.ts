@@ -169,6 +169,20 @@ export const terminalDot = css({
   flexShrink: 0,
 })
 
+export const terminalPrompt = css({ color: "#d97757" })
+export const terminalTool = css({ color: "#6CB6FF" })
+export const terminalIndent = css({ paddingLeft: "1.5rem" })
+export const terminalSep = css({ borderTop: "1px solid #373e47" })
+export const terminalStatusBar = css({
+  display: "flex",
+  justifyContent: "space-between",
+  fontSize: "0.75rem",
+  color: "#768390",
+  borderTop: "1px solid #373e47",
+  paddingTop: "0.75rem",
+  marginTop: "0.25rem",
+})
+
 export const terminalDotRed = css({ background: "#F47067" })
 export const terminalDotYellow = css({ background: "#DAAA3F" })
 export const terminalDotGreen = css({ background: "#57AB5A" })
