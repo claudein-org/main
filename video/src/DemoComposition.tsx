@@ -23,9 +23,6 @@ const S2_IN: [number, number] = [395, 435]
 const S2_COUNTERS: [number, number] = [450, 565]
 const S2_OUT: [number, number] = [580, 620]
 
-const USER_MSG =
-    'Write a viral post and also add a short animated ClaudeIn logo, do your best, make no mistakes.'
-
 // ─── Typed text – reveals characters over [from, to] frames ──────────────────
 function Typed({ text, from, to }: { text: string; from: number; to: number }) {
     const frame = useCurrentFrame()
@@ -84,6 +81,8 @@ function Scene1() {
         extrapolateLeft: 'clamp',
     })
 
+    const input = <span style={{ color: '#d97757' }}>&gt; </span>
+    const output = <span style={{ color: '#ffffff' }}>● </span>
     return (
         <Fill
             style={{
@@ -98,7 +97,7 @@ function Scene1() {
                 <ClaudeCode>
                     {frame >= S1_CMD1[0] && (
                         <div>
-                            <span style={{ color: '#d97757' }}>&gt;</span>{' '}
+                            {input}
                             <Typed text="/claudein" from={S1_CMD1[0]} to={S1_CMD1[1]} />
                             {frame < S1_RESP1[0] && <Cursor from={S1_CMD1[1]} />}
                         </div>
@@ -106,7 +105,7 @@ function Scene1() {
 
                     {frame >= S1_RESP1[0] && (
                         <div>
-                            <span style={{ color: '#ffffff' }}>◯</span>{' '}
+                            {output}
                             <Typed
                                 text="What do you want me to write?"
                                 from={S1_RESP1[0]}
@@ -116,11 +115,11 @@ function Scene1() {
                     )}
 
                     {frame >= S1_CMD2[0] && (
-                        <p>
-                            <span style={{ color: '#d97757' }}>&gt;</span>{' '}
-                            <Typed text={USER_MSG} from={S1_CMD2[0]} to={S1_CMD2[1]} />
+                        <div>
+                            {input}
+                            <Typed text={'Write a viral post and also add a short animated ClaudeIn logo, do your best, make no mistakes.'} from={S1_CMD2[0]} to={S1_CMD2[1]} />
                             {frame >= S1_CMD2[1] && frame < S1_THINKING[0] && <Cursor from={S1_CMD2[1]} />}
-                        </p>
+                        </div>
                     )}
 
                     <Thinking from={S1_THINKING[0]} to={S1_THINKING[1]} />
