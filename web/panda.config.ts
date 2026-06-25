@@ -26,6 +26,8 @@ export default defineConfig({
           textSecondary: { value: "#6b6b6b" },
           claude: { value: "#d97757" },
           linkedin: { value: "#0a66c2" },
+          facebook: { value: "#1877F2" },
+          instagram: { value: "#E1306C" },
         },
         fonts: {
           sans: { value: "var(--font-geist-sans), system-ui, sans-serif" },

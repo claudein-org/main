@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import { cook } from '@/lib/cookie'
 import { db } from '@/lib/db'
 import { env } from '@/lib/env'
-import { META_APP_ID } from '@/lib/settings'
+import { INSTAGRAM_APP_ID } from '@/lib/settings'
 import assert from 'assert'
 import ky from 'ky'
 import { redirect } from 'next/navigation'
@@ -12,16 +12,16 @@ import z from 'zod'
 
 const Token = z.object({
   access_token: z.string(),
+  // Instagram short-lived tokens don't include expires_in; exchange for long-lived below
+})
+
+const LongLivedToken = z.object({
+  access_token: z.string(),
   expires_in: z.number().int(),
 })
 
-const Page = z.object({
+const UserInfo = z.object({
   id: z.string(),
-  instagram_business_account: z.object({ id: z.string() }).optional(),
-})
-
-const PagesResult = z.object({
-  data: z.array(Page),
 })
 
 export async function GET(request: NextRequest) {
@@ -39,32 +39,38 @@ export async function GET(request: NextRequest) {
 
   const redirectUri = auth.getRedirectUri('instagram')
 
-  const tokenRes = await ky.get('https://graph.facebook.com/v21.0/oauth/access_token', {
-    searchParams: {
-      client_id: META_APP_ID,
-      client_secret: env.META_CLIENT_SECRET,
+  // Exchange code for short-lived token
+  const tokenRes = await ky.post('https://api.instagram.com/oauth/access_token', {
+    body: new URLSearchParams({
+      client_id: INSTAGRAM_APP_ID,
+      client_secret: env.INSTAGRAM_CLIENT_SECRET,
+      grant_type: 'authorization_code',
       redirect_uri: redirectUri,
       code: code!,
+    }),
+  })
+
+  const { access_token: short_lived_token } = Token.parse(await tokenRes.json())
+
+  // Exchange short-lived token for long-lived token (60 days)
+  const longLivedRes = await ky.get('https://graph.instagram.com/access_token', {
+    searchParams: {
+      grant_type: 'ig_exchange_token',
+      client_secret: env.INSTAGRAM_CLIENT_SECRET,
+      access_token: short_lived_token,
     },
   })
 
-  const { access_token, expires_in } = Token.parse(await tokenRes.json())
+  const { access_token, expires_in } = LongLivedToken.parse(await longLivedRes.json())
   const expires_at = Math.floor(Date.now() / 1000) + expires_in
 
-  // Resolve the connected Instagram Business Account from the user's Facebook Pages
-  const pages = PagesResult.parse(
+  const { id: instagram_account_id } = UserInfo.parse(
     await ky
-      .get('https://graph.facebook.com/v21.0/me/accounts', {
-        searchParams: { fields: 'id,instagram_business_account', access_token },
+      .get('https://graph.instagram.com/v21.0/me', {
+        searchParams: { fields: 'id', access_token },
       })
       .json(),
   )
-
-  const instagram_account_id = pages.data
-    .map((p) => p.instagram_business_account?.id)
-    .find(Boolean)
-
-  assert(instagram_account_id, 'No Instagram Business Account linked to any Facebook Page')
 
   await db
     .insertInto('instagram')

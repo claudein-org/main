@@ -49,3 +49,13 @@ export const pageCentered = css({
 
 export const wrap = css({ flexWrap: "wrap" })
 
+export const fixedTopRight = css({
+  position: "fixed",
+  top: "1rem",
+  right: "1rem",
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.5rem",
+  zIndex: 50,
+})
+

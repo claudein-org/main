@@ -2,7 +2,7 @@
 
 posts:
   - type: "media"
-    created: 2024-06-05T12:00:00Z
+    created: 2024-06-05
     text: "I'm starting to build ClaudeIn"
     media:
       type: "image"

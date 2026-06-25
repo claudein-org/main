@@ -20,25 +20,21 @@ export default async function page({ params }: Params) {
 
   if (!user_id) return <LoginPage />
 
-  const expires_at = await db
-    .selectFrom('linkedin')
-    .select(['expires_at'])
-    .where('user_id', '=', user_id)
-    .executeTakeFirst()
-    .then((res) => res?.expires_at)
-
-  const published = await db
-    .selectFrom('posts')
-    .select(['post_id', 'post_urn'])
-    .where('user_id', '=', user_id)
-    .execute()
-    .then((res) => Object.fromEntries(res.map(({ post_id, post_urn }) => [post_id, post_urn])))
+  const [linkedin, facebook, instagram, published] = await Promise.all([
+    db.selectFrom('linkedin').select(['expires_at']).where('user_id', '=', user_id).executeTakeFirst(),
+    db.selectFrom('facebook').select(['user_id']).where('user_id', '=', user_id).executeTakeFirst(),
+    db.selectFrom('instagram').select(['user_id']).where('user_id', '=', user_id).executeTakeFirst(),
+    db.selectFrom('posts').select(['post_id', 'post_urn']).where('user_id', '=', user_id).execute()
+      .then((res) => Object.fromEntries(res.map(({ post_id, post_urn }) => [post_id, post_urn]))),
+  ])
 
   return <main>
     <div className={pageCentered}>
       <Poster
         port={port}
-        expires_at={expires_at}
+        expires_at={linkedin?.expires_at}
+        facebookConnected={!!facebook}
+        instagramConnected={!!instagram}
         published={published} />
     </div>
   </main>

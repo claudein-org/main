@@ -13,6 +13,7 @@ const Env = z.object({
     LINKEDIN_CLIENT_SECRET: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
     META_CLIENT_SECRET: z.string(),
+    INSTAGRAM_CLIENT_SECRET: z.string(),
 })
 
 const DUMMY: Env = {
@@ -26,6 +27,7 @@ const DUMMY: Env = {
     LINKEDIN_CLIENT_SECRET: "",
     GOOGLE_CLIENT_SECRET: "",
     META_CLIENT_SECRET: "",
+    INSTAGRAM_CLIENT_SECRET: "",
 }
 
 const BUILD = process.env.NEXT_PHASE === "phase-production-build"

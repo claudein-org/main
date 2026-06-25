@@ -206,6 +206,8 @@ export const btn = cva({
       dark: { background: "text" },
       linkedin: { background: "linkedin" },
       claude: { background: "claude" },
+      facebook: { background: "facebook" },
+      instagram: { background: "instagram" },
     },
   },
 })

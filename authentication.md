@@ -134,37 +134,42 @@ CLI opens browser → user logs in via Google → user connects LinkedIn/Faceboo
 
 ## Instagram
 
-**Purpose:** Social connection. Grants the CLI permission to post to an Instagram Business or Creator account via the Instagram Graph API.
+**Purpose:** Social connection. Grants the CLI permission to post to an Instagram Business or Creator account.
 
 **Route:** `GET /auth/instagram/`
 
-> **Important:** The Instagram Basic Display API was shut down in December 2024. Posting to Instagram now requires the **Instagram Graph API**, which is accessed via **Facebook Login** (not a separate Instagram login). The user must have an Instagram Business or Creator account connected to a Facebook Page.
+> **Important:** Instagram has its own dedicated **Instagram Business Login** API with a separate app ID and secret from the Facebook app. This is different from the deprecated Basic Display API (shut down Dec 2024) and from Facebook Login. The scopes use the `instagram_business_*` prefix.
 
 **Flow:**
 
-1. User (already logged in via Google) is redirected to `https://www.facebook.com/v21.0/dialog/oauth` with scopes `instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement`.
-2. Facebook redirects to `/auth/instagram/?code=...`.
-3. The route GETs `https://graph.facebook.com/v21.0/oauth/access_token` to exchange the code for a User Access Token.
-4. It calls `https://graph.facebook.com/v21.0/me/accounts?fields=id,instagram_business_account` to list the user's Facebook Pages and find the connected Instagram Business Account ID.
-5. The access token and Instagram account ID are upserted into the `instagram` table keyed by `user_id`.
-6. The user is redirected to `/close`.
+1. User (already logged in via Google) is redirected to `https://www.instagram.com/oauth/authorize` with scopes `instagram_business_basic,instagram_business_content_publish`.
+2. Instagram redirects to `/auth/instagram/?code=...`.
+3. The route POSTs the code to `https://api.instagram.com/oauth/access_token` to get a short-lived User Token (valid 1 hour).
+4. It exchanges the short-lived token for a long-lived token (60 days) via `https://graph.instagram.com/access_token?grant_type=ig_exchange_token`.
+5. It calls `https://graph.instagram.com/v21.0/me?fields=id` to get the Instagram account ID.
+6. The long-lived token and account ID are upserted into the `instagram` table keyed by `user_id`.
+7. The user is redirected to `/close`.
 
 **Database:** `instagram(user_id, access_token, expires_at, instagram_account_id)`
 
-> **Prerequisite for the end user:** Their Instagram account must be a **Business** or **Creator** account, and it must be connected to a Facebook Page. This is done in the Instagram app under **Settings → Account → Switch to Professional Account** and then linking a Facebook Page.
+> **Token refresh:** Long-lived tokens last 60 days and can be refreshed via `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=...` before they expire.
 
 ### How to register
 
-Instagram uses the **same Meta App** as Facebook. No separate app registration is needed.
+Instagram Business Login requires its own app, separate from the Facebook app.
 
-1. In your existing Meta App (see Facebook section above), add the **Instagram** product under **Products**.
-2. Under **Instagram → Basic Display** (legacy) is not needed — use **Instagram Graph API** instead.
-3. Under **App Review → Permissions and Features**, request:
-   - `instagram_basic`
-   - `instagram_content_publish`
-   - (These require App Review for public use; for personal/testing use, add Instagram test users under **Roles → Instagram Testers**.)
-4. Ensure the redirect URI `https://claudein.org/auth/instagram/` (and localhost) is added under **Facebook Login → Settings → Valid OAuth Redirect URIs** — the same entry used for Facebook is sufficient since both providers share the Meta App.
-5. The `META_APP_ID` and `META_CLIENT_SECRET` env vars (set during Facebook registration) are reused — no additional credentials needed.
+1. Go to [Meta for Developers](https://developers.facebook.com/) and create a **new app** (or use the same Meta app and add Instagram as a product).
+   - When setting up use cases, select **"Manage messaging & content on Instagram"**.
+2. Under the Instagram product settings, note the separate **Instagram App ID** and **Instagram App Secret**.
+3. Add permissions:
+   - `instagram_business_basic` (required)
+   - `instagram_business_content_publish` (for posting)
+4. Under **Instagram → Instagram Business Login → Set up**, add OAuth redirect URIs:
+   - `https://claudein.org/auth/instagram/`
+   - `https://localhost:3000/auth/instagram/`
+5. For testing, add your Instagram account as an **Instagram Tester** under **Roles**.
+6. Copy the **Instagram App ID** into `web/lib/settings.ts` as `INSTAGRAM_APP_ID`.
+7. Copy the **Instagram App Secret** into your `.env` as `INSTAGRAM_CLIENT_SECRET`.
 
 ---
 
@@ -176,8 +181,10 @@ Instagram uses the **same Meta App** as Facebook. No separate app registration i
 | `GOOGLE_CLIENT_SECRET` | Google | OAuth client secret |
 | `LINKEDIN_CLIENT_ID` | LinkedIn | OAuth client ID (in `settings.ts`) |
 | `LINKEDIN_CLIENT_SECRET` | LinkedIn | OAuth client secret |
-| `META_APP_ID` | Facebook + Instagram | Meta App ID (in `settings.ts`) |
-| `META_CLIENT_SECRET` | Facebook + Instagram | Meta App secret |
+| `META_APP_ID` | Facebook | Meta/Facebook App ID (in `settings.ts`) |
+| `META_CLIENT_SECRET` | Facebook | Meta/Facebook App secret |
+| `INSTAGRAM_APP_ID` | Instagram | Instagram Business Login App ID (in `settings.ts`) |
+| `INSTAGRAM_CLIENT_SECRET` | Instagram | Instagram Business Login App secret |
 | `COOKIE_SECRET` | All | HMAC secret for signing `user_id` cookies |
 
 All secrets are validated at startup by `web/lib/env.ts` via Zod. Never use `process.env` directly — always import `env` from `@/lib/env`.
