@@ -7,9 +7,16 @@ import { defineGlobalStyles } from "@pandacss/dev"
  * (colors, fonts) live in panda.config.ts.
  */
 export const globalCss = defineGlobalStyles({
+  '*': {
+    boxSizing: "border-box",
+  },
   "html, body": {
     margin: 0,
     padding: 0,
+    width: "100%",
+  },
+  div: {
+    position: "relative",
   },
   body: {
     fontFamily: "sans",

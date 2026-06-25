@@ -28,9 +28,10 @@ export const textAlign = {
     center: css({ textAlign: "center" }),
 }
 
-export const w = {
+export const width = {
     full: css({ width: "100%" }),
     content: css({ width: "100%", maxWidth: "552px" }),
+    400: css({ width: "min(400px, 100%)" }),
 }
 
 export const grow = css({ flexGrow: 1 })
