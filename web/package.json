@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@claudein.org/common": "workspace:*",
+    "@remotion/player": "^4.0.482",
     "@types/cookie-signature": "^1.1.2",
     "@types/pg": "^8.20.0",
     "cookie-signature": "^1.2.2",
