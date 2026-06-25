@@ -164,26 +164,11 @@ function Scene1() {
 
 // ─── LinkedIn post content ────────────────────────────────────────────────────
 function PostContent() {
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p>I just published a LinkedIn post without opening my browser. 🤯</p>
-            <p>
-                All I did was ask Claude Code to write a viral post. It used the{' '}
-                <strong>/claudein</strong> skill — drafted the content, added the
-                animated ClaudeIn logo, and published in seconds.
-            </p>
-            <p>
-                ✍️ Drafted the post<br />
-                🎨 Created the logo animation<br />
-                📤 Published to LinkedIn
-            </p>
-            <p>
-                This is <strong>ClaudeIn</strong>.
-            </p>
-            <p>
-                → <code>npm install -g @claudein.org/cli</code><br />
-                → Connect once at claudein.org
-            </p>
+            <p>I just published a LinkedIn post with ClaudeIn. 🤯</p>
+            {/* TODO: add the animated logo */}
             <p style={{ color: '#0a66c2' }}>
                 #ClaudeCode #AI #LinkedIn #Productivity
             </p>
