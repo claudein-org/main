@@ -41,7 +41,7 @@ export function ClaudeInTextAnimation() {
   })
 
   return (
-    <svg width="800" height="800" viewBox="2 2 12 12" xmlns="http://www.w3.org/2000/svg">
+    <svg width="100%" height="100%" viewBox="2 2 12 12" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="12" height="12" fill="#FFFFFF" />
 
       {/* Static logo: blue background + letterforms */}
