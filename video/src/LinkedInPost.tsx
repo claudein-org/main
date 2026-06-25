@@ -2,7 +2,7 @@ import { loadFont } from '@remotion/google-fonts/Inter'
 import { ReactNode } from 'react'
 import { staticFile } from 'remotion'
 
-const { fontFamily } = loadFont()
+const { fontFamily } = loadFont('normal', { weights: ['400', '600'], subsets: ['latin'] })
 
 interface Props {
     likes?: number
