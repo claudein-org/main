@@ -24,6 +24,14 @@ create table if not exists instagram (
     instagram_account_id varchar(100) not null
 );
 
+create table if not exists youtube (
+    user_id int primary key references users(user_id) on delete cascade,
+    access_token varchar(1000) not null,
+    refresh_token varchar(1000) not null,
+    expires_at int not null,
+    channel_id varchar(100) not null
+);
+
 create table if not exists posts (
   user_id int references users(user_id) on delete cascade,
   post_id varchar(16) not null,

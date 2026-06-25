@@ -16,6 +16,7 @@ interface Props {
     expires_at: number | undefined
     facebookConnected: boolean
     instagramConnected: boolean
+    youtubeConnected: boolean
     published: { [post_id: number]: string }
 }
 
@@ -23,7 +24,7 @@ interface ServiceRowProps {
     name: string
     connected: boolean
     href: string
-    color: 'dark' | 'linkedin' | 'facebook' | 'instagram' | 'claude'
+    color: 'dark' | 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'claude'
 }
 
 function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
@@ -38,7 +39,7 @@ function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
     )
 }
 
-export default function Poster({ port, expires_at, facebookConnected, instagramConnected, published }: Props) {
+export default function Poster({ port, expires_at, facebookConnected, instagramConnected, youtubeConnected, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
 
     useEffect(() => {
@@ -56,6 +57,7 @@ export default function Poster({ port, expires_at, facebookConnected, instagramC
                 <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" />
                 <ServiceRow name="Facebook" connected={facebookConnected} href={app.facebook} color="facebook" />
                 <ServiceRow name="Instagram" connected={instagramConnected} href={app.instagram} color="instagram" />
+                <ServiceRow name="YouTube" connected={youtubeConnected} href={app.youtube} color="youtube" />
             </div>
         </div>
 

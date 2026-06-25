@@ -173,6 +173,45 @@ Instagram Business Login requires its own app, separate from the Facebook app.
 
 ---
 
+## YouTube
+
+**Purpose:** Social connection. Grants the CLI permission to upload videos to the user's YouTube channel.
+
+**Route:** `GET /auth/youtube/`
+
+> **Note:** YouTube uses Google's OAuth system but is registered as a **separate OAuth client** in Google Cloud Console to isolate the `youtube.upload` scope from the identity login flow. It returns both an access token (short-lived, 1 hour) and a refresh token (long-lived) so uploads can happen at any time.
+
+**Flow:**
+
+1. User (already logged in via Google) is redirected to `https://accounts.google.com/o/oauth2/v2/auth` with scope `https://www.googleapis.com/auth/youtube.upload`, `access_type=offline`, and `prompt=consent`.
+2. Google redirects to `/auth/youtube/?code=...`.
+3. The route POSTs the code to `https://oauth2.googleapis.com/token` to exchange for an access token + refresh token.
+4. It calls `https://www.googleapis.com/youtube/v3/channels?part=id&mine=true` to get the user's YouTube channel ID.
+5. Both tokens, the expiry, and the channel ID are upserted into the `youtube` table keyed by `user_id`.
+6. The user is redirected to `/close`.
+
+**Database:** `youtube(user_id, access_token, refresh_token, expires_at, channel_id)`
+
+> **Token refresh:** Access tokens expire after 1 hour. Use the stored `refresh_token` to get a new one via `POST https://oauth2.googleapis.com/token` with `grant_type=refresh_token`. The refresh token does not expire unless the user revokes access.
+>
+> **`prompt=consent`** in the auth URL is required to force Google to return a refresh token on every authorization. Without it, Google only returns a refresh token the first time.
+
+### How to register
+
+YouTube reuses the **same Google OAuth client** as Google Login — no separate client needed.
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) and select your project.
+2. Navigate to **APIs & Services → Library**, search for **YouTube Data API v3**, and enable it.
+3. Navigate to the existing **OAuth client** used for Google Login (**Credentials → claudein** or similar) and add the redirect URI:
+   - `https://claudein.org/auth/youtube/`
+   - `https://localhost:3000/auth/youtube/`
+4. Navigate to **Data Access (OAuth consent screen) → Add or remove scopes**, search for `youtube.upload`, and add `https://www.googleapis.com/auth/youtube.upload`.
+   - In the **"How will the scopes be used?"** justification field, explain that the scope is used solely to upload videos to the developer's own YouTube channel from the CLI, and that no third-party user data is accessed.
+   - This scope is sensitive and requires Google verification for public apps. For personal/testing use, add your Google account as a test user under **Audience → Test users**.
+5. No new credentials are needed — `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are reused for the YouTube flow.
+
+---
+
 ## Environment Variables
 
 | Variable | Provider | Description |
@@ -185,6 +224,7 @@ Instagram Business Login requires its own app, separate from the Facebook app.
 | `META_CLIENT_SECRET` | Facebook | Meta/Facebook App secret |
 | `INSTAGRAM_APP_ID` | Instagram | Instagram Business Login App ID (in `settings.ts`) |
 | `INSTAGRAM_CLIENT_SECRET` | Instagram | Instagram Business Login App secret |
+| *(reuses `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`)* | YouTube | No separate credentials — same Google OAuth client |
 | `COOKIE_SECRET` | All | HMAC secret for signing `user_id` cookies |
 
 All secrets are validated at startup by `web/lib/env.ts` via Zod. Never use `process.env` directly — always import `env` from `@/lib/env`.

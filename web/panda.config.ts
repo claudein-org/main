@@ -28,6 +28,7 @@ export default defineConfig({
           linkedin: { value: "#0a66c2" },
           facebook: { value: "#1877F2" },
           instagram: { value: "#E1306C" },
+          youtube: { value: "#FF0000" },
         },
         fonts: {
           sans: { value: "var(--font-geist-sans), system-ui, sans-serif" },

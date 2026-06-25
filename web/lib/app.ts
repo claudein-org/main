@@ -32,12 +32,22 @@ const instagramParams = new URLSearchParams({
     scope: "instagram_business_basic,instagram_business_content_publish",
 })
 
+const youtubeParams = new URLSearchParams({
+    response_type: "code",
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: auth.getRedirectUri('youtube'),
+    scope: "https://www.googleapis.com/auth/youtube.upload",
+    access_type: "offline",
+    prompt: "consent",
+})
+
 export const app = {
     ...links,
     google: `https://accounts.google.com/o/oauth2/v2/auth?${googleParams}`,
     linkedin: `https://www.linkedin.com/oauth/v2/authorization?${linkedinParams}`,
     facebook: `https://www.facebook.com/v21.0/dialog/oauth?${facebookParams}`,
     instagram: `https://www.instagram.com/oauth/authorize?${instagramParams}`,
+    youtube: `https://accounts.google.com/o/oauth2/v2/auth?${youtubeParams}`,
 }
 
 export const https = (path: string) => `https://${DOMAIN}${path}`

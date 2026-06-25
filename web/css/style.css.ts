@@ -235,6 +235,7 @@ export const btn = cva({
       claude: { background: "claude" },
       facebook: { background: "facebook" },
       instagram: { background: "instagram" },
+      youtube: { background: "youtube" },
     },
     size: {
       sm: { padding: "0.3rem 0.75rem", fontSize: "0.8125rem", borderRadius: "7px" },

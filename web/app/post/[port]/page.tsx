@@ -20,10 +20,11 @@ export default async function page({ params }: Params) {
 
   if (!user_id) return <LoginPage />
 
-  const [linkedin, facebook, instagram, published] = await Promise.all([
+  const [linkedin, facebook, instagram, youtube, published] = await Promise.all([
     db.selectFrom('linkedin').select(['expires_at']).where('user_id', '=', user_id).executeTakeFirst(),
     db.selectFrom('facebook').select(['user_id']).where('user_id', '=', user_id).executeTakeFirst(),
     db.selectFrom('instagram').select(['user_id']).where('user_id', '=', user_id).executeTakeFirst(),
+    db.selectFrom('youtube').select(['user_id']).where('user_id', '=', user_id).executeTakeFirst(),
     db.selectFrom('posts').select(['post_id', 'post_urn']).where('user_id', '=', user_id).execute()
       .then((res) => Object.fromEntries(res.map(({ post_id, post_urn }) => [post_id, post_urn]))),
   ])
@@ -35,6 +36,7 @@ export default async function page({ params }: Params) {
         expires_at={linkedin?.expires_at}
         facebookConnected={!!facebook}
         instagramConnected={!!instagram}
+        youtubeConnected={!!youtube}
         published={published} />
     </div>
   </main>

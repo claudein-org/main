@@ -9,6 +9,7 @@ export const links = {
         linkedin: `/auth/linkedin`,
         facebook: `/auth/facebook`,
         instagram: `/auth/instagram`,
+        youtube: `/auth/youtube`,
     },
     close: `/close`,
     guide: `/guide`,

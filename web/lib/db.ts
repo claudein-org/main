@@ -43,6 +43,14 @@ namespace db {
         instagram_account_id: string
     }
 
+    interface Youtube {
+        user_id: number
+        access_token: string
+        refresh_token: string
+        expires_at: number
+        channel_id: string
+    }
+
     interface Posts {
         post_date: Generated<Date>
         user_id: number
@@ -55,6 +63,7 @@ namespace db {
         linkedin: Linkedin
         facebook: Facebook
         instagram: Instagram
+        youtube: Youtube
         posts: Posts
     }
 }
