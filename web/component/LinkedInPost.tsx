@@ -139,6 +139,8 @@ export default function LinkedInPost({ likes, comments, reposts, children }: Pro
             {/* Content */}
             <div className={cx(font.size.base)}>{children}</div>
 
+            <div style={{ borderTop: "1px solid #e0e0e0" }} />
+
             {/* Action bar */}
             <div className={cx(row, align.center, justify.between)}>
                 <div className={cx(row, align.center)} style={{ gap: "0.25rem" }}>

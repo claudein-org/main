@@ -13,9 +13,9 @@
     },
     "cli": {
       "name": "@claudein.org/cli",
-      "version": "0.1.7",
+      "version": "0.1.20",
       "bin": {
-        "cin": "./dist/index.js",
+        "cin": "dist/index.js",
       },
       "dependencies": {
         "@types/ws": "^8.18.1",
@@ -90,6 +90,7 @@
         "@types/react-dom": "^19",
         "eslint": "^9",
         "eslint-config-next": "^16.2.9",
+        "remotion": "^4.0.482",
         "typescript": "^5",
       },
     },
