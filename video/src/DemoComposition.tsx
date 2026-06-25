@@ -90,7 +90,10 @@ function Scene1() {
     const output = <span style={{ color: '#ffffff' }}>● </span>
     return (
         <Fill style={{ opacity }}>
-            <div style={{ width: '100%', height: '100%', transform: `scale(${cameraScale})`, transformOrigin: '50% 0%' }}>
+            <div style={{
+                width: '100%', height: '100%', transform: `scale(${cameraScale})`,
+                transformOrigin: 'top left'
+            }}>
                 <ClaudeCode>
                     {frame >= S1_CMD1[0] && (
                         <div>
@@ -220,7 +223,10 @@ function Scene2() {
 
     return (
         <Fill style={{ opacity, transform: `translateY(${translateY}px)` }}>
-            <div style={{ width: '100%', height: '100%', transform: `scale(${cameraScale})`, transformOrigin: '50% 100%' }}>
+            <div style={{
+                width: '100%', height: '100%', transform: `scale(${cameraScale})`,
+                transformOrigin: 'bottom left'
+            }}>
                 <LinkedInPost likes={likes} comments={comments} reposts={reposts}>
                     <PostContent />
                 </LinkedInPost>
