@@ -155,7 +155,7 @@ export default function LinkedInPost({ likes, comments, reposts, children }: Pro
 
                 {/* Content */}
                 <div style={{
-                    fontSize: '2cqw',
+                    fontSize: '2.5cqw',
                     flexGrow: 1,
                     flexShrink: 1,
                     minHeight: 0,

@@ -21,8 +21,8 @@ const S1_CURSOR = 635
 const S1_OUT: [number, number] = [660, 705]
 
 const S2_IN: [number, number] = [680, 725]
-const S2_COUNTERS: [number, number] = [765, 915]
-const S2_OUT: [number, number] = [975, 1020]
+const S2_COUNTERS: [number, number] = [845, 995]
+const S2_OUT: [number, number] = [1055, 1100]
 
 // ─── Typed text – reveals characters over [from, to] frames ──────────────────
 function Typed({ text, from, to }: { text: string; from: number; to: number }) {
@@ -83,7 +83,7 @@ function Scene1() {
     const cameraScale = interpolate(
         frame,
         [0, S1_CMD1[1], S1_RESP1[1], S1_CMD2[1], S1_TOOL[0], S1_SUCCESS],
-        [2.5, 2.0, 1.6, 1.3, 1.1, 1.0],
+        [2.5, 2.0, 1.6, 1.5, 1.5, 1.5],
         { extrapolateRight: 'clamp', extrapolateLeft: 'clamp' }
     )
     const input = <span style={{ color: '#d97757' }}>&gt; </span>
@@ -168,7 +168,7 @@ function Scene1() {
 function PostContent() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', height: '100%', width: '100%' }}>
-            <p>I just published a LinkedIn post with ClaudeIn. 🤯</p>
+            <p>I just published a viral LinkedIn post with ClaudeIn. 🤯</p>
             <ClaudeInTextAnimation />
             <p style={{ color: '#0a66c2' }}>
                 #ClaudeCode #AI #LinkedIn #Productivity
