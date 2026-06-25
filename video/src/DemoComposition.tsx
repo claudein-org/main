@@ -169,7 +169,7 @@ function PostContent() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p>I just published a LinkedIn post with ClaudeIn. 🤯</p>
-            <div style={{ width: '100%', aspectRatio: '1' }}>
+            <div style={{ width: '70%', aspectRatio: '1', margin: '0 auto', position: 'relative' }}>
                 <ClaudeInTextAnimation />
             </div>
             <p style={{ color: '#0a66c2' }}>
