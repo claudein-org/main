@@ -188,6 +188,33 @@ export const terminalDotRed = css({ background: "#F47067" })
 export const terminalDotYellow = css({ background: "#DAAA3F" })
 export const terminalDotGreen = css({ background: "#57AB5A" })
 
+/* Connection menu panel */
+export const connectMenu = css({
+  background: "#ffffff",
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "0.5rem",
+  display: "flex",
+  flexDirection: "column",
+  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+  minWidth: "210px",
+})
+
+export const connectMenuRow = css({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: "1rem",
+  padding: "0.375rem 0.625rem",
+  borderRadius: "8px",
+})
+
+export const connectedBadge = css({
+  color: "#22c55e",
+  fontSize: "0.8125rem",
+  fontWeight: 500,
+})
+
 /* Button */
 export const btn = cva({
   base: {
@@ -208,6 +235,9 @@ export const btn = cva({
       claude: { background: "claude" },
       facebook: { background: "facebook" },
       instagram: { background: "instagram" },
+    },
+    size: {
+      sm: { padding: "0.3rem 0.75rem", fontSize: "0.8125rem", borderRadius: "7px" },
     },
   },
 })

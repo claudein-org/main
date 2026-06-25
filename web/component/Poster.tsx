@@ -1,7 +1,7 @@
 'use client'
 
-import { btn } from "@/css/style.css"
-import { col, fixedTopRight, gap } from "@/css/layout.css"
+import { fixedTopRight } from "@/css/layout.css"
+import { btn, connectedBadge, connectMenu, connectMenuRow } from "@/css/style.css"
 import { app } from "@/lib/app"
 import { cx } from "@/styled-system/css"
 import { useEffect, useState } from "react"
@@ -19,6 +19,25 @@ interface Props {
     published: { [post_id: number]: string }
 }
 
+interface ServiceRowProps {
+    name: string
+    connected: boolean
+    href: string
+    color: 'dark' | 'linkedin' | 'facebook' | 'instagram' | 'claude'
+}
+
+function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
+    return (
+        <div className={connectMenuRow}>
+            <span>{name}</span>
+            {connected
+                ? <span className={connectedBadge}>✓ Connected</span>
+                : <a className={cx(btn({ color, size: 'sm' }))} href={href} target="_blank">Connect</a>
+            }
+        </div>
+    )
+}
+
 export default function Poster({ port, expires_at, facebookConnected, instagramConnected, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
 
@@ -27,30 +46,22 @@ export default function Poster({ port, expires_at, facebookConnected, instagramC
         return () => clearInterval(id)
     }, [])
 
-    const needsReconnect = !expires_at || (expires_at * 1000 - now) < ONE_DAY_MS
+    const linkedinConnected = !!expires_at && (expires_at * 1000 - now) >= ONE_DAY_MS
 
     return <>
-        {(needsReconnect || !facebookConnected || !instagramConnected) && (
-            <div className={fixedTopRight}>
-                {needsReconnect && (
-                    <a className={cx(btn({ color: 'dark' }))} target="_blank" href={app.linkedin}>
-                        Connect to LinkedIn
-                    </a>
-                )}
-                {!facebookConnected && (
-                    <a className={cx(btn({ color: 'facebook' }))} target="_blank" href={app.facebook}>
-                        Connect to Facebook
-                    </a>
-                )}
-                {!instagramConnected && (
-                    <a className={cx(btn({ color: 'instagram' }))} target="_blank" href={app.instagram}>
-                        Connect to Instagram
-                    </a>
-                )}
-            </div>
-        )}
+        <Reload />
 
-        {needsReconnect && <Reload />}
-        {!needsReconnect && <WS port={port} published={published} />}
+        <div className={fixedTopRight}>
+            <div className={connectMenu}>
+                <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" />
+                <ServiceRow name="Facebook" connected={facebookConnected} href={app.facebook} color="facebook" />
+                <ServiceRow name="Instagram" connected={instagramConnected} href={app.instagram} color="instagram" />
+            </div>
+        </div>
+
+        {linkedinConnected
+            ? <WS port={port} published={published} />
+            : <a className={cx(btn({ color: 'linkedin' }))} href={app.linkedin} target="_blank">Connect to LinkedIn</a>
+        }
     </>
 }
