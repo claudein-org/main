@@ -9,44 +9,20 @@ const Fill = ({ style, children }: { style?: React.CSSProperties; children?: Rea
 
 const FPS = 30
 
-/*
-    The demo composition demonstrates a conversation with claude code that results in a LinkedIn post with an animated ClaudeIn logo. The composition is divided into two scenes:
-    1. Scene 1: ClaudeCode chat animation
-        - The user types a command to generate a LinkedIn post with an animated ClaudeIn logo.
-        - ClaudeCode responds with a prompt asking what the user wants to write.
-        - The user types the request, and ClaudeCode indicates that it is thinking and processing the request.
-        - After a short delay, ClaudeCode confirms that the post has been published and the animation has been added.
-
-    2. Scene 2: LinkedIn post with animated engagement counters
-        - The LinkedIn post is displayed with animated engagement counters (likes, comments, reposts) that increase over time.
-
-
-    For both scenes the component uses Dynamic Zoom and Pan or Smart Focus, the camera follows the action. 
-    
-    Scene 1:
-    The camera starts zoomed in on the ClaudeCode header and as the conversation progresses, it zooms out and pans to show the entire conversation (but nothing more)
-
-    Scene 2:
-    The camera shows the entire linkedin post and than zooms in and pans to the footer of the post where the engagement counters are, as they increase over time.
-*/
-
-// TODO: implement the camera zooms and pans, make the entire video longer so viewers can actually follow the conversation and read the post.
-
-
 // ─── Timing keyframes (absolute frames at 30fps) ─────────────────────────────
 const S1_IN: [number, number] = [0, 25]
-const S1_CMD1: [number, number] = [25, 55]
-const S1_RESP1: [number, number] = [70, 115]
-const S1_CMD2: [number, number] = [130, 210]
-const S1_THINKING: [number, number] = [215, 295]
-const S1_TOOL: [number, number] = [295, 325]
-const S1_SUCCESS = 340
-const S1_CURSOR = 355
-const S1_OUT: [number, number] = [375, 420]
+const S1_CMD1: [number, number] = [25, 65]
+const S1_RESP1: [number, number] = [85, 160]
+const S1_CMD2: [number, number] = [215, 345]
+const S1_THINKING: [number, number] = [360, 505]
+const S1_TOOL: [number, number] = [505, 555]
+const S1_SUCCESS = 575
+const S1_CURSOR = 635
+const S1_OUT: [number, number] = [660, 705]
 
-const S2_IN: [number, number] = [395, 435]
-const S2_COUNTERS: [number, number] = [450, 565]
-const S2_OUT: [number, number] = [580, 620]
+const S2_IN: [number, number] = [680, 725]
+const S2_COUNTERS: [number, number] = [765, 915]
+const S2_OUT: [number, number] = [975, 1020]
 
 // ─── Typed text – reveals characters over [from, to] frames ──────────────────
 function Typed({ text, from, to }: { text: string; from: number; to: number }) {
@@ -101,86 +77,94 @@ function Scene1() {
         [0, 1, 1, 0],
         { extrapolateRight: 'clamp', extrapolateLeft: 'clamp' }
     )
+    // Camera: progressive zoom-out from header as conversation grows.
+    // transformOrigin "50% 0%" keeps the top edge fixed — at scale 2.5 we see
+    // the top ~40% (header), at scale 1.0 we see the full terminal.
+    const cameraScale = interpolate(
+        frame,
+        [0, S1_CMD1[1], S1_RESP1[1], S1_CMD2[1], S1_TOOL[0], S1_SUCCESS],
+        [2.5, 2.0, 1.6, 1.3, 1.1, 1.0],
+        { extrapolateRight: 'clamp', extrapolateLeft: 'clamp' }
+    )
     const input = <span style={{ color: '#d97757' }}>&gt; </span>
     const output = <span style={{ color: '#ffffff' }}>● </span>
     return (
         <Fill style={{ opacity }}>
-            <ClaudeCode>
-                {frame >= S1_CMD1[0] && (
-                    <div>
-                        {input}
-                        <Typed text="/claudein" from={S1_CMD1[0]} to={S1_CMD1[1]} />
-                        {frame < S1_RESP1[0] && <Cursor from={S1_CMD1[1]} />}
-                    </div>
-                )}
+            <div style={{ width: '100%', height: '100%', transform: `scale(${cameraScale})`, transformOrigin: '50% 0%' }}>
+                <ClaudeCode>
+                    {frame >= S1_CMD1[0] && (
+                        <div>
+                            {input}
+                            <Typed text="/claudein" from={S1_CMD1[0]} to={S1_CMD1[1]} />
+                            {frame < S1_RESP1[0] && <Cursor from={S1_CMD1[1]} />}
+                        </div>
+                    )}
 
-                {frame >= S1_RESP1[0] && (
-                    <div>
-                        {output}
-                        <Typed
-                            text="What do you want me to write?"
-                            from={S1_RESP1[0]}
-                            to={S1_RESP1[1]}
-                        />
-                    </div>
-                )}
-
-                {frame >= S1_CMD2[0] && (
-                    <div>
-                        {input}
-                        <Typed text={'Write a viral post and also add a short animated ClaudeIn logo, do your best, make no mistakes.'} from={S1_CMD2[0]} to={S1_CMD2[1]} />
-                        {frame >= S1_CMD2[1] && frame < S1_THINKING[0] && <Cursor from={S1_CMD2[1]} />}
-                    </div>
-                )}
-
-                <Thinking from={S1_THINKING[0]} to={S1_THINKING[1]} />
-
-                {frame >= S1_TOOL[0] && (
-                    <>
-                        <p style={{ paddingLeft: '1.5rem' }}>
+                    {frame >= S1_RESP1[0] && (
+                        <div>
+                            {output}
                             <Typed
-                                text="On it! Creating your viral post with the ClaudeIn logo animation..."
-                                from={S1_TOOL[0]}
-                                to={S1_TOOL[0] + 18}
+                                text="What do you want me to write?"
+                                from={S1_RESP1[0]}
+                                to={S1_RESP1[1]}
                             />
+                        </div>
+                    )}
+
+                    {frame >= S1_CMD2[0] && (
+                        <div>
+                            {input}
+                            <Typed text={'Write a viral post and also add a short animated ClaudeIn logo, do your best, make no mistakes.'} from={S1_CMD2[0]} to={S1_CMD2[1]} />
+                            {frame >= S1_CMD2[1] && frame < S1_THINKING[0] && <Cursor from={S1_CMD2[1]} />}
+                        </div>
+                    )}
+
+                    <Thinking from={S1_THINKING[0]} to={S1_THINKING[1]} />
+
+                    {frame >= S1_TOOL[0] && (
+                        <>
+                            <p style={{ paddingLeft: '1.5rem' }}>
+                                <Typed
+                                    text="On it! Creating your viral post with the ClaudeIn logo animation..."
+                                    from={S1_TOOL[0]}
+                                    to={S1_TOOL[0] + 18}
+                                />
+                            </p>
+                            <p>
+                                <span style={{ color: '#6CB6FF' }}>●</span>{' '}
+                                <Typed
+                                    text="Bash(claudein write --viral --with-animation)"
+                                    from={S1_TOOL[0] + 8}
+                                    to={S1_TOOL[1]}
+                                />
+                            </p>
+                        </>
+                    )}
+
+                    {frame >= S1_SUCCESS && (
+                        <p style={{ paddingLeft: '1.5rem', color: '#57AB5A' }}>
+                            ✓ Published · 🚀 ClaudeIn logo animation added
                         </p>
+                    )}
+
+                    {frame >= S1_CURSOR && (
                         <p>
-                            <span style={{ color: '#6CB6FF' }}>●</span>{' '}
-                            <Typed
-                                text="Bash(claudein write --viral --with-animation)"
-                                from={S1_TOOL[0] + 8}
-                                to={S1_TOOL[1]}
-                            />
+                            <span style={{ color: '#d97757' }}>&gt;</span>{' '}
+                            <Cursor from={S1_CURSOR} />
                         </p>
-                    </>
-                )}
-
-                {frame >= S1_SUCCESS && (
-                    <p style={{ paddingLeft: '1.5rem', color: '#57AB5A' }}>
-                        ✓ Published · 🚀 ClaudeIn logo animation added
-                    </p>
-                )}
-
-                {frame >= S1_CURSOR && (
-                    <p>
-                        <span style={{ color: '#d97757' }}>&gt;</span>{' '}
-                        <Cursor from={S1_CURSOR} />
-                    </p>
-                )}
-            </ClaudeCode>
+                    )}
+                </ClaudeCode>
+            </div>
         </Fill>
     )
 }
 
 // ─── LinkedIn post content ────────────────────────────────────────────────────
 function PostContent() {
-
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', height: '100%', width: '100%' }}>
             <p>I just published a LinkedIn post with ClaudeIn. 🤯</p>
-            <div style={{ width: '100%', aspectRatio: '4/5' }}>
-                <ClaudeInTextAnimation />
-            </div>
+            <ClaudeInTextAnimation />
             <p style={{ color: '#0a66c2' }}>
                 #ClaudeCode #AI #LinkedIn #Productivity
             </p>
@@ -202,6 +186,15 @@ function Scene2() {
         extrapolateLeft: 'clamp',
         easing: Easing.out(Easing.cubic),
     })
+    // Camera: full post visible on entry, then zoom into footer as counters animate.
+    // transformOrigin "50% 100%" keeps the bottom edge fixed so the action bar
+    // stays in frame as scale increases.
+    const cameraScale = interpolate(
+        frame,
+        [S2_COUNTERS[0], S2_COUNTERS[0] + 45],
+        [1.0, 2.0],
+        { extrapolateRight: 'clamp', extrapolateLeft: 'clamp', easing: Easing.out(Easing.cubic) }
+    )
     const easing = Easing.out(Easing.cubic)
     const likes = Math.floor(
         interpolate(frame, S2_COUNTERS, [0, 847], {
@@ -227,9 +220,11 @@ function Scene2() {
 
     return (
         <Fill style={{ opacity, transform: `translateY(${translateY}px)` }}>
-            <LinkedInPost likes={likes} comments={comments} reposts={reposts}>
-                {/* <PostContent /> */}
-            </LinkedInPost>
+            <div style={{ width: '100%', height: '100%', transform: `scale(${cameraScale})`, transformOrigin: '50% 100%' }}>
+                <LinkedInPost likes={likes} comments={comments} reposts={reposts}>
+                    <PostContent />
+                </LinkedInPost>
+            </div>
         </Fill>
     )
 }

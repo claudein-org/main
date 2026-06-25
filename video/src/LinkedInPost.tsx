@@ -1,6 +1,6 @@
+import { loadFont } from '@remotion/google-fonts/Inter'
 import { ReactNode } from 'react'
 import { staticFile } from 'remotion'
-import { loadFont } from '@remotion/google-fonts/Inter'
 
 const { fontFamily } = loadFont()
 
@@ -103,63 +103,69 @@ export default function LinkedInPost({ likes, comments, reposts, children }: Pro
                 flexDirection: 'column',
                 gap: '1.6cqw',
                 width: '100%',
+                height: '100%',
                 background: '#ffffff',
                 border: '1px solid rgba(0,0,0,0.12)',
                 borderRadius: '0.8cqw',
                 overflow: 'hidden',
+                padding: '2cqw'
             }}>
-                <div style={{ padding: '2cqw 2cqw 0', display: 'flex', flexDirection: 'column', gap: '1.6cqw' }}>
-                    {/* Header */}
-                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1.2cqw' }}>
-                        <img
-                            src={staticFile('gilad.jpeg')}
-                            style={{
-                                width: '10cqw',
-                                aspectRatio: 1,
-                                borderRadius: '50%',
-                                background: '#c0c0c0',
-                                flexShrink: 0,
-                            }}
-                        />
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2cqw', flex: 1 }}>
-                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.5cqw' }}>
-                                <span style={{ fontWeight: 600, fontSize: '2.3cqw' }}>Gilad Kutiel</span>
-                                <IconLinkedIn />
-                                <span style={{ fontSize: '1.8cqw', color: '#6b6b6b' }}>• You</span>
-                            </div>
-                            <div style={{ fontSize: '1.8cqw', color: '#6b6b6b' }}>
-                                PhD | Machine Learning | ex-Google, Facebook, Amazon
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', fontSize: '1.8cqw', color: '#6b6b6b', gap: '0.4cqw' }}>
-                                <span>18h</span>
-                                <span>•</span>
-                                <IconGlobe />
-                            </div>
-                        </div>
-                        <button style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            color: '#666',
-                            padding: '0.4cqw',
+                {/* Header */}
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1.2cqw' }}>
+                    <img
+                        src={staticFile('gilad.jpeg')}
+                        style={{
+                            width: '10cqw',
+                            aspectRatio: 1,
                             borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            background: '#c0c0c0',
                             flexShrink: 0,
-                        }}>
-                            <IconMoreHoriz />
-                        </button>
+                        }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2cqw', flex: 1 }}>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.5cqw' }}>
+                            <span style={{ fontWeight: 600, fontSize: '2.3cqw' }}>Gilad Kutiel</span>
+                            <IconLinkedIn />
+                            <span style={{ fontSize: '1.8cqw', color: '#6b6b6b' }}>• You</span>
+                        </div>
+                        <div style={{ fontSize: '1.8cqw', color: '#6b6b6b' }}>
+                            PhD | Machine Learning | ex-Google, Facebook, Amazon
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', fontSize: '1.8cqw', color: '#6b6b6b', gap: '0.4cqw' }}>
+                            <span>18h</span>
+                            <span>•</span>
+                            <IconGlobe />
+                        </div>
                     </div>
-
-                    {/* Content */}
-                    <div style={{ fontSize: '2cqw' }}>{children}</div>
+                    <button style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#666',
+                        padding: '0.4cqw',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                    }}>
+                        <IconMoreHoriz />
+                    </button>
                 </div>
 
-                <div style={{ borderTop: '1px solid #e0e0e0' }} />
+                {/* Content */}
+                <div style={{
+                    fontSize: '2cqw',
+                    flexGrow: 1,
+                    flexShrink: 1,
+                    minHeight: 0,
+                    overflow: 'hidden',
+                }}>{children}</div>
+
 
                 {/* Action bar */}
                 <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '1.5cqw', padding: '0 1cqw 1.6cqw' }}>
+                    <div style={{ borderTop: '1px solid #e0e0e0' }} />
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.25cqw' }}>
                         <img
                             src={staticFile('gilad.jpeg')}
