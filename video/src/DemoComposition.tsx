@@ -37,7 +37,7 @@ function Typed({ text, from, to }: { text: string; from: number; to: number }) {
 }
 
 // ─── Claude Code thinking indicator (amber text, blue left border) ────────────
-const THINKING_SYMBOLS = ['+', '✦']
+const THINKING_SYMBOLS = ['+', '✦', '✧', '⊹', '◆', '✺', '⋆']
 const THINKING_MESSAGES = [
     'thinking with high effort',
     'thinking more with high effort',
@@ -48,10 +48,10 @@ function Thinking({ from, to, startSeconds = 20 }: { from: number; to: number; s
     const frame = useCurrentFrame()
     if (frame < from || frame >= to) return null
     const elapsed = startSeconds + Math.floor((frame - from) / FPS)
-    const symbol = THINKING_SYMBOLS[Math.floor((frame - from) / 15) % THINKING_SYMBOLS.length]
+    const symbol = THINKING_SYMBOLS[Math.floor((frame - from) / 5) % THINKING_SYMBOLS.length]
     const msgIdx = Math.min(Math.floor((frame - from) / 35), THINKING_MESSAGES.length - 1)
     return (
-        <div style={{ borderLeft: '3px solid #4493F8', paddingLeft: '0.75rem', color: '#DAAA3F' }}>
+        <div style={{ paddingLeft: '0.75rem', color: '#DAAA3F' }}>
             {symbol} Actioning… ({elapsed}s · {THINKING_MESSAGES[msgIdx]})
         </div>
     )
