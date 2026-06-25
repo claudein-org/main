@@ -7,6 +7,8 @@ export const links = {
     auth: {
         google: `/auth/google`,
         linkedin: `/auth/linkedin`,
+        facebook: `/auth/facebook`,
+        instagram: `/auth/instagram`,
     },
     close: `/close`,
     guide: `/guide`,

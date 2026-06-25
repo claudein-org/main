@@ -29,6 +29,20 @@ namespace db {
         author_urn: string
     }
 
+    interface Facebook {
+        user_id: number
+        access_token: string
+        expires_at: number
+        facebook_user_id: string
+    }
+
+    interface Instagram {
+        user_id: number
+        access_token: string
+        expires_at: number
+        instagram_account_id: string
+    }
+
     interface Posts {
         post_date: Generated<Date>
         user_id: number
@@ -39,6 +53,8 @@ namespace db {
     export interface DB {
         users: Users
         linkedin: Linkedin
+        facebook: Facebook
+        instagram: Instagram
         posts: Posts
     }
 }

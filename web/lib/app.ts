@@ -1,6 +1,6 @@
 import { links } from "@claudein.org/common"
 import { auth } from "./auth"
-import { GOOGLE_CLIENT_ID, LINKEDIN_CLIENT_ID } from "./settings"
+import { GOOGLE_CLIENT_ID, LINKEDIN_CLIENT_ID, META_APP_ID } from "./settings"
 
 const DOMAIN = 'claudein.org'
 
@@ -18,11 +18,26 @@ const linkedinParams = new URLSearchParams({
     scope: "openid profile w_member_social",
 })
 
+const facebookParams = new URLSearchParams({
+    response_type: "code",
+    client_id: META_APP_ID,
+    redirect_uri: auth.getRedirectUri('facebook'),
+    scope: "email,public_profile,pages_manage_posts,pages_show_list,pages_read_engagement",
+})
+
+const instagramParams = new URLSearchParams({
+    response_type: "code",
+    client_id: META_APP_ID,
+    redirect_uri: auth.getRedirectUri('instagram'),
+    scope: "instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement",
+})
 
 export const app = {
     ...links,
     google: `https://accounts.google.com/o/oauth2/v2/auth?${googleParams}`,
-    linkedin: `https://www.linkedin.com/oauth/v2/authorization?${linkedinParams}`
+    linkedin: `https://www.linkedin.com/oauth/v2/authorization?${linkedinParams}`,
+    facebook: `https://www.facebook.com/v21.0/dialog/oauth?${facebookParams}`,
+    instagram: `https://www.facebook.com/v21.0/dialog/oauth?${instagramParams}`,
 }
 
 export const https = (path: string) => `https://${DOMAIN}${path}`
