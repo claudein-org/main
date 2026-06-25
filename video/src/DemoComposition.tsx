@@ -115,7 +115,9 @@ function Scene1() {
                     )}
 
                     {frame >= S1_CMD2[0] && (
-                        <div>
+                        <div style={{
+                            whiteSpace: 'pre-wrap',
+                        }}>
                             {input}
                             <Typed text={['Write a viral post and also add the ClaudeIn logo.', 'Do your best, make no mistakes.'].join('\n')} from={S1_CMD2[0]} to={S1_CMD2[1]} />
                             {frame >= S1_CMD2[1] && frame < S1_THINKING[0] && <Cursor from={S1_CMD2[1]} />}
