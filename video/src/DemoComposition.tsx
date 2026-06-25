@@ -83,7 +83,7 @@ function Scene1() {
     const cameraScale = interpolate(
         frame,
         [0, S1_CMD1[1], S1_RESP1[1], S1_CMD2[1], S1_TOOL[0], S1_SUCCESS],
-        [2.5, 2.0, 1.6, 1.5, 1.5, 1.5],
+        [2.5, 2.3, 2.0, 1.8, 1.6, 1.5],
         { extrapolateRight: 'clamp', extrapolateLeft: 'clamp' }
     )
     const input = <span style={{ color: '#d97757' }}>&gt; </span>
