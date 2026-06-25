@@ -32,6 +32,7 @@ export const width = {
     full: css({ width: "100%" }),
     content: css({ width: "100%", maxWidth: "552px" }),
     400: css({ width: "min(400px, 100%)" }),
+    900: css({ width: "min(900px, 100%)" }),
 }
 
 export const grow = css({ flexGrow: 1 })
