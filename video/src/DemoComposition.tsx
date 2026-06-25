@@ -9,6 +9,30 @@ const Fill = ({ style, children }: { style?: React.CSSProperties; children?: Rea
 
 const FPS = 30
 
+/*
+    The demo composition demonstrates a conversation with claude code that results in a LinkedIn post with an animated ClaudeIn logo. The composition is divided into two scenes:
+    1. Scene 1: ClaudeCode chat animation
+        - The user types a command to generate a LinkedIn post with an animated ClaudeIn logo.
+        - ClaudeCode responds with a prompt asking what the user wants to write.
+        - The user types the request, and ClaudeCode indicates that it is thinking and processing the request.
+        - After a short delay, ClaudeCode confirms that the post has been published and the animation has been added.
+
+    2. Scene 2: LinkedIn post with animated engagement counters
+        - The LinkedIn post is displayed with animated engagement counters (likes, comments, reposts) that increase over time.
+
+
+    For both scenes the component uses Dynamic Zoom and Pan or Smart Focus, the camera follows the action. 
+    
+    Scene 1:
+    The camera starts zoomed in on the ClaudeCode header and as the conversation progresses, it zooms out and pans to show the entire conversation (but nothing more)
+
+    Scene 2:
+    The camera shows the entire linkedin post and than zooms in and pans to the footer of the post where the engagement counters are, as they increase over time.
+*/
+
+// TODO: implement the camera zooms and pans, make the entire video longer so viewers can actually follow the conversation and read the post.
+
+
 // ─── Timing keyframes (absolute frames at 30fps) ─────────────────────────────
 const S1_IN: [number, number] = [0, 25]
 const S1_CMD1: [number, number] = [25, 55]
