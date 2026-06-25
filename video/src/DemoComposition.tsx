@@ -1,4 +1,4 @@
-import { Easing, interpolate, useCurrentFrame } from 'remotion'
+import { Easing, Html5Audio, interpolate, staticFile, useCurrentFrame } from 'remotion'
 import ClaudeCode from './ClaudeCode'
 import { ClaudeInTextAnimation } from './ClaudeInTextAnimation'
 import LinkedInPost from './LinkedInPost'
@@ -241,6 +241,7 @@ function Scene2() {
 export function DemoComposition() {
     return (
         <Fill style={{ background: '#F3F2EF', fontSize: 32 }}>
+            <Html5Audio src={staticFile('music.mp3')} />
             <Scene1 />
             <Scene2 />
         </Fill>
