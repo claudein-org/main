@@ -82,7 +82,6 @@ const engageBtn: React.CSSProperties = {
     background: 'none',
     border: 'none',
     fontFamily: 'inherit',
-    flex: 1,
 }
 
 export default function LinkedInPost({ likes, comments, reposts, children }: Props) {
@@ -160,8 +159,8 @@ export default function LinkedInPost({ likes, comments, reposts, children }: Pro
                 <div style={{ borderTop: '1px solid #e0e0e0' }} />
 
                 {/* Action bar */}
-                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 1cqw 1.6cqw' }}>
-                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.25cqw', marginRight: '0.5cqw' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '1.5cqw', padding: '0 1cqw 1.6cqw' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.25cqw' }}>
                         <img
                             src={staticFile('gilad.jpeg')}
                             style={{ width: '4cqw', height: '4cqw', borderRadius: '50%', flexShrink: 0 }}
