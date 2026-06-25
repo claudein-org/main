@@ -31,8 +31,6 @@ export default function Terminal({ children }: Props) {
                 color: '#CDD9E5',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '0.625rem',
-                lineHeight: '1.7',
             }}>
                 {children}
             </div>

@@ -1,10 +1,10 @@
 import { Easing, interpolate, useCurrentFrame } from 'remotion'
+import ClaudeCode from './ClaudeCode'
+import LinkedInPost from './LinkedInPost'
 
 const Fill = ({ style, children }: { style?: React.CSSProperties; children?: React.ReactNode }) => (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, ...style }}>{children}</div>
 )
-import ClaudeCode from './ClaudeCode'
-import LinkedInPost from './LinkedInPost'
 
 const FPS = 30
 
@@ -97,21 +97,22 @@ function Scene1() {
             <div style={{ transform: `scale(${scale})`, width: '100%', maxWidth: '760px' }}>
                 <ClaudeCode>
                     {frame >= S1_CMD1[0] && (
-                        <p>
+                        <div>
                             <span style={{ color: '#d97757' }}>&gt;</span>{' '}
                             <Typed text="/claudein" from={S1_CMD1[0]} to={S1_CMD1[1]} />
                             {frame < S1_RESP1[0] && <Cursor from={S1_CMD1[1]} />}
-                        </p>
+                        </div>
                     )}
 
                     {frame >= S1_RESP1[0] && (
-                        <p style={{ paddingLeft: '1.5rem' }}>
+                        <div>
+                            <span style={{ color: '#ffffff' }}>◯</span>{' '}
                             <Typed
                                 text="What do you want me to write?"
                                 from={S1_RESP1[0]}
                                 to={S1_RESP1[1]}
                             />
-                        </p>
+                        </div>
                     )}
 
                     {frame >= S1_CMD2[0] && (

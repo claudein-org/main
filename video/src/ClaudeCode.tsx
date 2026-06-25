@@ -13,16 +13,18 @@ export default function ClaudeCode({ children }: Props) {
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem', alignItems: 'center' }}>
                     <img src={staticFile('claudecode-color.svg')} style={{ width: '128px' }} />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <p style={{ fontSize: '1.1em', fontWeight: 'bold' }}>
+                        <div style={{ fontSize: '1.1em', fontWeight: 'bold' }}>
                             Claude Code <span style={{ color: '#6b6b6b' }}>v3.14</span>
-                        </p>
-                        <p>Sonnet 6.7 with high effort · Claude Pro</p>
-                        <p>~/ClaudeIn.org</p>
+                        </div>
+                        <div>Sonnet 6.7 with high effort · Claude Pro</div>
+                        <div>~/ClaudeIn.org</div>
                     </div>
                 </div>
 
                 <div style={{ borderTop: '1px solid #373e47' }} />
-                {children}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75rem' }}>
+                    {children}
+                </div>
 
                 <div style={{
                     display: 'flex',
