@@ -1,5 +1,6 @@
 import { Easing, interpolate, useCurrentFrame } from 'remotion'
 import ClaudeCode from './ClaudeCode'
+import { ClaudeInTextAnimation } from './ClaudeInTextAnimation'
 import LinkedInPost from './LinkedInPost'
 
 const Fill = ({ style, children }: { style?: React.CSSProperties; children?: React.ReactNode }) => (
@@ -168,7 +169,9 @@ function PostContent() {
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <p>I just published a LinkedIn post with ClaudeIn. 🤯</p>
-            {/* TODO: add the animated logo */}
+            <div style={{ width: 72, height: 72 }}>
+                <ClaudeInTextAnimation />
+            </div>
             <p style={{ color: '#0a66c2' }}>
                 #ClaudeCode #AI #LinkedIn #Productivity
             </p>
