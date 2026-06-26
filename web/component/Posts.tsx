@@ -1,6 +1,6 @@
 'use client'
 import { align, col, gap, row } from "@/css/layout.css"
-import { avatar, btn, card, color, font, muted, postImg } from "@/css/style.css"
+import { avatar, btn, card, color, font, muted, postFooter, postImg } from "@/css/style.css"
 import { postToLinkedin } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { MediaType, PostType, proto, yml } from "@claudein.org/common"
@@ -10,9 +10,13 @@ type Published = { [hash: string]: string }
 interface Props {
     published: Published
     port: number
+    linkedinConnected: boolean
+    facebookConnected: boolean
+    instagramConnected: boolean
+    youtubeConnected: boolean
 }
 
-export default function WS({ port, published }: Props) {
+export default function WS({ port, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected }: Props) {
     const [payloads, setPayloads] = useState<proto.Payloads>([])
     const [links, setLinks] = useState<Published>(published)
     const [posting, setPosting] = useState<Set<string>>(new Set())
@@ -80,7 +84,7 @@ export default function WS({ port, published }: Props) {
 
     return <div className={cx(col, gap.lg)}>
         {payloads.map(({ hash, post }) => {
-            const { created, text } = post
+            const { created } = post
             const link = links[hash]
             const isPosting = posting.has(hash)
             return (
@@ -88,22 +92,38 @@ export default function WS({ port, published }: Props) {
                     <div className={cx(row, align.center, gap.sm)}>
                         <div className={avatar} />
                         <div className={cx(col, gap.xs)}>
-                            <span className={font.weight.medium}>LinkedIn User</span>
+                            <span className={font.weight.medium}>You</span>
                             <span className={cx(muted, font.size.sm)}>
                                 {new Date(created).toLocaleDateString()}
                             </span>
                         </div>
                     </div>
                     {poster(post)}
-                    <div>
-                        {link
-                            ? <a href={link} target="_blank" rel="noopener noreferrer" className={color.linkedin}>
-                                View on LinkedIn
-                            </a>
-                            : <button className={btn({ color: 'linkedin' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
-                                {isPosting ? 'Posting…' : 'Post to LinkedIn'}
+                    <div className={postFooter}>
+                        {linkedinConnected && (
+                            link
+                                ? <a href={link} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
+                                    View on LinkedIn
+                                  </a>
+                                : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
+                                    {isPosting ? 'Posting…' : 'LinkedIn'}
+                                  </button>
+                        )}
+                        {facebookConnected && (
+                            <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
+                                Facebook
                             </button>
-                        }
+                        )}
+                        {instagramConnected && (
+                            <button className={btn({ color: 'instagram', size: 'sm' })} disabled>
+                                Instagram
+                            </button>
+                        )}
+                        {youtubeConnected && (
+                            <button className={btn({ color: 'youtube', size: 'sm' })} disabled>
+                                YouTube
+                            </button>
+                        )}
                     </div>
                 </div>
             )

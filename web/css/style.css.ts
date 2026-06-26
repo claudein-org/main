@@ -78,6 +78,15 @@ export const avatar = css({
   flexShrink: 0,
 })
 
+export const postFooter = css({
+  borderTop: "1px solid #e0e0e0",
+  paddingTop: "0.75rem",
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "0.5rem",
+  alignItems: "center",
+})
+
 /* Navigation */
 export const navInner = css({
   maxWidth: "1128px",

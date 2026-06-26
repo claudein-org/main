@@ -61,8 +61,15 @@ export default function Poster({ port, expires_at, facebookConnected, instagramC
             </div>
         </div>
 
-        {linkedinConnected
-            ? <WS port={port} published={published} />
+        {(linkedinConnected || facebookConnected || instagramConnected || youtubeConnected)
+            ? <WS
+                port={port}
+                published={published}
+                linkedinConnected={linkedinConnected}
+                facebookConnected={facebookConnected}
+                instagramConnected={instagramConnected}
+                youtubeConnected={youtubeConnected}
+              />
             : <a className={cx(btn({ color: 'linkedin' }))} href={app.linkedin} target="_blank">Connect to LinkedIn</a>
         }
     </>
