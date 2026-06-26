@@ -14,8 +14,13 @@ Introduction:
 TODO:
   - cli:
   - web:
+  - providers:
 
 Done:
+  - providers:
+      - Implemented web/provider/{linkedin,facebook,instagram,youtube}.ts — each exports getStatus(user_id) that checks token validity, refreshes where possible (Instagram: proactive refresh within 7 days; YouTube: refresh on expiry using refresh_token), and returns connected status.
+        Refactored web/app/post/[port]/page.tsx to call providers instead of raw DB queries.
+        Updated add-provider skill with step 12 for creating web/provider/<provider>.ts.
   - web:
       - Rearrange the Homepage:
           - title: "Claude Code + Linkedin = ClaudeIn"

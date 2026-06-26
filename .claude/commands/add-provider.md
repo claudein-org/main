@@ -185,11 +185,58 @@ Add to `btn` cva variants:
 <provider>: { background: "<provider>" },
 ```
 
-### 12. Connection menu — `web/app/post/[port]/page.tsx`
+### 12. Provider file — `web/provider/<provider>.ts`
 
-Add a DB query inside `Promise.all` and pass the result as `<provider>Connected` to `<Poster>`.
+Create the file. It must export a `getStatus(user_id: number)` function that:
+1. Queries the DB for the user's token row
+2. Checks if the token is valid (`expires_at > now`)
+3. If the provider supports token refresh and the token is expired (or expiring soon), refreshes it and updates the DB
+4. Returns `{ connected: boolean }` (or `{ expires_at: number | undefined }` for providers like LinkedIn where the Poster needs the raw expiry for client-side rendering)
 
-### 13. Poster component — `web/component/Poster.tsx`
+```ts
+import { db } from '@/lib/db'
+// import ky, z, env, settings if refresh is needed
+
+export async function getStatus(user_id: number) {
+    const now = Math.floor(Date.now() / 1000)
+    const row = await db
+        .selectFrom('<provider>')
+        .select(['access_token', 'expires_at' /*, 'refresh_token' if applicable */])
+        .where('user_id', '=', user_id)
+        .executeTakeFirst()
+
+    if (!row) return { connected: false }
+    if (row.expires_at <= now) {
+        // If refreshable: try refresh, update DB, return { connected: true }
+        // If not refreshable: return { connected: false }
+        return { connected: false }
+    }
+
+    return { connected: true }
+}
+```
+
+**Refresh patterns by provider type:**
+- **No refresh** (LinkedIn, Facebook): return `{ connected: false }` when expired
+- **Long-lived token refresh** (Instagram): refresh proactively if `expires_at - now < SEVEN_DAYS`
+- **Short-lived + refresh_token** (YouTube/Google): refresh whenever `expires_at - now < FIVE_MINUTES`
+
+### 13. Connection menu — `web/app/post/[port]/page.tsx`
+
+Import the new provider and call `getStatus` inside `Promise.all`. Pass the result as `<provider>Connected` to `<Poster>`:
+
+```ts
+import * as <provider> from "@/provider/<provider>"
+
+const [/* …existing… */, <provider>Status] = await Promise.all([
+    // …existing…
+    <provider>.getStatus(user_id),
+    // …
+])
+// pass: <provider>Connected={<provider>Status.connected}
+```
+
+### 14. Poster component — `web/component/Poster.tsx`
 
 - Add `<provider>Connected: boolean` to `Props` and destructure it
 - Add `'<provider>'` to `ServiceRowProps.color` union
@@ -199,11 +246,11 @@ Add a DB query inside `Promise.all` and pass the result as `<provider>Connected`
 <ServiceRow name="<ProviderName>" connected={<provider>Connected} href={app.<provider>} color="<provider>" />
 ```
 
-### 14. Type-check
+### 15. Type-check
 
 Run `bunx tsc --noEmit` and fix any errors before finishing.
 
-### 15. Documentation — `authentication.md`
+### 16. Documentation — `authentication.md`
 
 Add a new `## <ProviderName>` section following the same structure as existing providers:
 
