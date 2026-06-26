@@ -2,6 +2,11 @@ import type { NextConfig } from "next"
 const nextConfig: NextConfig = {
   output: 'standalone',
   serverExternalPackages: ['pg', 'kysely'],
-  turbopack: {}
+  turbopack: {},
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
+  },
 }
 export default nextConfig

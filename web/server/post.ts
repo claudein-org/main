@@ -3,6 +3,7 @@
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import { linkedin } from "@/lib/linkedin"
+import * as youtube from "@/provider/youtube"
 import { Provider, proto } from "@claudein.org/common"
 import assert from "assert"
 
@@ -36,6 +37,33 @@ export async function postToLinkedin(raw: proto.Payload) {
             provider: Provider.LinkedIn,
             user_id
         })
+        .execute()
+
+    return { url: post_url }
+}
+
+export async function postToYoutube(raw: proto.Payload) {
+    const { hash, post } = proto.Payload.parse(raw)
+
+    assert(post.type === 'media' && post.media.type === 'video', 'YouTube requires a video post')
+
+    const { user_id } = await cook.get()
+    assert(user_id, 'User not logged in')
+
+    const { media } = post
+    const videoBlob = new Blob([Uint8Array.from(atob(media.base64), c => c.charCodeAt(0))], { type: 'video/mp4' })
+
+    const { id } = await youtube.upload(user_id, videoBlob, {
+        title: media.title ?? 'Video',
+        description: media.description,
+        privacyStatus: 'public',
+    })
+
+    const post_url = `https://www.youtube.com/watch?v=${id}`
+
+    await db
+        .insertInto('posts')
+        .values({ post_id: hash, post_url, provider: Provider.YouTube, user_id })
         .execute()
 
     return { url: post_url }

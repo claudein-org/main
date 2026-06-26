@@ -17,7 +17,7 @@ interface Props {
     facebookConnected: boolean
     instagramConnected: boolean
     youtubeConnected: boolean
-    published: { [post_id: number]: string }
+    published: Record<string, Record<number, string>>
 }
 
 interface ServiceRowProps {

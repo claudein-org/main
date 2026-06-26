@@ -29,8 +29,15 @@ export default async function page({ params }: Params) {
     facebook.getStatus(user_id),
     instagram.getStatus(user_id),
     youtube.getStatus(user_id),
-    db.selectFrom('posts').select(['post_id', 'post_url']).where('user_id', '=', user_id).execute()
-      .then((res) => Object.fromEntries(res.map(({ post_id, post_url }) => [post_id, post_url]))),
+    db.selectFrom('posts').select(['post_id', 'post_url', 'provider']).where('user_id', '=', user_id).execute()
+      .then((res) => {
+        const map: Record<string, Record<number, string>> = {}
+        for (const { post_id, post_url, provider } of res) {
+          if (!map[post_id]) map[post_id] = {}
+          map[post_id][provider] = post_url
+        }
+        return map
+      }),
   ])
 
   return <main>

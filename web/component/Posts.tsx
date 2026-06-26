@@ -1,9 +1,9 @@
 'use client'
 import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
 import { avatar, btn, card, carouselArrow, font, muted, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
-import { postToLinkedin } from "@/server/post"
+import { postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
-import { MediaType, PostType, proto } from "@claudein.org/common"
+import { MediaType, PostType, Provider, proto } from "@claudein.org/common"
 import { ReactElement, useEffect, useState } from "react"
 
 interface Suitability { linkedin: boolean; facebook: boolean; instagram: boolean; youtube: boolean }
@@ -58,7 +58,7 @@ async function computeSuitability(post: proto.Post): Promise<Suitability> {
     }
 }
 
-type Published = { [hash: string]: string }
+type Published = Record<string, Record<number, string>>
 interface Props {
     published: Published
     port: number
@@ -118,19 +118,28 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
         return () => window.removeEventListener('keydown', handler)
     }, [currentIndex, payloads.length])
 
+    function trackPosting(hash: string, provider: number) {
+        const key = `${hash}:${provider}`
+        setPosting(prev => new Set(prev).add(key))
+        return () => setPosting(prev => { const s = new Set(prev); s.delete(key); return s })
+    }
+
     async function handlePost({ hash, post }: proto.Payload) {
+        const done = trackPosting(hash, Provider.LinkedIn)
         try {
-            setPosting(prev => new Set(prev).add(hash))
             const res = await postToLinkedin({ hash, post })
             if (!res) return
-            setLinks(prev => ({ ...prev, [hash]: res.url }))
-        } finally {
-            setPosting(prev => {
-                const newSet = new Set(prev)
-                newSet.delete(hash)
-                return newSet
-            })
-        }
+            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Provider.LinkedIn]: res.url } }))
+        } finally { done() }
+    }
+
+    async function handleYoutubePost({ hash, post }: proto.Payload) {
+        const done = trackPosting(hash, Provider.YouTube)
+        try {
+            const res = await postToYoutube({ hash, post })
+            if (!res) return
+            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Provider.YouTube]: res.url } }))
+        } finally { done() }
     }
 
     const Media: { [key in MediaType]: (media: Extract<proto.Media, { type: key }>) => ReactElement } = {
@@ -172,8 +181,11 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
 
     const { hash, post } = payload
     const { created } = post
-    const link = links[hash]
-    const isPosting = posting.has(hash)
+    const postLinks = links[hash] ?? {}
+    const linkedinLink = postLinks[Provider.LinkedIn]
+    const youtubeLink = postLinks[Provider.YouTube]
+    const isPostingLinkedin = posting.has(`${hash}:${Provider.LinkedIn}`)
+    const isPostingYoutube = posting.has(`${hash}:${Provider.YouTube}`)
 
     return (
         <div className={cx(col, gap.md)}>
@@ -211,12 +223,12 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
             </div>
             <div className={cx(row, justify.center, gap.sm)}>
                 {linkedinConnected && suitability.linkedin && (
-                    link
-                        ? <a href={link} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
+                    linkedinLink
+                        ? <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
                             View on LinkedIn
                           </a>
-                        : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
-                            {isPosting ? 'Posting…' : 'LinkedIn'}
+                        : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPostingLinkedin}>
+                            {isPostingLinkedin ? 'Posting…' : 'LinkedIn'}
                           </button>
                 )}
                 {facebookConnected && suitability.facebook && (
@@ -230,9 +242,13 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                     </button>
                 )}
                 {youtubeConnected && suitability.youtube && (
-                    <button className={btn({ color: 'youtube', size: 'sm' })} disabled>
-                        YouTube
-                    </button>
+                    youtubeLink
+                        ? <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'youtube', size: 'sm' }))}>
+                            View on YouTube
+                          </a>
+                        : <button className={btn({ color: 'youtube', size: 'sm' })} onClick={() => handleYoutubePost({ hash, post })} disabled={isPostingYoutube}>
+                            {isPostingYoutube ? 'Uploading…' : 'YouTube'}
+                          </button>
                 )}
             </div>
             {payloads.length <= MAX_DOTS ? (
