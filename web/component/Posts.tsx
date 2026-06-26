@@ -1,10 +1,10 @@
 'use client'
-import { align, col, gap, row } from "@/css/layout.css"
-import { avatar, btn, card, color, font, muted, postFooter, postImg } from "@/css/style.css"
+import { align, col, gap, grow, justify, row } from "@/css/layout.css"
+import { avatar, btn, card, carouselArrow, font, muted, postFooter, postImg, progressDot, progressDotActive } from "@/css/style.css"
 import { postToLinkedin } from "@/server/post"
 import { cx } from "@/styled-system/css"
-import { MediaType, PostType, proto, yml } from "@claudein.org/common"
-import { ReactElement, useEffect, useState } from "react"
+import { MediaType, PostType, proto } from "@claudein.org/common"
+import { ReactElement, useCallback, useEffect, useState } from "react"
 
 type Published = { [hash: string]: string }
 interface Props {
@@ -16,10 +16,13 @@ interface Props {
     youtubeConnected: boolean
 }
 
+const MAX_DOTS = 20
+
 export default function WS({ port, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected }: Props) {
     const [payloads, setPayloads] = useState<proto.Payloads>([])
     const [links, setLinks] = useState<Published>(published)
     const [posting, setPosting] = useState<Set<string>>(new Set())
+    const [currentIndex, setCurrentIndex] = useState(0)
 
     useEffect(() => { setLinks(published) }, [published])
 
@@ -31,6 +34,24 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
         }
         return () => ws.close()
     }, [port])
+
+    useEffect(() => {
+        setCurrentIndex(prev => Math.min(prev, Math.max(0, payloads.length - 1)))
+    }, [payloads.length])
+
+    const prev = useCallback(() => setCurrentIndex(i => Math.max(0, i - 1)), [])
+    const next = useCallback((total: number) => setCurrentIndex(i => Math.min(total - 1, i + 1)), [])
+
+    useEffect(() => {
+        const total = payloads.length
+        const handler = (e: KeyboardEvent) => {
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+            if (e.key === 'ArrowLeft') { e.preventDefault(); prev() }
+            if (e.key === 'ArrowRight') { e.preventDefault(); next(total) }
+        }
+        window.addEventListener('keydown', handler)
+        return () => window.removeEventListener('keydown', handler)
+    }, [prev, next, payloads.length])
 
     async function handlePost({ hash, post }: proto.Payload) {
         try {
@@ -81,52 +102,89 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
         return Poster[post.type](post)
     }
 
+    if (payloads.length === 0) return null
 
-    return <div className={cx(col, gap.lg)}>
-        {payloads.map(({ hash, post }) => {
-            const { created } = post
-            const link = links[hash]
-            const isPosting = posting.has(hash)
-            return (
-                <div key={hash} className={card}>
-                    <div className={cx(row, align.center, gap.sm)}>
-                        <div className={avatar} />
-                        <div className={cx(col, gap.xs)}>
-                            <span className={font.weight.medium}>You</span>
-                            <span className={cx(muted, font.size.sm)}>
-                                {new Date(created).toLocaleDateString()}
-                            </span>
+    const { hash, post } = payloads[currentIndex]
+    const { created } = post
+    const link = links[hash]
+    const isPosting = posting.has(hash)
+
+    return (
+        <div className={cx(col, gap.md)}>
+            <div className={cx(row, align.center, gap.sm)}>
+                <button
+                    className={carouselArrow}
+                    onClick={prev}
+                    disabled={currentIndex === 0}
+                    aria-label="Previous post"
+                >
+                    ←
+                </button>
+                <div className={cx(col, align.center, grow)}>
+                    <div key={hash} className={card}>
+                        <div className={cx(row, align.center, gap.sm)}>
+                            <div className={avatar} />
+                            <div className={cx(col, gap.xs)}>
+                                <span className={font.weight.medium}>You</span>
+                                <span className={cx(muted, font.size.sm)}>
+                                    {new Date(created).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                        {poster(post)}
+                        <div className={postFooter}>
+                            {linkedinConnected && (
+                                link
+                                    ? <a href={link} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
+                                        View on LinkedIn
+                                      </a>
+                                    : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
+                                        {isPosting ? 'Posting…' : 'LinkedIn'}
+                                      </button>
+                            )}
+                            {facebookConnected && (
+                                <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
+                                    Facebook
+                                </button>
+                            )}
+                            {instagramConnected && (
+                                <button className={btn({ color: 'instagram', size: 'sm' })} disabled>
+                                    Instagram
+                                </button>
+                            )}
+                            {youtubeConnected && (
+                                <button className={btn({ color: 'youtube', size: 'sm' })} disabled>
+                                    YouTube
+                                </button>
+                            )}
                         </div>
                     </div>
-                    {poster(post)}
-                    <div className={postFooter}>
-                        {linkedinConnected && (
-                            link
-                                ? <a href={link} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
-                                    View on LinkedIn
-                                  </a>
-                                : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
-                                    {isPosting ? 'Posting…' : 'LinkedIn'}
-                                  </button>
-                        )}
-                        {facebookConnected && (
-                            <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
-                                Facebook
-                            </button>
-                        )}
-                        {instagramConnected && (
-                            <button className={btn({ color: 'instagram', size: 'sm' })} disabled>
-                                Instagram
-                            </button>
-                        )}
-                        {youtubeConnected && (
-                            <button className={btn({ color: 'youtube', size: 'sm' })} disabled>
-                                YouTube
-                            </button>
-                        )}
-                    </div>
                 </div>
-            )
-        })}
-    </div>
+                <button
+                    className={carouselArrow}
+                    onClick={() => next(payloads.length)}
+                    disabled={currentIndex === payloads.length - 1}
+                    aria-label="Next post"
+                >
+                    →
+                </button>
+            </div>
+            {payloads.length <= MAX_DOTS ? (
+                <div className={cx(row, justify.center, gap.xs)}>
+                    {payloads.map((_, i) => (
+                        <button
+                            key={i}
+                            className={cx(progressDot, i === currentIndex ? progressDotActive : '')}
+                            onClick={() => setCurrentIndex(i)}
+                            aria-label={`Go to post ${i + 1}`}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className={cx(row, justify.center)}>
+                    <span className={cx(muted, font.size.sm)}>{currentIndex + 1} / {payloads.length}</span>
+                </div>
+            )}
+        </div>
+    )
 }

@@ -224,6 +224,39 @@ export const connectedBadge = css({
   fontWeight: 500,
 })
 
+/* Carousel */
+export const carouselArrow = css({
+  width: "52px",
+  height: "52px",
+  borderRadius: "50%",
+  border: "1px solid #e0e0e0",
+  background: "#ffffff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  flexShrink: 0,
+  fontSize: "1.5rem",
+  transition: "background 0.15s, opacity 0.15s",
+  _hover: { background: "#f5f5f5" },
+  _disabled: { opacity: 0.25, cursor: "default" },
+})
+
+export const progressDot = css({
+  width: "8px",
+  height: "8px",
+  borderRadius: "50%",
+  background: "#e0e0e0",
+  border: "none",
+  padding: 0,
+  cursor: "pointer",
+  flexShrink: 0,
+  transition: "background 0.2s, transform 0.15s",
+  _hover: { transform: "scale(1.4)" },
+})
+
+export const progressDotActive = css({ background: "#0a66c2", transform: "scale(1.2)" })
+
 /* Button */
 export const btn = cva({
   base: {
