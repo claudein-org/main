@@ -1,9 +1,15 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml
 
 posts:
-  - type: "media"
+  - type: media
     created: 2024-06-05
     text: "I'm starting to build ClaudeIn"
     media:
-      type: "image"
-      src: "image.png"
+      type: image
+      src: image.png
+
+  - type: media
+    created: 2024-06-26
+    media:
+      type: video
+      src: demo/equation-cosmo-magic-potion.mp4

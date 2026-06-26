@@ -8,13 +8,13 @@ import crypto from 'crypto'
 import { watch } from 'fs'
 import { cp, mkdir, readdir, readFile, writeFile } from 'fs/promises'
 import { createRequire } from 'module'
-import { homedir } from 'os'
-import { dirname, join } from 'path'
 import { atom } from 'nanostores'
 import open from 'open'
+import { homedir } from 'os'
+import { dirname, join } from 'path'
 import { stableHash } from 'stable-hash'
-import { parse, stringify } from 'yaml'
 import { fileURLToPath } from 'url'
+import { parse, stringify } from 'yaml'
 import z from 'zod'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
@@ -121,7 +121,7 @@ const start = command('start')
         const protoPosts = await ps2ps(posts)
         const payloads = protoPosts
           .map((post) => ({ hash: hash(post), post }))
-          .sort((a, b) => a.post.created.localeCompare(b.post.created))
+          .sort((a, b) => b.post.created.localeCompare(a.post.created))
 
         $payloads.set(payloads)
       } catch (err) {
