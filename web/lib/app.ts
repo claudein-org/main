@@ -36,7 +36,7 @@ const youtubeParams = new URLSearchParams({
     response_type: "code",
     client_id: GOOGLE_CLIENT_ID,
     redirect_uri: auth.getRedirectUri('youtube'),
-    scope: "https://www.googleapis.com/auth/youtube.upload",
+    scope: "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly",
     access_type: "offline",
     prompt: "consent",
 })

@@ -5,8 +5,8 @@ import { btn, connectedBadge, connectMenu, connectMenuRow } from "@/css/style.cs
 import { app } from "@/lib/app"
 import { cx } from "@/styled-system/css"
 import { useEffect, useState } from "react"
+import WS from "./Posts"
 import Reload from "./Reload"
-import WS from "./WS"
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
