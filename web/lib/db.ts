@@ -51,6 +51,17 @@ namespace db {
         channel_id: string
     }
 
+    interface InstagramContainers {
+        container_id: Generated<number>
+        user_id: number
+        post_id: string
+        creation_id: string
+        status: number
+        error_message: string | null
+        created_at: Generated<Date>
+        updated_at: Generated<Date>
+    }
+
     interface Posts {
         post_date: Generated<Date>
         user_id: number
@@ -65,6 +76,7 @@ namespace db {
         facebook: Facebook
         instagram: Instagram
         youtube: Youtube
+        instagram_containers: InstagramContainers
         posts: Posts
     }
 }

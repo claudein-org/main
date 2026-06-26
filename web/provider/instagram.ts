@@ -3,6 +3,7 @@ import { deleteMedia, storeMedia } from '@/lib/media-store'
 import { proto } from '@claudein.org/common'
 import { randomBytes } from 'crypto'
 import ky from 'ky'
+import { sql } from 'kysely'
 import z from 'zod'
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60
@@ -11,6 +12,13 @@ const RefreshedToken = z.object({
     access_token: z.string(),
     expires_in: z.number().int(),
 })
+
+export enum PostStatus {
+    Pending = 1,
+    Ready = 2,
+    Published = 3,
+    Failed = 4,
+}
 
 export async function getStatus(user_id: number) {
     const now = Math.floor(Date.now() / 1000)
@@ -26,7 +34,7 @@ export async function getStatus(user_id: number) {
     // Proactively refresh if expiring within 7 days (long-lived tokens last 60 days)
     if (row.expires_at - now < SEVEN_DAYS) {
         try {
-            const res = await ky.get('https://graph.instagram.com/refresh_access_token', {
+            const res = await api.get('https://graph.instagram.com/refresh_access_token', {
                 searchParams: {
                     grant_type: 'ig_refresh_token',
                     access_token: row.access_token,
@@ -50,6 +58,7 @@ export async function getStatus(user_id: number) {
 }
 
 const BASE = 'https://graph.instagram.com/v21.0'
+const api = ky.extend({ timeout: 60000 })
 
 const CreateContainerResponse = z.object({ id: z.string() })
 const StatusResponse = z.object({
@@ -65,7 +74,7 @@ async function waitForContainer(creation_id: string, access_token: string): Prom
     for (let i = 0; i < 30; i++) {
         await new Promise(r => setTimeout(r, 5000))
         const res = StatusResponse.parse(
-            await ky.get(`${BASE}/${creation_id}`, {
+            await api.get(`${BASE}/${creation_id}`, {
                 searchParams: { fields: 'status_code,status,error_message', access_token },
             }).json()
         )
@@ -80,10 +89,12 @@ async function waitForContainer(creation_id: string, access_token: string): Prom
 interface Credentials {
     access_token: string
     instagram_account_id: string
+    user_id: number
+    post_id: string
 }
 
 export async function upload(
-    { access_token, instagram_account_id }: Credentials,
+    { access_token, instagram_account_id, user_id, post_id }: Credentials,
     post: Extract<proto.Post, { type: 'media' }>
 ) {
     const { media, text } = post
@@ -106,28 +117,54 @@ export async function upload(
         }
 
         const { id: creation_id } = CreateContainerResponse.parse(
-            await ky.post(`${BASE}/${instagram_account_id}/media`, {
+            await api.post(`${BASE}/${instagram_account_id}/media`, {
                 searchParams: containerParams,
             }).json()
         )
 
-        if (media.type === 'video') {
-            await waitForContainer(creation_id, access_token)
+        await db.insertInto('instagram_containers')
+            .values({ user_id, post_id, creation_id, status: PostStatus.Pending })
+            .execute()
+
+        try {
+            if (media.type === 'video') {
+                await waitForContainer(creation_id, access_token)
+            }
+
+            await db.updateTable('instagram_containers')
+                .set({ status: PostStatus.Ready, updated_at: sql`current_timestamp` })
+                .where('creation_id', '=', creation_id)
+                .execute()
+
+            const { id: media_id } = PublishResponse.parse(
+                await api.post(`${BASE}/${instagram_account_id}/media_publish`, {
+                    searchParams: { creation_id, access_token },
+                }).json()
+            )
+
+            const { permalink } = PermalinkResponse.parse(
+                await api.get(`${BASE}/${media_id}`, {
+                    searchParams: { fields: 'permalink', access_token },
+                }).json()
+            )
+
+            await db.updateTable('instagram_containers')
+                .set({ status: PostStatus.Published, updated_at: sql`current_timestamp` })
+                .where('creation_id', '=', creation_id)
+                .execute()
+
+            return { url: permalink }
+        } catch (err) {
+            await db.updateTable('instagram_containers')
+                .set({
+                    status: PostStatus.Failed,
+                    error_message: err instanceof Error ? err.message : String(err),
+                    updated_at: sql`current_timestamp`,
+                })
+                .where('creation_id', '=', creation_id)
+                .execute()
+            throw err
         }
-
-        const { id: media_id } = PublishResponse.parse(
-            await ky.post(`${BASE}/${instagram_account_id}/media_publish`, {
-                searchParams: { creation_id, access_token },
-            }).json()
-        )
-
-        const { permalink } = PermalinkResponse.parse(
-            await ky.get(`${BASE}/${media_id}`, {
-                searchParams: { fields: 'permalink', access_token },
-            }).json()
-        )
-
-        return { url: permalink }
     } finally {
         await deleteMedia(id)
     }

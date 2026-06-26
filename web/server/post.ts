@@ -57,7 +57,7 @@ export async function postToInstagram(raw: proto.Payload) {
         .where('user_id', '=', user_id)
         .executeTakeFirstOrThrow()
 
-    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id }, post)
+    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id, user_id, post_id: hash }, post)
 
     await db
         .insertInto('posts')

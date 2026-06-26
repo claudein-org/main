@@ -32,6 +32,18 @@ create table if not exists youtube (
     channel_id varchar(100) not null
 );
 
+create table if not exists instagram_containers (
+  container_id serial primary key,
+  user_id int references users(user_id) on delete cascade,
+  post_id varchar(16) not null,
+  creation_id varchar(100) not null,
+  -- 1=pending, 2=ready, 3=published, 4=failed
+  status int not null default 1,
+  error_message text,
+  created_at timestamp default current_timestamp,
+  updated_at timestamp default current_timestamp
+);
+
 create table if not exists posts (
   user_id int references users(user_id) on delete cascade,
   
