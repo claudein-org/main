@@ -106,9 +106,10 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
         return Poster[post.type](post)
     }
 
-    if (payloads.length === 0) return null
+    const payload = payloads[currentIndex]
+    if (!payload) return null
 
-    const { hash, post } = payloads[currentIndex]
+    const { hash, post } = payload
     const { created } = post
     const link = links[hash]
     const isPosting = posting.has(hash)

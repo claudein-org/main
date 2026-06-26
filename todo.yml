@@ -14,5 +14,8 @@ Introduction:
 TODO:
   - cli:
   - web:
+      - I updated the post table and added a provider enum. You need to:
+          - update the kysely schema to reflect the new post table.
+          - make sure every successful post is saved with the provider id and the full url to the post.
 
 Done:

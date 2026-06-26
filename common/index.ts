@@ -64,7 +64,12 @@ export namespace proto {
     export const Payloads = z.array(Payload)
 }
 
-
+export enum Provider {
+    LinkedIn = 1,
+    Facebook = 2,
+    Instagram = 3,
+    YouTube = 4,
+}
 
 export type PostType = yml.Post['type']
 export type MediaType = yml.Media['type']

@@ -34,10 +34,13 @@ create table if not exists youtube (
 
 create table if not exists posts (
   user_id int references users(user_id) on delete cascade,
+  
   post_id varchar(16) not null,
+  -- App level enum
+  provider int not null,
 
   post_date timestamp default current_timestamp,
   post_url varchar(1000) not null,
 
-  primary key (user_id, post_id)
+  primary key (user_id, post_id, provider)
 );
