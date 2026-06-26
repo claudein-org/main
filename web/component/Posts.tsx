@@ -1,7 +1,7 @@
 'use client'
 import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
 import { avatar, btn, card, carouselArrow, font, muted, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
-import { postToLinkedin, postToYoutube } from "@/server/post"
+import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { MediaType, PostType, Provider, proto } from "@claudein.org/common"
 import { ReactElement, useEffect, useState } from "react"
@@ -133,6 +133,15 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
         } finally { done() }
     }
 
+    async function handleInstagramPost({ hash, post }: proto.Payload) {
+        const done = trackPosting(hash, Provider.Instagram)
+        try {
+            const res = await postToInstagram({ hash, post })
+            if (!res) return
+            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Provider.Instagram]: res.url } }))
+        } finally { done() }
+    }
+
     async function handleYoutubePost({ hash, post }: proto.Payload) {
         const done = trackPosting(hash, Provider.YouTube)
         try {
@@ -183,8 +192,10 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
     const { created } = post
     const postLinks = links[hash] ?? {}
     const linkedinLink = postLinks[Provider.LinkedIn]
+    const instagramLink = postLinks[Provider.Instagram]
     const youtubeLink = postLinks[Provider.YouTube]
     const isPostingLinkedin = posting.has(`${hash}:${Provider.LinkedIn}`)
+    const isPostingInstagram = posting.has(`${hash}:${Provider.Instagram}`)
     const isPostingYoutube = posting.has(`${hash}:${Provider.YouTube}`)
 
     return (
@@ -237,9 +248,13 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                     </button>
                 )}
                 {instagramConnected && suitability.instagram && (
-                    <button className={btn({ color: 'instagram', size: 'sm' })} disabled>
-                        Instagram
-                    </button>
+                    instagramLink
+                        ? <a href={instagramLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))}>
+                            View on Instagram
+                          </a>
+                        : <button className={btn({ color: 'instagram', size: 'sm' })} onClick={() => handleInstagramPost({ hash, post })} disabled={isPostingInstagram}>
+                            {isPostingInstagram ? 'Posting…' : 'Instagram'}
+                          </button>
                 )}
                 {youtubeConnected && suitability.youtube && (
                     youtubeLink

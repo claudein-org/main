@@ -3,6 +3,7 @@
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import { linkedin } from "@/lib/linkedin"
+import * as instagram from "@/provider/instagram"
 import * as youtube from "@/provider/youtube"
 import { Provider, proto } from "@claudein.org/common"
 import assert from "assert"
@@ -37,6 +38,30 @@ export async function postToLinkedin(raw: proto.Payload) {
             provider: Provider.LinkedIn,
             user_id
         })
+        .execute()
+
+    return { url: post_url }
+}
+
+export async function postToInstagram(raw: proto.Payload) {
+    const { hash, post } = proto.Payload.parse(raw)
+
+    if (post.type !== 'media') throw new Error('Instagram requires a media post')
+
+    const { user_id } = await cook.get()
+    assert(user_id, 'User not logged in')
+
+    const { access_token, instagram_account_id } = await db
+        .selectFrom('instagram')
+        .select(['access_token', 'instagram_account_id'])
+        .where('user_id', '=', user_id)
+        .executeTakeFirstOrThrow()
+
+    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id }, post)
+
+    await db
+        .insertInto('posts')
+        .values({ post_id: hash, post_url, provider: Provider.Instagram, user_id })
         .execute()
 
     return { url: post_url }
