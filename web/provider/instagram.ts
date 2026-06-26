@@ -1,4 +1,3 @@
-import { https } from '@/lib/app'
 import { db } from '@/lib/db'
 import { deleteMedia, storeMedia } from '@/lib/media-store'
 import { proto } from '@claudein.org/common'
@@ -80,10 +79,11 @@ async function waitForContainer(creation_id: string, access_token: string): Prom
 interface Credentials {
     access_token: string
     instagram_account_id: string
+    baseUrl: string
 }
 
 export async function upload(
-    { access_token, instagram_account_id }: Credentials,
+    { access_token, instagram_account_id, baseUrl }: Credentials,
     post: Extract<proto.Post, { type: 'media' }>
 ) {
     const { media, text } = post
@@ -93,7 +93,7 @@ export async function upload(
     storeMedia(id, media.base64, contentType)
 
     try {
-        const mediaUrl = https(`/api/media/${id}`)
+        const mediaUrl = `${baseUrl}/api/media/${id}`
         const containerParams: Record<string, string> = {
             caption: text ?? '',
             access_token,

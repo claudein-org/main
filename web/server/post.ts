@@ -7,6 +7,7 @@ import * as instagram from "@/provider/instagram"
 import * as youtube from "@/provider/youtube"
 import { Provider, proto } from "@claudein.org/common"
 import assert from "assert"
+import { headers } from "next/headers"
 
 const MIN_MS = 1000 * 60
 export async function postToLinkedin(raw: proto.Payload) {
@@ -57,7 +58,12 @@ export async function postToInstagram(raw: proto.Payload) {
         .where('user_id', '=', user_id)
         .executeTakeFirstOrThrow()
 
-    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id }, post)
+    const h = await headers()
+    const host = h.get('host') ?? 'claudein.org'
+    const scheme = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
+    const baseUrl = `${scheme}://${host}`
+
+    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id, baseUrl }, post)
 
     await db
         .insertInto('posts')

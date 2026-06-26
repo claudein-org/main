@@ -7,7 +7,8 @@
     "build": "panda codegen && next build",
     "start": "next start",
     "dev-https": "panda codegen && bun --bun next dev --turbopack --experimental-https",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "tunnel": "cloudflared tunnel run --url http://localhost:3000 dev"
   },
   "dependencies": {
     "@claudein.org/common": "workspace:*",
