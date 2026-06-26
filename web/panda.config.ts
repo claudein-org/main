@@ -20,6 +20,16 @@ export default defineConfig({
   // Design tokens — the single source of truth for brand colors and fonts.
   theme: {
     extend: {
+      keyframes: {
+        slideInFromRight: {
+          from: { opacity: '0', transform: 'translateX(36px)' },
+          to:   { opacity: '1', transform: 'translateX(0)' },
+        },
+        slideInFromLeft: {
+          from: { opacity: '0', transform: 'translateX(-36px)' },
+          to:   { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
       tokens: {
         colors: {
           text: { value: "#1a1a1a" },

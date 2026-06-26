@@ -257,6 +257,12 @@ export const progressDot = css({
 
 export const progressDotActive = css({ background: "#0a66c2", transform: "scale(1.2)" })
 
+/* Carousel slide animations */
+const slideBase = { animationDuration: '0.22s', animationTimingFunction: 'ease-out', animationFillMode: 'both' } as const
+
+export const slideInFromRight = css({ ...slideBase, animationName: 'slideInFromRight' })
+export const slideInFromLeft  = css({ ...slideBase, animationName: 'slideInFromLeft' })
+
 /* Button */
 export const btn = cva({
   base: {

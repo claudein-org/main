@@ -37,6 +37,10 @@ export const width = {
 
 export const grow = css({ flexGrow: 1 })
 
+export const overflow = {
+  hidden: css({ overflow: "hidden" }),
+}
+
 export const pageCentered = css({
     display: "flex",
     flexDirection: "column",

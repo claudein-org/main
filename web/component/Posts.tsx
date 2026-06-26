@@ -1,10 +1,10 @@
 'use client'
-import { align, col, gap, grow, justify, row } from "@/css/layout.css"
-import { avatar, btn, card, carouselArrow, font, muted, postFooter, postImg, progressDot, progressDotActive } from "@/css/style.css"
+import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
+import { avatar, btn, card, carouselArrow, font, muted, postFooter, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
 import { postToLinkedin } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { MediaType, PostType, proto } from "@claudein.org/common"
-import { ReactElement, useCallback, useEffect, useState } from "react"
+import { ReactElement, useEffect, useState } from "react"
 
 type Published = { [hash: string]: string }
 interface Props {
@@ -23,6 +23,7 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
     const [links, setLinks] = useState<Published>(published)
     const [posting, setPosting] = useState<Set<string>>(new Set())
     const [currentIndex, setCurrentIndex] = useState(0)
+    const [direction, setDirection] = useState<'right' | 'left'>('right')
 
     useEffect(() => { setLinks(published) }, [published])
 
@@ -39,19 +40,22 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
         setCurrentIndex(prev => Math.min(prev, Math.max(0, payloads.length - 1)))
     }, [payloads.length])
 
-    const prev = useCallback(() => setCurrentIndex(i => Math.max(0, i - 1)), [])
-    const next = useCallback((total: number) => setCurrentIndex(i => Math.min(total - 1, i + 1)), [])
+    function navigate(index: number) {
+        const clamped = Math.max(0, Math.min(payloads.length - 1, index))
+        if (clamped === currentIndex) return
+        setDirection(clamped > currentIndex ? 'right' : 'left')
+        setCurrentIndex(clamped)
+    }
 
     useEffect(() => {
-        const total = payloads.length
         const handler = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-            if (e.key === 'ArrowLeft') { e.preventDefault(); prev() }
-            if (e.key === 'ArrowRight') { e.preventDefault(); next(total) }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); navigate(currentIndex - 1) }
+            if (e.key === 'ArrowRight') { e.preventDefault(); navigate(currentIndex + 1) }
         }
         window.addEventListener('keydown', handler)
         return () => window.removeEventListener('keydown', handler)
-    }, [prev, next, payloads.length])
+    }, [currentIndex, payloads.length])
 
     async function handlePost({ hash, post }: proto.Payload) {
         try {
@@ -114,14 +118,14 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
             <div className={cx(row, align.center, gap.sm)}>
                 <button
                     className={carouselArrow}
-                    onClick={prev}
+                    onClick={() => navigate(currentIndex - 1)}
                     disabled={currentIndex === 0}
                     aria-label="Previous post"
                 >
                     ←
                 </button>
-                <div className={cx(col, align.center, grow)}>
-                    <div key={hash} className={card}>
+                <div className={cx(col, align.center, grow, overflow.hidden)}>
+                    <div key={currentIndex} className={cx(card, direction === 'right' ? slideInFromRight : slideInFromLeft)}>
                         <div className={cx(row, align.center, gap.sm)}>
                             <div className={avatar} />
                             <div className={cx(col, gap.xs)}>
@@ -162,7 +166,7 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                 </div>
                 <button
                     className={carouselArrow}
-                    onClick={() => next(payloads.length)}
+                    onClick={() => navigate(currentIndex + 1)}
                     disabled={currentIndex === payloads.length - 1}
                     aria-label="Next post"
                 >
@@ -175,7 +179,7 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                         <button
                             key={i}
                             className={cx(progressDot, i === currentIndex ? progressDotActive : '')}
-                            onClick={() => setCurrentIndex(i)}
+                            onClick={() => navigate(i)}
                             aria-label={`Go to post ${i + 1}`}
                         />
                     ))}
