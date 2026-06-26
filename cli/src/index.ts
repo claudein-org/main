@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { links, MediaType, PostType, proto, yml } from '@claudein.org/common'
+import { links, PostType, proto, yml } from '@claudein.org/common'
 import type { Shell } from '@versecafe/zcli'
 import { cli, command, fmt, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
@@ -29,29 +29,13 @@ export function hash(post: proto.Post) {
     .substring(0, 16)
 }
 
-const meta: { [key in MediaType]: (buf: Buffer) => Extract<proto.Media, { type: key }>['meta'] } = {
-  // TODO: extract real metadata
-  image(buf) {
-    return {
-      wpx: 0,
-      hpx: 0
-    }
-  },
-  video(buf) {
-    return {
-      wpx: 0,
-      hpx: 0,
-      durationSec: 0
-    }
-  }
-}
 const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>) => Promise<Extract<proto.Post, { type: key }>> } = {
   async text(post) {
     return post
   },
 
   async media({ media, ...info }) {
-    const base64 = await readFile(media.src).then((buf) => buf.toString('base64'))
+    const base64 = await readFile(media.src).then(buf => buf.toString('base64'))
     return {
       ...info,
       media: {

@@ -20,16 +20,16 @@ export namespace yml {
     export type Media = z.infer<typeof Media>
     export const Media = z.discriminatedUnion('type', [Image, Video])
 
-    const Base = z.object({
+    const BasePost = z.object({
         created: z.iso.date(),
     })
 
-    export const PostText = Base.extend({
+    export const PostText = BasePost.extend({
         type: z.literal('text'),
         text: z.string(),
     })
 
-    export const PostMedia = Base.extend({
+    export const PostMedia = BasePost.extend({
         type: z.literal('media'),
         text: z.string().optional(),
         media: Media,
@@ -43,33 +43,13 @@ export namespace yml {
 }
 
 export namespace proto {
-    const ImageMeta = z.object({
-        wpx: z.number(),
-        hpx: z.number(),
-    })
-
-    const Image = yml.Image.extend({
-        base64: z.string(),
-        meta: ImageMeta,
-    })
-
-    const VideoMeta = ImageMeta.extend({
-        durationSec: z.number(),
-    })
-
-    const Video = yml.Video.extend({
-        base64: z.string(),
-        meta: VideoMeta,
-    })
+    const Image = yml.Image.extend({ base64: z.string() })
+    const Video = yml.Video.extend({ base64: z.string() })
 
     export type Media = z.infer<typeof Media>
     const Media = z.discriminatedUnion('type', [Image, Video])
 
-
-    const PostMedia = yml.PostMedia.extend({
-        media: Media
-    })
-
+    const PostMedia = yml.PostMedia.extend({ media: Media })
 
     export type Post = z.infer<typeof Post>
     export const Post = z.discriminatedUnion('type', [yml.PostText, PostMedia])
