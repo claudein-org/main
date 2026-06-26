@@ -11,6 +11,7 @@
     "tunnel": "cloudflared tunnel run --url http://localhost:3000 dev"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1075.0",
     "@claudein.org/common": "workspace:*",
     "@remotion/player": "^4.0.482",
     "@types/cookie-signature": "^1.1.2",

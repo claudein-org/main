@@ -55,6 +55,7 @@ const CreateContainerResponse = z.object({ id: z.string() })
 const StatusResponse = z.object({
     status_code: z.string(),
     status: z.string().optional(),
+    error_message: z.string().optional(),
     id: z.string().optional(),
 })
 const PublishResponse = z.object({ id: z.string() })
@@ -65,12 +66,12 @@ async function waitForContainer(creation_id: string, access_token: string): Prom
         await new Promise(r => setTimeout(r, 5000))
         const res = StatusResponse.parse(
             await ky.get(`${BASE}/${creation_id}`, {
-                searchParams: { fields: 'status_code,status', access_token },
+                searchParams: { fields: 'status_code,status,error_message', access_token },
             }).json()
         )
         if (res.status_code === 'FINISHED') return
         if (res.status_code === 'ERROR') {
-            throw new Error(`Instagram media processing failed: ${res.status ?? 'unknown reason'}`)
+            throw new Error(`Instagram media processing failed: ${res.error_message ?? res.status ?? 'unknown reason'}`)
         }
     }
     throw new Error('Instagram media processing timed out')
@@ -79,21 +80,19 @@ async function waitForContainer(creation_id: string, access_token: string): Prom
 interface Credentials {
     access_token: string
     instagram_account_id: string
-    baseUrl: string
 }
 
 export async function upload(
-    { access_token, instagram_account_id, baseUrl }: Credentials,
+    { access_token, instagram_account_id }: Credentials,
     post: Extract<proto.Post, { type: 'media' }>
 ) {
     const { media, text } = post
     const id = randomBytes(16).toString('hex')
     const contentType = media.type === 'image' ? 'image/jpeg' : 'video/mp4'
 
-    storeMedia(id, media.base64, contentType)
+    const mediaUrl = await storeMedia(id, media.base64, contentType)
 
     try {
-        const mediaUrl = `${baseUrl}/api/media/${id}`
         const containerParams: Record<string, string> = {
             caption: text ?? '',
             access_token,
@@ -130,6 +129,6 @@ export async function upload(
 
         return { url: permalink }
     } finally {
-        deleteMedia(id)
+        await deleteMedia(id)
     }
 }

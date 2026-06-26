@@ -1,27 +1,37 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
-import { join } from 'path'
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { env } from '@/lib/env'
+import { SPACE_ACCESS_KEY } from '@/lib/settings'
 
-const DIR = '/tmp/claudein-media'
+const BUCKET = 'claudein'
+const REGION = 'nyc3'
+const ENDPOINT = `https://${REGION}.digitaloceanspaces.com`
 
-function ensureDir() {
-    if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true })
+function client() {
+    return new S3Client({
+        region: REGION,
+        endpoint: ENDPOINT,
+        credentials: {
+            accessKeyId: SPACE_ACCESS_KEY,
+            secretAccessKey: env.SPACE_SECRET_KEY,
+        },
+        forcePathStyle: false,
+    })
 }
 
-export function storeMedia(id: string, base64: string, contentType: string): void {
-    ensureDir()
-    writeFileSync(join(DIR, id), JSON.stringify({ base64, contentType }))
+export async function storeMedia(id: string, base64: string, contentType: string): Promise<string> {
+    const body = Buffer.from(base64, 'base64')
+    await client().send(new PutObjectCommand({
+        Bucket: BUCKET,
+        Key: id,
+        Body: body,
+        ContentType: contentType,
+        ACL: 'public-read',
+    }))
+    return `https://${BUCKET}.${REGION}.cdn.digitaloceanspaces.com/${id}`
 }
 
-export function getMedia(id: string): { base64: string; contentType: string } | undefined {
-    const path = join(DIR, id)
-    if (!existsSync(path)) return undefined
+export async function deleteMedia(id: string): Promise<void> {
     try {
-        return JSON.parse(readFileSync(path, 'utf-8'))
-    } catch {
-        return undefined
-    }
-}
-
-export function deleteMedia(id: string): void {
-    try { rmSync(join(DIR, id)) } catch {}
+        await client().send(new DeleteObjectCommand({ Bucket: BUCKET, Key: id }))
+    } catch {}
 }
