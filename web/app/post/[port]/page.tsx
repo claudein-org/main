@@ -29,8 +29,8 @@ export default async function page({ params }: Params) {
     facebook.getStatus(user_id),
     instagram.getStatus(user_id),
     youtube.getStatus(user_id),
-    db.selectFrom('posts').select(['post_id', 'post_urn']).where('user_id', '=', user_id).execute()
-      .then((res) => Object.fromEntries(res.map(({ post_id, post_urn }) => [post_id, post_urn]))),
+    db.selectFrom('posts').select(['post_id', 'post_url']).where('user_id', '=', user_id).execute()
+      .then((res) => Object.fromEntries(res.map(({ post_id, post_url }) => [post_id, post_url]))),
   ])
 
   return <main>

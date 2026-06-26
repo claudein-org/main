@@ -62,7 +62,7 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
             setPosting(prev => new Set(prev).add(hash))
             const res = await postToLinkedin({ hash, post })
             if (!res) return
-            setLinks(prev => ({ ...prev, [hash]: `https://www.linkedin.com/feed/update/${res.urn}` }))
+            setLinks(prev => ({ ...prev, [hash]: res.url }))
         } finally {
             setPosting(prev => {
                 const newSet = new Set(prev)

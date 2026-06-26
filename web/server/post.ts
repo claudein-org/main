@@ -3,7 +3,7 @@
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import { linkedin } from "@/lib/linkedin"
-import { proto } from "@claudein.org/common"
+import { Provider, proto } from "@claudein.org/common"
 import assert from "assert"
 
 const MIN_MS = 1000 * 60
@@ -26,14 +26,17 @@ export async function postToLinkedin(raw: proto.Payload) {
 
     if (!urn) return
 
+    const post_url = `https://www.linkedin.com/feed/update/${urn}`
+
     await db
         .insertInto('posts')
         .values({
             post_id: hash,
-            post_urn: urn,
+            post_url,
+            provider: Provider.LinkedIn,
             user_id
         })
         .execute()
 
-    return { urn }
+    return { url: post_url }
 }

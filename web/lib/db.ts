@@ -55,7 +55,8 @@ namespace db {
         post_date: Generated<Date>
         user_id: number
         post_id: string
-        post_urn: string
+        provider: number
+        post_url: string
     }
 
     export interface DB {
