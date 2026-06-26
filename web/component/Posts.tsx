@@ -1,6 +1,6 @@
 'use client'
 import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
-import { avatar, btn, card, carouselArrow, font, muted, postFooter, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
+import { avatar, btn, card, carouselArrow, font, muted, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
 import { postToLinkedin } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { MediaType, PostType, proto } from "@claudein.org/common"
@@ -136,32 +136,6 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                             </div>
                         </div>
                         {poster(post)}
-                        <div className={postFooter}>
-                            {linkedinConnected && (
-                                link
-                                    ? <a href={link} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
-                                        View on LinkedIn
-                                      </a>
-                                    : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
-                                        {isPosting ? 'Posting…' : 'LinkedIn'}
-                                      </button>
-                            )}
-                            {facebookConnected && (
-                                <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
-                                    Facebook
-                                </button>
-                            )}
-                            {instagramConnected && (
-                                <button className={btn({ color: 'instagram', size: 'sm' })} disabled>
-                                    Instagram
-                                </button>
-                            )}
-                            {youtubeConnected && (
-                                <button className={btn({ color: 'youtube', size: 'sm' })} disabled>
-                                    YouTube
-                                </button>
-                            )}
-                        </div>
                     </div>
                 </div>
                 <button
@@ -172,6 +146,32 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                 >
                     →
                 </button>
+            </div>
+            <div className={cx(row, justify.center, gap.sm)}>
+                {linkedinConnected && (
+                    link
+                        ? <a href={link} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
+                            View on LinkedIn
+                          </a>
+                        : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPosting}>
+                            {isPosting ? 'Posting…' : 'LinkedIn'}
+                          </button>
+                )}
+                {facebookConnected && (
+                    <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
+                        Facebook
+                    </button>
+                )}
+                {instagramConnected && (
+                    <button className={btn({ color: 'instagram', size: 'sm' })} disabled>
+                        Instagram
+                    </button>
+                )}
+                {youtubeConnected && (
+                    <button className={btn({ color: 'youtube', size: 'sm' })} disabled>
+                        YouTube
+                    </button>
+                )}
             </div>
             {payloads.length <= MAX_DOTS ? (
                 <div className={cx(row, justify.center, gap.xs)}>

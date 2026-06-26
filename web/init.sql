@@ -37,7 +37,7 @@ create table if not exists posts (
   post_id varchar(16) not null,
 
   post_date timestamp default current_timestamp,
-  post_urn varchar(1000) not null,
+  post_url varchar(1000) not null,
 
   primary key (user_id, post_id)
 );
