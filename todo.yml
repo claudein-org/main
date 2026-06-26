@@ -14,6 +14,11 @@ Introduction:
 TODO:
   - cli:
   - web:
+    Posts:
+      - When showing a post preview the post options should only show relevant options:
+          - If not connected to provider, do not show the publish button.
+          - If already published, show a confirmation indication instead of the publish button.
+          - If post is not suitable for the provider (lets the provider decide based on the post content and metadata, use client side code to check the image/video size and aspect ratio) do not show the published button.
 
 Done:
   - web:
