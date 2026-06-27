@@ -3,7 +3,7 @@ import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
 import { avatar, btn, card, carouselArrow, font, muted, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
 import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
-import { Platform, PostType, proto } from "@claudein.org/common"
+import { MediaType, Platform, PostType, proto } from "@claudein.org/common"
 import { ReactElement, useEffect, useState } from "react"
 
 

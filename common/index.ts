@@ -1,15 +1,16 @@
-export { links } from './links'
+export { links } from './links.js'
 
 import z from "zod"
 
 type Platform = z.infer<typeof Platform>
 const Platform = z.enum(['LinkedIn', 'Facebook', 'Instagram', 'YouTube'])
-export const PlatformEnum: { [key in Platform]: number } = {
+const PlatformEnum: { [key in Platform]: number } = {
     LinkedIn: 1,
     Facebook: 2,
     Instagram: 3,
     YouTube: 4,
 }
+export { PlatformEnum as Platform }
 
 
 export namespace yml {
