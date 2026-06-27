@@ -64,6 +64,7 @@ const posts: yml.Posts = {
   posts: [{
     type: 'text',
     created: formatter.format(new Date()),
+    platforms: ['LinkedIn'],
     text: "I'm using ClaudeIn to share my thoughts and ideas!"
   }]
 }

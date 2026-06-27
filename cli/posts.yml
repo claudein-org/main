@@ -3,6 +3,7 @@
 posts:
   - type: media
     created: 2024-06-05
+    platforms: [LinkedIn]
     text: "I'm starting to build ClaudeIn"
     media:
       type: image
@@ -10,36 +11,42 @@ posts:
 
   - type: media
     created: 2024-06-26
+    platforms: [LinkedIn]
     media:
       type: video
       src: demo/equation-cosmo-magic-potion.mp4
 
   - type: media
     created: 2024-06-26
+    platforms: [LinkedIn]
     media:
       type: video
       src: demo/equation-cosmo-crystal-ball.mp4
 
   - type: media
     created: 2024-06-26
+    platforms: [LinkedIn]
     media:
       type: video
       src: demo/equation-sparky-magic-potion.mp4
 
   - type: media
     created: 2024-06-26
+    platforms: [LinkedIn]
     media:
       type: video
       src: demo/equation-zara-crystal-ball.mp4
 
   - type: media
     created: 2024-06-26
+    platforms: [LinkedIn]
     media:
       type: video
       src: demo/equation-zara-funny-hat.mp4
 
   - type: media
     created: 2024-06-26
+    platforms: [LinkedIn]
     media:
       type: video
       src: demo/equation-zara-magic-potion.mp4

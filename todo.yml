@@ -12,16 +12,15 @@ Introduction:
       - local file can be edited by user and external tools (e.g. claud code) directly, the cli will watch for changes and update the web app accordingly.
 
 TODO:
+  - cli:
+  - web:
+
+Done:
   - common:
       - I updated the claudein.schema.yml, this update affects the entire project. You need to:
           - find all affected code, e.g. (skill, client, server, db, etc...) and update it to reflect the new schema.
           - In particular, from now on, the client responsible to define which post is suitable for which provider, the web app should not make any assumptions about this and you need to remove the entire filtering logic and just accepts what the client defines.
           - for the cli, make sure to update the skill to reflect this and the sample .yml it generates.
-          - if you have any questions please discuss with me before making any changes.
-  - cli:
-  - web:
-
-Done:
   - web:
       - I updated the post table and added a provider enum. You need to:
           - update the kysely schema to reflect the new post table.

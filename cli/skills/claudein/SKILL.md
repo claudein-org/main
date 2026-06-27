@@ -1,10 +1,10 @@
 ---
 name: claudein
-description: Create LinkedIn posts using the claudein CLI. Use when the user wants to write, draft, or schedule LinkedIn posts, or when working with any .yml posts file.
+description: Create social media posts (LinkedIn, Facebook, Instagram, YouTube) using the claudein CLI. Use when the user wants to write, draft, or schedule posts, or when working with any .yml posts file.
 allowed-tools: Edit, Write, Bash(cin *), Bash(pgrep *), Bash(curl *)
 ---
 
-# claudein — LinkedIn posts from the CLI
+# claudein — social media posts from the CLI
 
 ## Live schema
 
@@ -18,24 +18,49 @@ The default file is `posts.yml` but users can use any `.yml` file (pass it to `c
 
 `cin start` watches the file for changes and updates the browser preview live — always edit the file in place, never delete and recreate it.
 
+## Platforms
+
+Each post must include a `platforms` field listing the target platforms. The client decides which platforms a post is for — the web app uses this list to show the correct publish buttons.
+
+Available platforms: `LinkedIn`, `Facebook`, `Instagram`, `YouTube`
+
+```yaml
+posts:
+  - type: text
+    created: 2026-01-01
+    platforms: [LinkedIn]
+    text: "Hello LinkedIn!"
+
+  - type: media
+    created: 2026-01-02
+    platforms: [Instagram, Facebook]
+    media:
+      type: image
+      src: photo.jpg
+```
+
 ## Workflow
 
 1. Write or edit the `.yml` posts file
 2. Check if `cin start` is already running: `pgrep -fa "cin start"` — if it is, skip step 3
 3. If not running: `cin start [file]` — opens the live browser preview
-4. Click "Post" in the browser to publish to LinkedIn
+4. Click the platform button in the browser to publish
 
-## Media guidelines (LinkedIn)
+## Media guidelines
 
-When generating or sourcing images and videos (e.g. with Remotion), target LinkedIn's specs:
+### LinkedIn
 
-**Both images and videos:** 1:1 to 4:5 aspect ratio, 1080×1080 px up to 1080×1350 px
+**Images:** PNG or JPG, max 20 MB, aspect ratio 1:2.4 to 2.4:1
+**Videos:** MP4 H.264, max 5 GB, 3–600 seconds, aspect ratio 1:1 to 4:5 recommended
 
-**Images:** PNG or JPG
+### Instagram
 
-**Videos:** MP4, H.264
+**Images:** PNG or JPG, max 8 MB, aspect ratio 4:5 to 1.91:1
+**Videos:** MP4, max 650 MB, 3–60 seconds
 
-Content outside the 1:1–4:5 range may be cropped or rejected by LinkedIn.
+### YouTube
+
+**Videos:** MP4, any duration
 
 ### Remotion
 

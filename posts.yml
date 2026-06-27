@@ -8,6 +8,7 @@
 posts:
   - type: media
     created: 2026-06-24
+    platforms: [LinkedIn]
     text: Claude Code + Linkedin = ClaudeIn.
     media:
       type: video

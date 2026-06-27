@@ -3,60 +3,9 @@ import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
 import { avatar, btn, card, carouselArrow, font, muted, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
 import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
-import { MediaType, Platform, PostType, proto } from "@claudein.org/common"
+import { Platform, PostType, proto } from "@claudein.org/common"
 import { ReactElement, useEffect, useState } from "react"
 
-interface Suitability { linkedin: boolean; facebook: boolean; instagram: boolean; youtube: boolean }
-
-function base64Bytes(b64: string): number {
-    const padding = (b64.match(/=/g) || []).length
-    return Math.floor(b64.length * 3 / 4) - padding
-}
-
-function mediaInfo(base64: string, type: MediaType): Promise<{ width: number; height: number; duration: number }> {
-    if (type === 'image') {
-        return new Promise(resolve => {
-            const img = new Image()
-            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight, duration: 0 })
-            img.src = `data:image/*;base64,${base64}`
-        })
-    }
-    return new Promise(resolve => {
-        const vid = document.createElement('video')
-        vid.onloadedmetadata = () => resolve({ width: vid.videoWidth, height: vid.videoHeight, duration: vid.duration })
-        vid.src = `data:video/*;base64,${base64}`
-    })
-}
-
-function initialSuitability(post: proto.Post): Suitability {
-    const hasMedia = post.type === 'media'
-    const hasVideo = hasMedia && post.media.type === 'video'
-    return { linkedin: true, facebook: true, instagram: hasMedia, youtube: hasVideo }
-}
-
-async function computeSuitability(post: proto.Post): Promise<Suitability> {
-    if (post.type !== 'media') return initialSuitability(post)
-
-    const { media } = post
-    const bytes = base64Bytes(media.base64)
-    const { width, height, duration } = await mediaInfo(media.base64, media.type)
-    const ratio = width / height
-
-    if (media.type === 'image') {
-        return {
-            linkedin: bytes <= 20_971_520 && ratio >= 1 / 2.4 && ratio <= 2.4,
-            facebook: bytes <= 4_194_304,
-            instagram: bytes <= 8_388_608 && ratio >= 0.8 && ratio <= 1.91,
-            youtube: false,
-        }
-    }
-    return {
-        linkedin: bytes <= 5_368_709_120 && duration >= 3 && duration <= 600,
-        facebook: true,
-        instagram: bytes <= 681_574_400 && duration >= 3 && duration <= 60,
-        youtube: true,
-    }
-}
 
 type Published = Record<string, Record<number, string>>
 interface Props {
@@ -91,15 +40,6 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
     useEffect(() => {
         setCurrentIndex(prev => Math.min(prev, Math.max(0, payloads.length - 1)))
     }, [payloads.length])
-
-    const [suitability, setSuitability] = useState<Suitability>({ linkedin: true, facebook: true, instagram: true, youtube: true })
-
-    useEffect(() => {
-        const payload = payloads[currentIndex]
-        if (!payload) return
-        setSuitability(initialSuitability(payload.post))
-        computeSuitability(payload.post).then(setSuitability)
-    }, [payloads, currentIndex])
 
     function navigate(index: number) {
         const clamped = Math.max(0, Math.min(payloads.length - 1, index))
@@ -233,7 +173,7 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                 </button>
             </div>
             <div className={cx(row, justify.center, gap.sm)}>
-                {linkedinConnected && suitability.linkedin && (
+                {linkedinConnected && post.platforms.includes('LinkedIn') && (
                     linkedinLink
                         ? <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
                             View on LinkedIn
@@ -242,12 +182,12 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                             {isPostingLinkedin ? 'Posting…' : 'LinkedIn'}
                         </button>
                 )}
-                {facebookConnected && suitability.facebook && (
+                {facebookConnected && post.platforms.includes('Facebook') && (
                     <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
                         Facebook
                     </button>
                 )}
-                {instagramConnected && suitability.instagram && (
+                {instagramConnected && post.platforms.includes('Instagram') && (
                     instagramLink
                         ? <a href={instagramLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))}>
                             View on Instagram
@@ -256,7 +196,7 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                             {isPostingInstagram ? 'Posting…' : 'Instagram'}
                         </button>
                 )}
-                {youtubeConnected && suitability.youtube && (
+                {youtubeConnected && post.platforms.includes('YouTube') && (
                     youtubeLink
                         ? <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'youtube', size: 'sm' }))}>
                             View on YouTube
