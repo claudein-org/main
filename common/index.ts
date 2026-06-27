@@ -20,12 +20,12 @@ export namespace yml {
 
     export const Image = BasicMedia.extend({
         type: z.literal('image'),
-        src: z.regex(/.*\.(jpg|jpeg|png)$/),
+        src: z.string().regex(/.*\.(jpg|jpeg|png)$/),
     })
 
     export const Video = BasicMedia.extend({
         type: z.literal('video'),
-        src: z.regex(/.*\.(mp4|mkv|avi)$/),
+        src: z.string().regex(/.*\.(mp4|mkv|avi)$/),
     })
 
     export type Media = z.infer<typeof Media>

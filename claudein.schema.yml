@@ -59,14 +59,15 @@ properties:
                       type: string
                     description:
                       type: string
-                    src:
-                      type: string
                     type:
                       type: string
                       const: image
+                    src:
+                      type: string
+                      pattern: .*\.(jpg|jpeg|png)$
                   required:
-                    - src
                     - type
+                    - src
                   additionalProperties: false
                 - type: object
                   properties:
@@ -74,14 +75,15 @@ properties:
                       type: string
                     description:
                       type: string
-                    src:
-                      type: string
                     type:
                       type: string
                       const: video
+                    src:
+                      type: string
+                      pattern: .*\.(mp4|mkv|avi)$
                   required:
-                    - src
                     - type
+                    - src
                   additionalProperties: false
           required:
             - created
