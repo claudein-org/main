@@ -12,6 +12,8 @@ Introduction:
       - local file can be edited by user and external tools (e.g. claud code) directly, the cli will watch for changes and update the web app accordingly.
 
 TODO:
+  - common:
+      - I updated the
   - cli:
   - web:
 

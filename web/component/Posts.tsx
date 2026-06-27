@@ -3,7 +3,7 @@ import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
 import { avatar, btn, card, carouselArrow, font, muted, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
 import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
-import { MediaType, PostType, Provider, proto } from "@claudein.org/common"
+import { MediaType, Platform, PostType, proto } from "@claudein.org/common"
 import { ReactElement, useEffect, useState } from "react"
 
 interface Suitability { linkedin: boolean; facebook: boolean; instagram: boolean; youtube: boolean }
@@ -125,29 +125,29 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
     }
 
     async function handlePost({ hash, post }: proto.Payload) {
-        const done = trackPosting(hash, Provider.LinkedIn)
+        const done = trackPosting(hash, Platform.LinkedIn)
         try {
             const res = await postToLinkedin({ hash, post })
             if (!res) return
-            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Provider.LinkedIn]: res.url } }))
+            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Platform.LinkedIn]: res.url } }))
         } finally { done() }
     }
 
     async function handleInstagramPost({ hash, post }: proto.Payload) {
-        const done = trackPosting(hash, Provider.Instagram)
+        const done = trackPosting(hash, Platform.Instagram)
         try {
             const res = await postToInstagram({ hash, post })
             if (!res) return
-            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Provider.Instagram]: res.url } }))
+            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Platform.Instagram]: res.url } }))
         } finally { done() }
     }
 
     async function handleYoutubePost({ hash, post }: proto.Payload) {
-        const done = trackPosting(hash, Provider.YouTube)
+        const done = trackPosting(hash, Platform.YouTube)
         try {
             const res = await postToYoutube({ hash, post })
             if (!res) return
-            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Provider.YouTube]: res.url } }))
+            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Platform.YouTube]: res.url } }))
         } finally { done() }
     }
 
@@ -191,12 +191,12 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
     const { hash, post } = payload
     const { created } = post
     const postLinks = links[hash] ?? {}
-    const linkedinLink = postLinks[Provider.LinkedIn]
-    const instagramLink = postLinks[Provider.Instagram]
-    const youtubeLink = postLinks[Provider.YouTube]
-    const isPostingLinkedin = posting.has(`${hash}:${Provider.LinkedIn}`)
-    const isPostingInstagram = posting.has(`${hash}:${Provider.Instagram}`)
-    const isPostingYoutube = posting.has(`${hash}:${Provider.YouTube}`)
+    const linkedinLink = postLinks[Platform.LinkedIn]
+    const instagramLink = postLinks[Platform.Instagram]
+    const youtubeLink = postLinks[Platform.YouTube]
+    const isPostingLinkedin = posting.has(`${hash}:${Platform.LinkedIn}`)
+    const isPostingInstagram = posting.has(`${hash}:${Platform.Instagram}`)
+    const isPostingYoutube = posting.has(`${hash}:${Platform.YouTube}`)
 
     return (
         <div className={cx(col, gap.md)}>
@@ -237,10 +237,10 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                     linkedinLink
                         ? <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
                             View on LinkedIn
-                          </a>
+                        </a>
                         : <button className={btn({ color: 'linkedin', size: 'sm' })} onClick={() => handlePost({ hash, post })} disabled={isPostingLinkedin}>
                             {isPostingLinkedin ? 'Posting…' : 'LinkedIn'}
-                          </button>
+                        </button>
                 )}
                 {facebookConnected && suitability.facebook && (
                     <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
@@ -251,19 +251,19 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
                     instagramLink
                         ? <a href={instagramLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))}>
                             View on Instagram
-                          </a>
+                        </a>
                         : <button className={btn({ color: 'instagram', size: 'sm' })} onClick={() => handleInstagramPost({ hash, post })} disabled={isPostingInstagram}>
                             {isPostingInstagram ? 'Posting…' : 'Instagram'}
-                          </button>
+                        </button>
                 )}
                 {youtubeConnected && suitability.youtube && (
                     youtubeLink
                         ? <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'youtube', size: 'sm' }))}>
                             View on YouTube
-                          </a>
+                        </a>
                         : <button className={btn({ color: 'youtube', size: 'sm' })} onClick={() => handleYoutubePost({ hash, post })} disabled={isPostingYoutube}>
                             {isPostingYoutube ? 'Uploading…' : 'YouTube'}
-                          </button>
+                        </button>
                 )}
             </div>
             {payloads.length <= MAX_DOTS ? (

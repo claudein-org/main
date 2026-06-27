@@ -2,19 +2,30 @@ export { links } from './links'
 
 import z from "zod"
 
+type Platform = z.infer<typeof Platform>
+const Platform = z.enum(['LinkedIn', 'Facebook', 'Instagram', 'YouTube'])
+export const PlatformEnum: { [key in Platform]: number } = {
+    LinkedIn: 1,
+    Facebook: 2,
+    Instagram: 3,
+    YouTube: 4,
+}
+
+
 export namespace yml {
     const BasicMedia = z.object({
         title: z.string().optional(),
         description: z.string().optional(),
-        src: z.string(),
     })
 
     export const Image = BasicMedia.extend({
         type: z.literal('image'),
+        src: z.regex(/.*\.(jpg|jpeg|png)$/),
     })
 
     export const Video = BasicMedia.extend({
         type: z.literal('video'),
+        src: z.regex(/.*\.(mp4|mkv|avi)$/),
     })
 
     export type Media = z.infer<typeof Media>
@@ -22,6 +33,7 @@ export namespace yml {
 
     const BasePost = z.object({
         created: z.iso.date(),
+        platforms: z.array(Platform),
     })
 
     export const PostText = BasePost.extend({
@@ -62,13 +74,6 @@ export namespace proto {
 
     export type Payloads = z.infer<typeof Payloads>
     export const Payloads = z.array(Payload)
-}
-
-export enum Provider {
-    LinkedIn = 1,
-    Facebook = 2,
-    Instagram = 3,
-    YouTube = 4,
 }
 
 export type PostType = yml.Post['type']

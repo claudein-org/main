@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { linkedin } from "@/lib/linkedin"
 import * as instagram from "@/provider/instagram"
 import * as youtube from "@/provider/youtube"
-import { Provider, proto } from "@claudein.org/common"
+import { Platform, proto } from "@claudein.org/common"
 import assert from "assert"
 
 const MIN_MS = 1000 * 60
@@ -35,7 +35,7 @@ export async function postToLinkedin(raw: proto.Payload) {
         .values({
             post_id: hash,
             post_url,
-            provider: Provider.LinkedIn,
+            provider: Platform.LinkedIn,
             user_id
         })
         .execute()
@@ -61,7 +61,7 @@ export async function postToInstagram(raw: proto.Payload) {
 
     await db
         .insertInto('posts')
-        .values({ post_id: hash, post_url, provider: Provider.Instagram, user_id })
+        .values({ post_id: hash, post_url, provider: Platform.Instagram, user_id })
         .execute()
 
     return { url: post_url }
@@ -88,7 +88,7 @@ export async function postToYoutube(raw: proto.Payload) {
 
     await db
         .insertInto('posts')
-        .values({ post_id: hash, post_url, provider: Provider.YouTube, user_id })
+        .values({ post_id: hash, post_url, provider: Platform.YouTube, user_id })
         .execute()
 
     return { url: post_url }
