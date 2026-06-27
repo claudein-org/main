@@ -1,4 +1,4 @@
-export { links } from './links.js'
+export { links } from './links'
 
 import z from "zod"
 

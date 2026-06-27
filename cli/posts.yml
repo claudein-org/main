@@ -11,42 +11,54 @@ posts:
 
   - type: media
     created: 2024-06-26
-    platforms: [LinkedIn]
+    platforms:
+      - YouTube
+      - Instagram
     media:
       type: video
       src: demo/equation-cosmo-magic-potion.mp4
 
   - type: media
     created: 2024-06-26
-    platforms: [LinkedIn]
+    platforms:
+      - YouTube
+      - Instagram
     media:
       type: video
       src: demo/equation-cosmo-crystal-ball.mp4
 
   - type: media
     created: 2024-06-26
-    platforms: [LinkedIn]
+    platforms:
+      - YouTube
+      - Instagram
     media:
       type: video
       src: demo/equation-sparky-magic-potion.mp4
 
   - type: media
     created: 2024-06-26
-    platforms: [LinkedIn]
+    platforms:
+      - YouTube
+      - Instagram
     media:
       type: video
       src: demo/equation-zara-crystal-ball.mp4
 
   - type: media
     created: 2024-06-26
-    platforms: [LinkedIn]
+    platforms:
+      - YouTube
+      - Instagram
     media:
       type: video
       src: demo/equation-zara-funny-hat.mp4
 
   - type: media
     created: 2024-06-26
-    platforms: [LinkedIn]
+    platforms:
+      - YouTube
+      - Instagram
     media:
       type: video
       src: demo/equation-zara-magic-potion.mp4
