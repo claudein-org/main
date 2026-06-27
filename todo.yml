@@ -12,6 +12,9 @@ Introduction:
       - local file can be edited by user and external tools (e.g. claud code) directly, the cli will watch for changes and update the web app accordingly.
 
 TODO:
+  - common:
+    post hashing:
+      - We need to hash only relevant fields on the post, define the fields for each post type and implement the hashing logic.
   - cli:
   - web:
 
