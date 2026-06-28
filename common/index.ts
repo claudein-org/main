@@ -1,4 +1,5 @@
 export { links } from './links'
+export { PlatformEnum as Platform }
 
 import z from "zod"
 
@@ -10,10 +11,21 @@ const PlatformEnum: { [key in Platform]: number } = {
     Instagram: 3,
     YouTube: 4,
 }
-export { PlatformEnum as Platform }
 
 
 export namespace yml {
+    const ImgSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
+    const VideoSrc = z.string().regex(/.*\.(mp4|mkv|avi)$/)
+
+    const Brand = z.object({
+        title: z.string(),
+        description: z.string(),
+        logo: ImgSrc,
+
+        features: z.array(z.string()),
+        images: z.array(ImgSrc),
+    })
+
     const BasicMedia = z.object({
         title: z.string().optional(),
         description: z.string().optional(),
@@ -21,12 +33,12 @@ export namespace yml {
 
     export const Image = BasicMedia.extend({
         type: z.literal('image'),
-        src: z.string().regex(/.*\.(jpg|jpeg|png)$/),
+        src: ImgSrc,
     })
 
     export const Video = BasicMedia.extend({
         type: z.literal('video'),
-        src: z.string().regex(/.*\.(mp4|mkv|avi)$/),
+        src: VideoSrc,
     })
 
     export type Media = z.infer<typeof Media>
@@ -53,6 +65,11 @@ export namespace yml {
 
     export type Posts = z.infer<typeof Posts>
     export const Posts = z.object({ posts: z.array(Post) })
+
+    export const YML = z.object({
+        brand: Brand,
+        posts: z.array(Post),
+    })
 }
 
 export namespace proto {

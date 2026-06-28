@@ -5,15 +5,14 @@
 export const links = {
     _: '/',
     auth: {
-        google: `/auth/google`,
-        linkedin: `/auth/linkedin`,
         facebook: `/auth/facebook`,
+        google: `/auth/google`,
         instagram: `/auth/instagram`,
+        linkedin: `/auth/linkedin`,
         youtube: `/auth/youtube`,
     },
     close: `/close`,
-    guide: `/guide`,
-    post: {
-        port: (port: number) => `/post/${port}`,
+    dash: {
+        port: (port: number) => `/dash/${port}`,
     },
 }
