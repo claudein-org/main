@@ -12,7 +12,6 @@ import { atom } from 'nanostores'
 import open from 'open'
 import { homedir } from 'os'
 import { dirname, join } from 'path'
-import { stableHash } from 'stable-hash'
 import { fileURLToPath } from 'url'
 import { parse, stringify } from 'yaml'
 import z from 'zod'
@@ -21,10 +20,24 @@ const { version } = createRequire(import.meta.url)('../package.json') as { versi
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
+
+const hasher: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) => (string | undefined)[] } = {
+  text({ text }) {
+    return [text]
+  },
+  media({ text, media: { title, description, base64 } }) {
+    return [text, title, description, base64]
+  }
+}
+
+function parts<T extends PostType>(post: Extract<proto.Post, { type: T }>) {
+  return hasher[post.type](post).filter(Boolean).join('|')
+}
+
 export function hash(post: proto.Post) {
   return crypto
     .createHash('sha256')
-    .update(stableHash(post))
+    .update(parts(post))
     .digest('base64url')
     .substring(0, 16)
 }

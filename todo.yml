@@ -18,19 +18,8 @@ TODO:
   - cli:
   - web:
   - video:
-      - create a 4:5 video:
-          - ClaudeIn logo fades out.
-          - ClaudeCode view:
-              - user types a prompt /claudein
-              - claude asks "What should we make today?"
-              - user types a prompt "A viral post about ClaudeIn"
-              - claude thinking...
-              - camera shifts to the Claudein dashboard (need to create a dashboard view) and pans over several posts.
-                Finally it stops on a post that says "A viral post about ClaudeIn" and the user clicks on it (animate a pointer mouse clicks on the "post" button).
-
-              - camera shifts to the LinkedIn view and pans and zoom in to the footer section of the post to see the number of likes and comments counts up.
-
       - See the Linkedin video for inspiration.
       - Finally, add a post to brand.yml that says something like "ClaudeIn turns your claude code into a social media manager."
 
 Done:
+  - Add a post to brand.yml: "ClaudeIn turns your Claude Code into a social media manager."

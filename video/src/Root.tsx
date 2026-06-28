@@ -2,6 +2,7 @@ import { Composition } from 'remotion'
 import { LinkedInLogoAnimation } from './LinkedInLogoAnimation'
 import { ClaudeInTextAnimation } from './ClaudeInTextAnimation'
 import { DemoComposition } from './DemoComposition'
+import { ViralPostComposition } from './ViralPostComposition'
 
 export function RemotionRoot() {
   return (
@@ -29,6 +30,14 @@ export function RemotionRoot() {
         fps={30}
         width={1080}
         height={1080}
+      />
+      <Composition
+        id="ViralPost"
+        component={ViralPostComposition}
+        durationInFrames={1210}
+        fps={30}
+        width={1080}
+        height={1350}
       />
     </>
   )

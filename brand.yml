@@ -29,3 +29,11 @@ posts:
     media:
       type: video
       src: video/out/ClaudeInText.mp4
+
+  - type: media
+    created: 2026-06-28
+    platforms: [LinkedIn]
+    text: ClaudeIn turns your Claude Code into a social media manager.
+    media:
+      type: video
+      src: video/out/Demo.mp4
