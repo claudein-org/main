@@ -58,18 +58,6 @@ export const stepNum = css({
 })
 
 /* Card */
-export const card = css({
-  border: "1px solid #e0e0e0",
-  borderRadius: "12px",
-  padding: "1.25rem",
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-  maxWidth: "552px",
-  width: "100%",
-  background: "#ffffff",
-})
-
 export const avatar = css({
   width: "48px",
   height: "48px",
@@ -224,45 +212,6 @@ export const connectedBadge = css({
   fontWeight: 500,
 })
 
-/* Carousel */
-export const carouselArrow = css({
-  width: "52px",
-  height: "52px",
-  borderRadius: "50%",
-  border: "1px solid #e0e0e0",
-  background: "#ffffff",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-  flexShrink: 0,
-  fontSize: "1.5rem",
-  transition: "background 0.15s, opacity 0.15s",
-  _hover: { background: "#f5f5f5" },
-  _disabled: { opacity: 0.25, cursor: "default" },
-})
-
-export const progressDot = css({
-  width: "8px",
-  height: "8px",
-  borderRadius: "50%",
-  background: "#e0e0e0",
-  border: "none",
-  padding: 0,
-  cursor: "pointer",
-  flexShrink: 0,
-  transition: "background 0.2s, transform 0.15s",
-  _hover: { transform: "scale(1.4)" },
-})
-
-export const progressDotActive = css({ background: "#0a66c2", transform: "scale(1.2)" })
-
-/* Carousel slide animations */
-const slideBase = { animationDuration: '0.22s', animationTimingFunction: 'ease-out', animationFillMode: 'both' } as const
-
-export const slideInFromRight = css({ ...slideBase, animationName: 'slideInFromRight' })
-export const slideInFromLeft  = css({ ...slideBase, animationName: 'slideInFromLeft' })
-
 /* Dashboard shell */
 export const dashboardLayout = css({
   display: "flex",
@@ -402,9 +351,36 @@ export const galleryImg = css({
   background: "#FAF9F7",
 })
 
-/* Posts view — fixed width so the carousel/card size stays stable
-   (552px card + two 52px arrows + 2×1rem gaps). */
-export const postsView = css({ width: "min(688px, 100%)" })
+/* Posts view — responsive grid: 1 column on mobile, 2 on tablet, 3 on desktop. */
+export const postsGrid = css({
+  display: "grid",
+  width: "100%",
+  maxWidth: "1100px",
+  gap: "1.25rem",
+  gridTemplateColumns: "1fr",
+  "@media (min-width: 640px)": { gridTemplateColumns: "repeat(2, 1fr)" },
+  "@media (min-width: 1024px)": { gridTemplateColumns: "repeat(3, 1fr)" },
+})
+
+export const postCard = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.25rem",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+  background: "#ffffff",
+  height: "100%",
+})
+
+export const postCardActions = css({
+  marginTop: "auto",
+  display: "flex",
+  flexWrap: "wrap",
+  alignItems: "center",
+  gap: "0.5rem",
+  paddingTop: "0.25rem",
+})
 
 /* Shared */
 export const preWrap = css({ whiteSpace: "pre-wrap" })

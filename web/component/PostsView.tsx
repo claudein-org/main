@@ -1,6 +1,6 @@
 'use client'
-import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
-import { avatar, btn, card, carouselArrow, font, muted, postImg, postsView, preWrap, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
+import { align, col, gap, row } from "@/css/layout.css"
+import { avatar, btn, font, muted, postCard, postCardActions, postImg, postsGrid, preWrap } from "@/css/style.css"
 import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { MediaType, Platform, PostType, proto } from "@claudein.org/common"
@@ -17,36 +17,11 @@ interface Props {
     youtubeConnected: boolean
 }
 
-const MAX_DOTS = 20
-
 export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected }: Props) {
     const [links, setLinks] = useState<Published>(published)
     const [posting, setPosting] = useState<Set<string>>(new Set())
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const [direction, setDirection] = useState<'right' | 'left'>('right')
 
     useEffect(() => { setLinks(published) }, [published])
-
-    useEffect(() => {
-        setCurrentIndex(prev => Math.min(prev, Math.max(0, payloads.length - 1)))
-    }, [payloads.length])
-
-    function navigate(index: number) {
-        const clamped = Math.max(0, Math.min(payloads.length - 1, index))
-        if (clamped === currentIndex) return
-        setDirection(clamped > currentIndex ? 'right' : 'left')
-        setCurrentIndex(clamped)
-    }
-
-    useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
-            if (e.key === 'ArrowLeft') { e.preventDefault(); navigate(currentIndex - 1) }
-            if (e.key === 'ArrowRight') { e.preventDefault(); navigate(currentIndex + 1) }
-        }
-        window.addEventListener('keydown', handler)
-        return () => window.removeEventListener('keydown', handler)
-    }, [currentIndex, payloads.length])
 
     function trackPosting(hash: string, provider: number) {
         const key = `${hash}:${provider}`
@@ -104,7 +79,7 @@ export default function PostsView({ payloads, published, linkedinConnected, face
         media({ text, media }) {
             return (
                 <>
-                    <p className={preWrap}>{text}</p>
+                    {text && <p className={preWrap}>{text}</p>}
                     {showMedia(media)}
                 </>
             )
@@ -115,54 +90,17 @@ export default function PostsView({ payloads, published, linkedinConnected, face
         return Poster[post.type](post)
     }
 
-    const payload = payloads[currentIndex]
-    if (!payload) return <div className={muted}>No posts yet — add one to your brand.yml.</div>
+    function actions({ hash, post }: proto.Payload) {
+        const postLinks = links[hash] ?? {}
+        const linkedinLink = postLinks[Platform.LinkedIn]
+        const instagramLink = postLinks[Platform.Instagram]
+        const youtubeLink = postLinks[Platform.YouTube]
+        const isPostingLinkedin = posting.has(`${hash}:${Platform.LinkedIn}`)
+        const isPostingInstagram = posting.has(`${hash}:${Platform.Instagram}`)
+        const isPostingYoutube = posting.has(`${hash}:${Platform.YouTube}`)
 
-    const { hash, post } = payload
-    const { created } = post
-    const postLinks = links[hash] ?? {}
-    const linkedinLink = postLinks[Platform.LinkedIn]
-    const instagramLink = postLinks[Platform.Instagram]
-    const youtubeLink = postLinks[Platform.YouTube]
-    const isPostingLinkedin = posting.has(`${hash}:${Platform.LinkedIn}`)
-    const isPostingInstagram = posting.has(`${hash}:${Platform.Instagram}`)
-    const isPostingYoutube = posting.has(`${hash}:${Platform.YouTube}`)
-
-    return (
-        <div className={cx(col, gap.md, postsView)}>
-            <div className={cx(row, align.center, gap.sm)}>
-                <button
-                    className={carouselArrow}
-                    onClick={() => navigate(currentIndex - 1)}
-                    disabled={currentIndex === 0}
-                    aria-label="Previous post"
-                >
-                    ←
-                </button>
-                <div className={cx(col, align.center, grow, overflow.hidden)}>
-                    <div key={currentIndex} className={cx(card, direction === 'right' ? slideInFromRight : slideInFromLeft)}>
-                        <div className={cx(row, align.center, gap.sm)}>
-                            <div className={avatar} />
-                            <div className={cx(col, gap.xs)}>
-                                <span className={font.weight.medium}>You</span>
-                                <span className={cx(muted, font.size.sm)}>
-                                    {new Date(created).toLocaleDateString()}
-                                </span>
-                            </div>
-                        </div>
-                        {poster(post)}
-                    </div>
-                </div>
-                <button
-                    className={carouselArrow}
-                    onClick={() => navigate(currentIndex + 1)}
-                    disabled={currentIndex === payloads.length - 1}
-                    aria-label="Next post"
-                >
-                    →
-                </button>
-            </div>
-            <div className={cx(row, justify.center, gap.sm)}>
+        return (
+            <div className={postCardActions}>
                 {linkedinConnected && post.platforms.includes('LinkedIn') && (
                     linkedinLink
                         ? <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
@@ -196,22 +134,31 @@ export default function PostsView({ payloads, published, linkedinConnected, face
                         </button>
                 )}
             </div>
-            {payloads.length <= MAX_DOTS ? (
-                <div className={cx(row, justify.center, gap.xs)}>
-                    {payloads.map((_, i) => (
-                        <button
-                            key={i}
-                            className={cx(progressDot, i === currentIndex ? progressDotActive : '')}
-                            onClick={() => navigate(i)}
-                            aria-label={`Go to post ${i + 1}`}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className={cx(row, justify.center)}>
-                    <span className={cx(muted, font.size.sm)}>{currentIndex + 1} / {payloads.length}</span>
-                </div>
-            )}
+        )
+    }
+
+    if (payloads.length === 0) return <div className={muted}>No posts yet — add one to your brand.yml.</div>
+
+    return (
+        <div className={postsGrid}>
+            {payloads.map((payload) => {
+                const { hash, post } = payload
+                return (
+                    <div key={hash} className={postCard}>
+                        <div className={cx(row, align.center, gap.sm)}>
+                            <div className={avatar} />
+                            <div className={cx(col, gap.xs)}>
+                                <span className={font.weight.medium}>You</span>
+                                <span className={cx(muted, font.size.sm)}>
+                                    {new Date(post.created).toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                        {poster(post)}
+                        {actions(payload)}
+                    </div>
+                )
+            })}
         </div>
     )
 }
