@@ -1,6 +1,6 @@
 'use client'
 import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
-import { avatar, btn, card, carouselArrow, font, muted, postImg, preWrap, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
+import { avatar, btn, card, carouselArrow, font, muted, postImg, postsView, preWrap, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
 import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { MediaType, Platform, PostType, proto } from "@claudein.org/common"
@@ -129,7 +129,7 @@ export default function PostsView({ payloads, published, linkedinConnected, face
     const isPostingYoutube = posting.has(`${hash}:${Platform.YouTube}`)
 
     return (
-        <div className={cx(col, gap.md)}>
+        <div className={cx(col, gap.md, postsView)}>
             <div className={cx(row, align.center, gap.sm)}>
                 <button
                     className={carouselArrow}

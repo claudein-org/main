@@ -402,6 +402,10 @@ export const galleryImg = css({
   background: "#FAF9F7",
 })
 
+/* Posts view — fixed width so the carousel/card size stays stable
+   (552px card + two 52px arrows + 2×1rem gaps). */
+export const postsView = css({ width: "min(688px, 100%)" })
+
 /* Shared */
 export const preWrap = css({ whiteSpace: "pre-wrap" })
 
