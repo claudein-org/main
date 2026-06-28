@@ -149,7 +149,7 @@ const start = command('start')
     await loadPosts()
 
     const { port } = wss.address() as AddressInfo
-    open(`https://${DOMAIN}${links.post.port(port)}`)
+    open(`https://${DOMAIN}${links.dash.port(port)}`)
   })
 
 const versionCmd = command('version')
