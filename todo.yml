@@ -17,30 +17,19 @@ TODO:
     # - We need to hash only relevant fields on the post, define the fields for each post type and implement the hashing logic.
   - cli:
   - web:
+  - video:
+      - create a 4:5 video:
+          - ClaudeIn logo fades out.
+          - ClaudeCode view:
+              - user types a prompt /claudein
+              - claude asks "What should we make today?"
+              - user types a prompt "A viral post about ClaudeIn"
+              - claude thinking...
+              - camera shifts to the Claudein dashboard (need to create a dashboard view) and pans over several posts.
+                Finally it stops on a post that says "A viral post about ClaudeIn" and the user clicks on it (animate a pointer mouse clicks on the "post" button).
+
+              - camera shifts to the LinkedIn view and pans and zoom in to the footer section of the post to see the number of likes and comments counts up.
+
+      - See the Linkedin video for inspiration.
 
 Done:
-  - common:
-      - Dashboard:
-          - We want to create a complete dashboard for brand management:
-              - See common/index.ts for the new schema.
-              - Update the project to use a default brand.yml file. This file contains everything needed to manage a brand, including the posts and the brand metadata.
-              - Scan this project and generate a sample brand.yml file with a few posts and a brand metadata.
-              - Update the proto to send to the web app the entire brand.yml (after loading all media as base64) and the web app should show a dashboard with all the posts and the brand metadata.
-              - The dashboard should have a classic dashboard design:
-                  - On the left there is the sidebar, the sidebar has a menu:
-                      - Brand
-                      - Posts
-                  - The brand view visualized the brand metadata use a landing page best practices to style and display it.
-                  - The posts view shows all the posts like it is currently implemented.
-      - I updated the claudein.schema.yml, this update affects the entire project. You need to:
-          - find all affected code, e.g. (skill, client, server, db, etc...) and update it to reflect the new schema.
-          - In particular, from now on, the client responsible to define which post is suitable for which provider, the web app should not make any assumptions about this and you need to remove the entire filtering logic and just accepts what the client defines.
-          - for the cli, make sure to update the skill to reflect this and the sample .yml it generates.
-  - web:
-      - I updated the post table and added a provider enum. You need to:
-          - update the kysely schema to reflect the new post table.
-          - make sure every successful post is saved with the provider id and the full url to the post.
-      - When showing a post preview the post options should only show relevant options:
-          - If not connected to provider, do not show the publish button.
-          - If already published, show a confirmation indication instead of the publish button.
-          - If post is not suitable for the provider (lets the provider decide based on the post content and metadata, use client side code to check the image/video size and aspect ratio) do not show the published button.
