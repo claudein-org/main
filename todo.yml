@@ -13,8 +13,20 @@ Introduction:
 
 TODO:
   - common:
-    post hashing:
-      - We need to hash only relevant fields on the post, define the fields for each post type and implement the hashing logic.
+      - Dashboard:
+          - We want to create a complete dashboard for brand management:
+              - See common/index.ts for the new schema.
+              - Update the project to use a default brand.yml file. This file contains everything needed to manage a brand, including the posts and the brand metadata.
+              - Scan this project and generate a sample brand.yml file with a few posts and a brand metadata.
+              - Update the proto to send to the web app the entire brand.yml (after loading all media as base64) and the web app should show a dashboard with all the posts and the brand metadata.
+              - The dashboard should have a classic dashboard design:
+                  - On the left there is the sidebar, the sidebar has a menu:
+                      - Brand
+                      - Posts
+                  - The brand view visualized the brand metadata use a landing page best practices to style and display it.
+                  - The posts view shows all the posts like it is currently implemented.
+    # post hashing:
+    # - We need to hash only relevant fields on the post, define the fields for each post type and implement the hashing logic.
   - cli:
   - web:
 
