@@ -13,6 +13,13 @@ Introduction:
 
 TODO:
   - common:
+    # post hashing:
+    # - We need to hash only relevant fields on the post, define the fields for each post type and implement the hashing logic.
+  - cli:
+  - web:
+
+Done:
+  - common:
       - Dashboard:
           - We want to create a complete dashboard for brand management:
               - See common/index.ts for the new schema.
@@ -25,13 +32,6 @@ TODO:
                       - Posts
                   - The brand view visualized the brand metadata use a landing page best practices to style and display it.
                   - The posts view shows all the posts like it is currently implemented.
-    # post hashing:
-    # - We need to hash only relevant fields on the post, define the fields for each post type and implement the hashing logic.
-  - cli:
-  - web:
-
-Done:
-  - common:
       - I updated the claudein.schema.yml, this update affects the entire project. You need to:
           - find all affected code, e.g. (skill, client, server, db, etc...) and update it to reflect the new schema.
           - In particular, from now on, the client responsible to define which post is suitable for which provider, the web app should not make any assumptions about this and you need to remove the entire filtering logic and just accepts what the client defines.

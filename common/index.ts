@@ -15,12 +15,14 @@ const PlatformEnum: { [key in Platform]: number } = {
 
 export namespace yml {
     const ImgSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
+    const LogoSrc = z.string().regex(/.*\.(jpg|jpeg|png|svg)$/)
     const VideoSrc = z.string().regex(/.*\.(mp4|mkv|avi)$/)
 
-    const Brand = z.object({
+    export type Brand = z.infer<typeof Brand>
+    export const Brand = z.object({
         title: z.string(),
         description: z.string(),
-        logo: ImgSrc,
+        logo: LogoSrc,
 
         features: z.array(z.string()),
         images: z.array(ImgSrc),
@@ -66,6 +68,7 @@ export namespace yml {
     export type Posts = z.infer<typeof Posts>
     export const Posts = z.object({ posts: z.array(Post) })
 
+    export type YML = z.infer<typeof YML>
     export const YML = z.object({
         brand: Brand,
         posts: z.array(Post),
@@ -92,6 +95,29 @@ export namespace proto {
 
     export type Payloads = z.infer<typeof Payloads>
     export const Payloads = z.array(Payload)
+
+    // A media asset (logo / brand image) inlined as base64 with its mime type.
+    export type Asset = z.infer<typeof Asset>
+    export const Asset = z.object({
+        base64: z.string(),
+        mime: z.string(),
+    })
+
+    export type Brand = z.infer<typeof Brand>
+    export const Brand = z.object({
+        title: z.string(),
+        description: z.string(),
+        logo: Asset,
+        features: z.array(z.string()),
+        images: z.array(Asset),
+    })
+
+    // The full brand bundle streamed to the web app over the websocket.
+    export type Bundle = z.infer<typeof Bundle>
+    export const Bundle = z.object({
+        brand: Brand,
+        payloads: Payloads,
+    })
 }
 
 export type PostType = yml.Post['type']

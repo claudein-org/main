@@ -263,6 +263,148 @@ const slideBase = { animationDuration: '0.22s', animationTimingFunction: 'ease-o
 export const slideInFromRight = css({ ...slideBase, animationName: 'slideInFromRight' })
 export const slideInFromLeft  = css({ ...slideBase, animationName: 'slideInFromLeft' })
 
+/* Dashboard shell */
+export const dashboardLayout = css({
+  display: "flex",
+  flexDirection: "row",
+  flexGrow: 1,
+  width: "100%",
+  alignItems: "stretch",
+})
+
+export const sidebar = css({
+  width: "240px",
+  flexShrink: 0,
+  alignSelf: "flex-start",
+  position: "sticky",
+  top: 0,
+  height: "100vh",
+  borderRight: "1px solid #E0DDD8",
+  background: "#FAF9F7",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1.5rem",
+  padding: "1.5rem 1rem",
+})
+
+export const sidebarBrand = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "0.5rem",
+  padding: "0 0.5rem",
+})
+
+export const sidebarLogo = css({ width: "26px", height: "26px" })
+
+export const sidebarNav = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.25rem",
+})
+
+export const navItem = cva({
+  base: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.625rem",
+    width: "100%",
+    textAlign: "left",
+    padding: "0.5rem 0.75rem",
+    borderRadius: "8px",
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+    color: "textSecondary",
+    background: "transparent",
+    transition: "background 0.15s, color 0.15s",
+    _hover: { background: "#F0EEEA" },
+  },
+  variants: {
+    active: {
+      true: { background: "#ffffff", color: "text", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" },
+      false: {},
+    },
+  },
+})
+
+export const sidebarSpacer = css({ flexGrow: 1 })
+
+export const sidebarSectionTitle = css({
+  fontSize: "0.6875rem",
+  fontWeight: 600,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  color: "textSecondary",
+  padding: "0 0.75rem",
+  marginBottom: "0.5rem",
+})
+
+export const dashboardMain = css({
+  flexGrow: 1,
+  minWidth: 0,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  padding: "3rem 2rem 5rem",
+})
+
+/* Brand view */
+export const brandPage = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "3.5rem",
+  width: "100%",
+  maxWidth: "900px",
+})
+
+export const brandEmpty = css({ color: "textSecondary", padding: "4rem 0" })
+
+export const brandHero = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  textAlign: "center",
+  gap: "1.5rem",
+})
+
+export const brandLogo = css({ width: "min(140px, 30vw)", height: "auto" })
+
+export const brandDescription = css({ maxWidth: "640px" })
+
+export const brandFeatures = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  gap: "1rem",
+})
+
+export const featureCard = css({
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "0.875rem",
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.25rem",
+  background: "#ffffff",
+})
+
+export const brandGallery = css({
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+  gap: "1rem",
+})
+
+export const galleryImg = css({
+  width: "100%",
+  height: "200px",
+  objectFit: "contain",
+  padding: "1rem",
+  borderRadius: "12px",
+  border: "1px solid #e0e0e0",
+  background: "#FAF9F7",
+})
+
+/* Shared */
+export const preWrap = css({ whiteSpace: "pre-wrap" })
+
 /* Button */
 export const btn = cva({
   base: {

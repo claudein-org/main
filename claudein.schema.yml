@@ -1,6 +1,32 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 type: object
 properties:
+  brand:
+    type: object
+    properties:
+      title:
+        type: string
+      description:
+        type: string
+      logo:
+        type: string
+        pattern: .*\.(jpg|jpeg|png|svg)$
+      features:
+        type: array
+        items:
+          type: string
+      images:
+        type: array
+        items:
+          type: string
+          pattern: .*\.(jpg|jpeg|png)$
+    required:
+      - title
+      - description
+      - logo
+      - features
+      - images
+    additionalProperties: false
   posts:
     type: array
     items:
@@ -92,5 +118,6 @@ properties:
             - media
           additionalProperties: false
 required:
+  - brand
   - posts
 additionalProperties: false

@@ -1,6 +1,5 @@
+import Dashboard from "@/component/Dashboard"
 import LoginPage from "@/component/LoginPage"
-import Poster from "@/component/Poster"
-import { pageCentered } from "@/css/layout.css"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import * as facebook from "@/provider/facebook"
@@ -41,14 +40,12 @@ export default async function page({ params }: Params) {
   ])
 
   return <main>
-    <div className={pageCentered}>
-      <Poster
-        port={port}
-        expires_at={li.expires_at}
-        facebookConnected={fb.connected}
-        instagramConnected={ig.connected}
-        youtubeConnected={yt.connected}
-        published={published} />
-    </div>
+    <Dashboard
+      port={port}
+      expires_at={li.expires_at}
+      facebookConnected={fb.connected}
+      instagramConnected={ig.connected}
+      youtubeConnected={yt.connected}
+      published={published} />
   </main>
 }

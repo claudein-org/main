@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml
+
+brand:
+  title: My Brand
+  description: A short description of your brand — what it is and who it is for.
+  logo: logo.png
+  features:
+    - The first thing that makes your brand stand out
+    - The second thing that makes your brand stand out
+  images: []
+posts:
+  - type: text
+    created: 2026-06-28
+    platforms:
+      - LinkedIn
+    text: I'm using ClaudeIn to share my thoughts and ideas!

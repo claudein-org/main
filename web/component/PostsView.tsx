@@ -1,6 +1,6 @@
 'use client'
 import { align, col, gap, grow, justify, overflow, row } from "@/css/layout.css"
-import { avatar, btn, card, carouselArrow, font, muted, postImg, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
+import { avatar, btn, card, carouselArrow, font, muted, postImg, preWrap, progressDot, progressDotActive, slideInFromLeft, slideInFromRight } from "@/css/style.css"
 import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import { cx } from "@/styled-system/css"
 import { MediaType, Platform, PostType, proto } from "@claudein.org/common"
@@ -9,8 +9,8 @@ import { ReactElement, useEffect, useState } from "react"
 
 type Published = Record<string, Record<number, string>>
 interface Props {
+    payloads: proto.Payloads
     published: Published
-    port: number
     linkedinConnected: boolean
     facebookConnected: boolean
     instagramConnected: boolean
@@ -19,23 +19,13 @@ interface Props {
 
 const MAX_DOTS = 20
 
-export default function WS({ port, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected }: Props) {
-    const [payloads, setPayloads] = useState<proto.Payloads>([])
+export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected }: Props) {
     const [links, setLinks] = useState<Published>(published)
     const [posting, setPosting] = useState<Set<string>>(new Set())
     const [currentIndex, setCurrentIndex] = useState(0)
     const [direction, setDirection] = useState<'right' | 'left'>('right')
 
     useEffect(() => { setLinks(published) }, [published])
-
-    useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:${port}`)
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-            setPayloads(proto.Payloads.parse(data))
-        }
-        return () => ws.close()
-    }, [port])
 
     useEffect(() => {
         setCurrentIndex(prev => Math.min(prev, Math.max(0, payloads.length - 1)))
@@ -109,12 +99,12 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
 
     const Poster: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) => ReactElement } = {
         text({ text }) {
-            return <p style={{ whiteSpace: 'pre-wrap' }}>{text}</p>
+            return <p className={preWrap}>{text}</p>
         },
         media({ text, media }) {
             return (
                 <>
-                    <p style={{ whiteSpace: 'pre-wrap' }}>{text}</p>
+                    <p className={preWrap}>{text}</p>
                     {showMedia(media)}
                 </>
             )
@@ -126,7 +116,7 @@ export default function WS({ port, published, linkedinConnected, facebookConnect
     }
 
     const payload = payloads[currentIndex]
-    if (!payload) return null
+    if (!payload) return <div className={muted}>No posts yet — add one to your brand.yml.</div>
 
     const { hash, post } = payload
     const { created } = post
