@@ -13,7 +13,12 @@ import Reload from "./Reload"
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
 
-type View = 'brand' | 'posts'
+const VIEWS = [
+    { id: 'brand', label: 'Brand' },
+    { id: 'posts', label: 'Posts' },
+] as const
+
+type View = (typeof VIEWS)[number]['id']
 
 interface Props {
     port: number
@@ -61,6 +66,24 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
         return () => ws.close()
     }, [port])
 
+    // Up/Down arrows move between sidebar views (Brand, Posts, …).
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+            if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
+            e.preventDefault()
+            setView(prev => {
+                const i = VIEWS.findIndex(v => v.id === prev)
+                const next = e.key === 'ArrowDown'
+                    ? Math.min(VIEWS.length - 1, i + 1)
+                    : Math.max(0, i - 1)
+                return VIEWS[next]?.id ?? prev
+            })
+        }
+        window.addEventListener('keydown', handler)
+        return () => window.removeEventListener('keydown', handler)
+    }, [])
+
     const linkedinConnected = !!expires_at && (expires_at * 1000 - now) >= ONE_DAY_MS
 
     return (
@@ -77,8 +100,9 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                 </div>
 
                 <div className={sidebarNav}>
-                    <button className={navItem({ active: view === 'brand' })} onClick={() => setView('brand')}>Brand</button>
-                    <button className={navItem({ active: view === 'posts' })} onClick={() => setView('posts')}>Posts</button>
+                    {VIEWS.map(v => (
+                        <button key={v.id} className={navItem({ active: view === v.id })} onClick={() => setView(v.id)}>{v.label}</button>
+                    ))}
                 </div>
 
                 <div className={sidebarSpacer} />
