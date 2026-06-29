@@ -22,7 +22,8 @@ const PagesResponse = z.object({
   data: z.array(z.object({
     id: z.string(),
     name: z.string(),
-    access_token: z.string(),
+    // access_token is only present when the app has pages_show_list permission
+    access_token: z.string().optional(),
   })),
 })
 
@@ -71,15 +72,20 @@ export async function GET(request: NextRequest) {
 
   const { data: pages } = PagesResponse.parse(await pagesRes.json())
 
-  await Promise.all(pages.map(page =>
-    db
+  if (pages.length === 0) {
+    redirect('/close?error=no_pages')
+  }
+
+  await Promise.all(pages.map(page => {
+    const token = page.access_token ?? user_token
+    return db
       .insertInto('facebook')
-      .values({ user_id, page_id: page.id, page_name: page.name, access_token: page.access_token })
+      .values({ user_id, page_id: page.id, page_name: page.name, access_token: token })
       .onConflict((oc) =>
-        oc.columns(['user_id', 'page_id']).doUpdateSet({ page_name: page.name, access_token: page.access_token }),
+        oc.columns(['user_id', 'page_id']).doUpdateSet({ page_name: page.name, access_token: token }),
       )
       .execute()
-  ))
+  }))
 
   redirect(app.close)
 }
