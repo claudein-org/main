@@ -72,18 +72,31 @@ async function readAsset(src: string): Promise<proto.Asset> {
   }
 }
 
-const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>) => Promise<Extract<proto.Post, { type: key }>> } = {
+// A claudein project is a directory: claudein.yml at the root, media (images /
+// video) under media/, and article markdown under articles/. The yml references
+// assets by bare filename; these helpers resolve them to real paths on disk.
+const YML_FILE = 'claudein.yml'
+
+function mediaPath(dir: string, src: string) {
+  return join(dir, 'media', src)
+}
+
+function articlePath(dir: string, src: string) {
+  return join(dir, 'articles', src)
+}
+
+const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>, dir: string) => Promise<Extract<proto.Post, { type: key }>> } = {
   async text(post) {
     return post
   },
 
-  async article(post) {
-    const markdown = await readFile(post.src, 'utf-8')
+  async article(post, dir) {
+    const markdown = await readFile(articlePath(dir, post.src), 'utf-8')
     return { ...post, markdown }
   },
 
-  async media({ media, ...info }) {
-    const base64 = await readFile(media.src).then(buf => buf.toString('base64'))
+  async media({ media, ...info }, dir) {
+    const base64 = await readFile(mediaPath(dir, media.src)).then(buf => buf.toString('base64'))
     return {
       ...info,
       media: {
@@ -94,12 +107,12 @@ const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>) => Prom
   }
 }
 
-function p2p<T extends PostType>(post: Extract<yml.Post, { type: T }>): Promise<Extract<proto.Post, { type: T }>> {
-  return P2P[post.type](post)
+function p2p<T extends PostType>(post: Extract<yml.Post, { type: T }>, dir: string): Promise<Extract<proto.Post, { type: T }>> {
+  return P2P[post.type](post, dir)
 }
 
-function ps2ps(posts: yml.Post[]): Promise<proto.Post[]> {
-  return Promise.all(posts.map((post) => p2p(post)))
+function ps2ps(posts: yml.Post[], dir: string): Promise<proto.Post[]> {
+  return Promise.all(posts.map((post) => p2p(post, dir)))
 }
 
 const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -107,6 +120,8 @@ const formatter = new Intl.DateTimeFormat('en-CA', {
   month: '2-digit',
   day: '2-digit'
 })
+
+const EXAMPLE_ARTICLE = 'welcome.md'
 
 const sampleYml: yml.YML = {
   brand: {
@@ -119,12 +134,20 @@ const sampleYml: yml.YML = {
     ],
     images: [],
   },
-  posts: [{
-    type: 'text',
-    created: formatter.format(new Date()),
-    platforms: ['LinkedIn'],
-    text: "I'm using ClaudeIn to share my thoughts and ideas!"
-  }],
+  posts: [
+    {
+      type: 'text',
+      created: formatter.format(new Date()),
+      platforms: ['LinkedIn'],
+      text: "I'm using ClaudeIn to share my thoughts and ideas!"
+    },
+    {
+      type: 'article',
+      created: formatter.format(new Date()),
+      platforms: ['LinkedIn'],
+      src: EXAMPLE_ARTICLE,
+    },
+  ],
 }
 
 const sample = [
@@ -132,28 +155,48 @@ const sample = [
   stringify(sampleYml)
 ].join('\n\n')
 
+const exampleArticle = `# Welcome to ClaudeIn
+
+This is an example article. Articles are plain Markdown files that live in the
+\`articles/\` folder and are referenced from \`claudein.yml\` by filename.
+
+Edit this file — or ask Claude Code to write one for you — and the browser
+preview updates the moment you save.
+`
+
+// Scaffold a fresh claudein/ project: claudein.yml + empty media/ and articles/
+// folders, seeded with a sample post and an example article so it runs as-is.
+async function scaffold(dir: string) {
+  await mkdir(join(dir, 'media'), { recursive: true })
+  await mkdir(join(dir, 'articles'), { recursive: true })
+  await writeFile(join(dir, YML_FILE), sample, 'utf-8')
+  await writeFile(articlePath(dir, EXAMPLE_ARTICLE), exampleArticle, 'utf-8')
+  console.log(`Created ${join(dir, YML_FILE)} with a sample post and article`)
+}
+
 // COMMANDS
 const start = command('start')
 
   .meta({
-    description: 'Start the live preview server. Claude Code writes your brand and posts to a brand.yml file, you see the dashboard in the browser in real time, and can click to publish.',
-    examples: ['cin start', 'cin start my-brand.yml'],
+    description: 'Start the live preview server. Claude Code writes your brand and posts to a claudein/ project (claudein.yml + media/ + articles/), you see the dashboard in the browser in real time, and can click to publish.',
+    examples: ['cin start', 'cin start my-brand'],
   })
 
   .inputs({
-    file: positional(z
+    dir: positional(z
       .string()
-      .describe('Path to a brand .yml file'), 0)
-      .default('brand.yml'),
+      .describe('Path to a claudein project directory'), 0)
+      .default('claudein'),
   })
 
-  .action(async ({ inputs: { file } }) => {
+  .action(async ({ inputs: { dir } }) => {
+
+    const file = join(dir, YML_FILE)
 
     try {
       await readFile(file)
     } catch {
-      await writeFile(file, sample, 'utf-8')
-      console.log(`Created ${file} with a sample post`)
+      await scaffold(dir)
     }
 
     const wss = new WebSocketServer({ port: 0 })
@@ -171,10 +214,10 @@ const start = command('start')
         mediaWatchers.forEach(w => w.close())
         mediaWatchers.length = 0
         const mediaPaths = [
-          brand.logo,
-          ...brand.images,
-          ...posts.flatMap(post => post.type === 'media' ? [post.media.src] : []),
-          ...posts.flatMap(post => post.type === 'article' ? [post.src] : []),
+          mediaPath(dir, brand.logo),
+          ...brand.images.map(img => mediaPath(dir, img)),
+          ...posts.flatMap(post => post.type === 'media' ? [mediaPath(dir, post.media.src)] : []),
+          ...posts.flatMap(post => post.type === 'article' ? [articlePath(dir, post.src)] : []),
         ]
         mediaPaths.forEach(src => {
           try {
@@ -187,12 +230,12 @@ const start = command('start')
         const protoBrand: proto.Brand = {
           title: brand.title,
           description: brand.description,
-          logo: await readAsset(brand.logo),
+          logo: await readAsset(mediaPath(dir, brand.logo)),
           features: brand.features,
-          images: await Promise.all(brand.images.map(readAsset)),
+          images: await Promise.all(brand.images.map(img => readAsset(mediaPath(dir, img)))),
         }
 
-        const protoPosts = await ps2ps(posts)
+        const protoPosts = await ps2ps(posts, dir)
         const payloads = protoPosts
           .map((post) => ({ hash: hash(post), post }))
           .sort((a, b) => b.post.created.localeCompare(a.post.created))

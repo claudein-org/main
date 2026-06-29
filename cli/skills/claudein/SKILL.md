@@ -1,6 +1,6 @@
 ---
 name: claudein
-description: Create social media posts (LinkedIn, Facebook, Instagram, YouTube) and manage brand metadata using the claudein CLI. Use when the user wants to write, draft, or schedule posts, or when working with a brand.yml file.
+description: Create social media posts (LinkedIn, Facebook, Instagram, YouTube) and manage brand metadata using the claudein CLI. Use when the user wants to write, draft, or schedule posts, or when working with a claudein/ project (claudein.yml + media/ + articles/).
 allowed-tools: Edit, Write, Bash(cin *), Bash(pgrep *), Bash(curl *)
 ---
 
@@ -12,13 +12,26 @@ Read the current schema before writing any posts file — do not rely on memory:
 
 !`curl -s https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml`
 
-## Brand file
+## Project layout
 
-The default file is `brand.yml` but users can use any `.yml` file (pass it to `cin start my-brand.yml`). Write to whichever file the user specifies or is already working with.
+A claudein project is a **directory** (default `claudein/`, or pass another with `cin start my-brand`):
 
-A brand file has two top-level keys: `brand` (metadata shown on the dashboard's **Brand** view) and `posts` (shown on the **Posts** view).
+```
+claudein/
+  claudein.yml      # brand metadata + posts
+  media/            # images and video referenced by brand/posts
+    logo.svg
+    shot.png
+    clip.mp4
+  articles/         # Markdown articles referenced by article posts
+    welcome.md
+```
 
-`cin start` watches the file — and every asset it references (logo, brand images, post media) — and updates the browser dashboard live. Always edit the file in place, never delete and recreate it.
+`claudein.yml` holds everything *except* media and article bodies. It references assets by **bare filename**: the CLI resolves images/video against `media/` and article markdown against `articles/`. So `logo: logo.svg` means `claudein/media/logo.svg`, and an article `src: welcome.md` means `claudein/articles/welcome.md`. Put new images/videos in `media/` and new articles in `articles/`, then reference them by name.
+
+`claudein.yml` has two top-level keys: `brand` (metadata shown on the dashboard's **Brand** view) and `posts` (shown on the **Posts** view).
+
+`cin start` watches `claudein.yml` — and every asset it references — and updates the browser dashboard live. Always edit files in place, never delete and recreate them. If the directory doesn't exist, `cin start` scaffolds it with a sample post and example article.
 
 ### Brand metadata
 
@@ -26,11 +39,11 @@ A brand file has two top-level keys: `brand` (metadata shown on the dashboard's 
 brand:
   title: My Brand
   description: A short description of the brand — what it is and who it is for.
-  logo: logo.svg            # .svg, .png or .jpg
+  logo: logo.svg            # media/logo.svg — .svg, .png or .jpg
   features:
     - A short selling point
     - Another selling point
-  images:                   # .png/.jpg gallery shown on the Brand view
+  images:                   # .png/.jpg gallery shown on the Brand view (from media/)
     - shot-1.png
     - shot-2.png
 ```
@@ -53,14 +66,19 @@ posts:
     platforms: [Instagram, Facebook]
     media:
       type: image
-      src: photo.jpg
+      src: photo.jpg          # media/photo.jpg
+
+  - type: article
+    created: 2026-01-03
+    platforms: [LinkedIn]
+    src: my-article.md        # articles/my-article.md
 ```
 
 ## Workflow
 
-1. Write or edit the `brand.yml` file (brand metadata and/or posts)
+1. Edit `claudein/claudein.yml` (brand metadata and/or posts); drop any new media in `claudein/media/` and articles in `claudein/articles/`
 2. Check if `cin start` is already running: `pgrep -fa "cin start"` — if it is, skip step 3
-3. If not running: `cin start [file]` — opens the live browser dashboard
+3. If not running: `cin start [dir]` — scaffolds `claudein/` if missing and opens the live browser dashboard
 4. Click the platform button in the browser to publish
 
 ## Media guidelines

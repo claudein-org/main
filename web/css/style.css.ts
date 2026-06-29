@@ -413,11 +413,8 @@ export const articleCard = css({
   height: "100%",
 })
 
-/* Rendered markdown preview — caps height and fades out the overflow. */
+/* Rendered markdown — the full article body. */
 export const articleBody = css({
-  position: "relative",
-  maxHeight: "420px",
-  overflow: "hidden",
   lineHeight: 1.6,
   "& > * + *": { marginTop: "0.85rem" },
   "& h1": { fontSize: "1.5rem", fontWeight: 600, letterSpacing: "-0.02em" },
@@ -440,16 +437,6 @@ export const articleBody = css({
     borderLeft: "3px solid #e0e0e0",
     paddingLeft: "1rem",
     color: "textSecondary",
-  },
-  // Fade the bottom edge so it reads as a truncated preview.
-  _after: {
-    content: '""',
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: "4rem",
-    background: "linear-gradient(transparent, #ffffff)",
   },
 })
 

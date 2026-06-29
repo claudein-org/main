@@ -153,7 +153,17 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         youtubeChannels={youtubeChannels}
                     />
                 )}
-                {view === 'articles' && <ArticlesView payloads={articlePayloads} />}
+                {view === 'articles' && (
+                    <ArticlesView
+                        payloads={articlePayloads}
+                        published={published}
+                        linkedinConnected={linkedinConnected}
+                        facebookConnected={facebookConnected}
+                        instagramConnected={instagramConnected}
+                        youtubeConnected={youtubeConnected}
+                        youtubeChannels={youtubeChannels}
+                    />
+                )}
             </div>
         </div>
     )

@@ -141,8 +141,23 @@ export namespace linkedin {
                 })
             },
 
-            async article() {
-                throw new Error('Article posts are not yet supported on LinkedIn')
+            // LinkedIn's UGC API has no native article type, so we share the
+            // rendered markdown as the post's commentary text.
+            async article({ markdown }) {
+                return await share(access_token, {
+                    author: urnPerson(author_urn),
+                    lifecycleState: 'PUBLISHED',
+                    specificContent: {
+                        'com.linkedin.ugc.ShareContent': {
+                            shareCommentary: { text: markdown },
+                            shareMediaCategory: 'NONE',
+                            media: [],
+                        }
+                    },
+                    visibility: {
+                        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+                    }
+                })
             },
 
             async media({ text, media: { type, base64, title, description } }) {
