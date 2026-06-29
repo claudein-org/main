@@ -2,6 +2,7 @@ import Dashboard from "@/component/Dashboard"
 import LoginPage from "@/component/LoginPage"
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
+import * as devto from "@/provider/devto"
 import * as facebook from "@/provider/facebook"
 import * as instagram from "@/provider/instagram"
 import * as linkedin from "@/provider/linkedin"
@@ -23,11 +24,12 @@ export default async function page({ params }: Params) {
 
   if (!user_id) return <LoginPage />
 
-  const [li, fb, ig, yt, published] = await Promise.all([
+  const [li, fb, ig, yt, dt, published] = await Promise.all([
     linkedin.getStatus(user_id),
     facebook.getStatus(user_id),
     instagram.getStatus(user_id),
     youtube.getStatus(user_id),
+    devto.getStatus(user_id),
     db.selectFrom('posts').select(['post_id', 'post_url', 'provider']).where('user_id', '=', user_id).execute()
       .then((res) => {
         const map: Record<string, Record<number, string>> = {}
@@ -47,6 +49,7 @@ export default async function page({ params }: Params) {
       instagramConnected={ig.connected}
       youtubeConnected={yt.connected}
       youtubeChannels={yt.channels}
+      devtoConnected={dt.connected}
       published={published} />
   </main>
 }

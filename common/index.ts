@@ -17,6 +17,7 @@ export namespace yml {
     const ImgSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
     const LogoSrc = z.string().regex(/.*\.(jpg|jpeg|png|svg)$/)
     const VideoSrc = z.string().regex(/.*\.(mp4|mkv|avi)$/)
+    const ArticleSrc = z.string().regex(/.*\.(md)$/)
 
     export type Brand = z.infer<typeof Brand>
     export const Brand = z.object({
@@ -56,6 +57,11 @@ export namespace yml {
         text: z.string(),
     })
 
+    export const PostArticle = BasePost.extend({
+        type: z.literal('article'),
+        src: ArticleSrc
+    })
+
     export const PostMedia = BasePost.extend({
         type: z.literal('media'),
         text: z.string().optional(),
@@ -63,7 +69,7 @@ export namespace yml {
     })
 
     export type Post = z.infer<typeof Post>
-    export const Post = z.discriminatedUnion('type', [PostText, PostMedia])
+    export const Post = z.discriminatedUnion('type', [PostText, PostArticle, PostMedia])
 
     export type Posts = z.infer<typeof Posts>
     export const Posts = z.object({ posts: z.array(Post) })
@@ -82,10 +88,11 @@ export namespace proto {
     export type Media = z.infer<typeof Media>
     const Media = z.discriminatedUnion('type', [Image, Video])
 
+    const PostArticle = yml.PostArticle.extend({ markdown: z.string() })
     const PostMedia = yml.PostMedia.extend({ media: Media })
 
     export type Post = z.infer<typeof Post>
-    export const Post = z.discriminatedUnion('type', [yml.PostText, PostMedia])
+    export const Post = z.discriminatedUnion('type', [yml.PostText, PostArticle, PostMedia])
 
     export type Payload = z.infer<typeof Payload>
     export const Payload = z.object({

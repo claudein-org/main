@@ -24,6 +24,13 @@ create table if not exists instagram (
     instagram_account_id varchar(100) not null
 );
 
+-- dev.to (Forem) uses a static personal API key, not OAuth: no token expiry.
+create table if not exists devto (
+    user_id int primary key references users(user_id) on delete cascade,
+    api_key varchar(1000) not null,
+    devto_user_id varchar(100) not null
+);
+
 create table if not exists youtube (
     user_id int references users(user_id) on delete cascade,
     channel_id varchar(100) not null,

@@ -43,6 +43,12 @@ namespace db {
         instagram_account_id: string
     }
 
+    interface Devto {
+        user_id: number
+        api_key: string
+        devto_user_id: string
+    }
+
     interface Youtube {
         user_id: number
         channel_id: string
@@ -77,6 +83,7 @@ namespace db {
         linkedin: Linkedin
         facebook: Facebook
         instagram: Instagram
+        devto: Devto
         youtube: Youtube
         instagram_containers: InstagramContainers
         posts: Posts

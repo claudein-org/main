@@ -29,6 +29,7 @@ export default defineConfig({
           facebook: { value: "#1877F2" },
           instagram: { value: "#E1306C" },
           youtube: { value: "#FF0000" },
+          devto: { value: "#0A0A0A" },
         },
         fonts: {
           sans: { value: "var(--font-geist-sans), system-ui, sans-serif" },

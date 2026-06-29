@@ -28,6 +28,7 @@ interface Props {
     instagramConnected: boolean
     youtubeConnected: boolean
     youtubeChannels: Channel[]
+    devtoConnected: boolean
     published: Record<string, Record<number, string>>
 }
 
@@ -35,7 +36,7 @@ interface ServiceRowProps {
     name: string
     connected: boolean
     href: string
-    color: 'dark' | 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'claude'
+    color: 'dark' | 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'claude' | 'devto'
 }
 
 function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
@@ -50,7 +51,7 @@ function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
     )
 }
 
-export default function Dashboard({ port, expires_at, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, published }: Props) {
+export default function Dashboard({ port, expires_at, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
     const [view, setView] = useState<View>('brand')
@@ -114,6 +115,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                     <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" />
                     <ServiceRow name="Facebook" connected={facebookConnected} href={app.facebook} color="facebook" />
                     <ServiceRow name="Instagram" connected={instagramConnected} href={app.instagram} color="instagram" />
+                    <ServiceRow name="dev.to" connected={devtoConnected} href={app.auth.devto} color="devto" />
 
                     {/* YouTube supports multiple channels, so it lists each connected channel and always offers to add another. */}
                     <div className={connectMenuRow}>

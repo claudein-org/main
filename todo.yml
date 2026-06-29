@@ -12,12 +12,13 @@ Introduction:
       - local file can be edited by user and external tools (e.g. claud code) directly, the cli will watch for changes and update the web app accordingly.
 
 TODO:
+  - providers:
   - common:
   - cli:
   - web:
+      - Articles:
+          -
   - video:
-      - See the Linkedin video for inspiration.
-      - Finally, add a post to brand.yml that says something like "ClaudeIn turns your claude code into a social media manager."
 
 Done:
   - Add a post to brand.yml: "ClaudeIn turns your Claude Code into a social media manager."

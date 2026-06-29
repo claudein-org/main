@@ -212,6 +212,40 @@ YouTube reuses the **same Google OAuth client** as Google Login — no separate 
 
 ---
 
+## Dev.to
+
+**Purpose:** Social connection. Grants the CLI permission to publish articles to the user's dev.to account.
+
+**Route:** `GET /auth/devto/` (renders a form) + a Server Action that handles the submission.
+
+> **Important:** dev.to (Forem) has **no OAuth flow** for publishing. The API authenticates with a **static personal API key** that the user generates themselves and passes in the `api-key` header. There is no authorization URL, code exchange, client ID/secret, or token expiry — so instead of an OAuth redirect, `/auth/devto` shows a form where the user pastes their key.
+
+**Flow:**
+
+1. User (already logged in via Google) clicks **Connect** next to dev.to, which opens `/auth/devto`.
+2. The page shows a form prompting for the user's dev.to API key (generated at dev.to → Settings → Extensions).
+3. On submit, the Server Action calls `GET https://dev.to/api/users/me` with the `api-key` header to validate the key and read the dev.to user id.
+4. If the key is invalid, the action redirects back to `/auth/devto?error=invalid_key` and the form shows an error.
+5. If valid, the API key and dev.to user id are upserted into the `devto` table keyed by `user_id`.
+6. The user is redirected to `/close`.
+
+**Database:** `devto(user_id, api_key, devto_user_id)`
+
+> **Token refresh:** None. dev.to API keys do not expire, so `getStatus` just checks whether a key is on file. A key only stops working if the user revokes it in their dev.to settings.
+
+### How to register
+
+There is no app to register — each user supplies their own personal API key.
+
+1. Sign in to [dev.to](https://dev.to/).
+2. Go to **[Settings → Extensions](https://dev.to/settings/extensions)** and scroll to **DEV Community API Keys**.
+3. Enter a project name (e.g. `claudein`) and click **Generate API Key**.
+4. Copy the generated key and paste it into the connect form at `/auth/devto`.
+
+No environment variables or `settings.ts` entries are required for dev.to.
+
+---
+
 ## Environment Variables
 
 | Variable | Provider | Description |
@@ -225,6 +259,7 @@ YouTube reuses the **same Google OAuth client** as Google Login — no separate 
 | `INSTAGRAM_APP_ID` | Instagram | Instagram Business Login App ID (in `settings.ts`) |
 | `INSTAGRAM_CLIENT_SECRET` | Instagram | Instagram Business Login App secret |
 | *(reuses `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`)* | YouTube | No separate credentials — same Google OAuth client |
+| *(none — per-user API key stored in the `devto` table)* | Dev.to | No app credentials; each user supplies their own personal API key |
 | `COOKIE_SECRET` | All | HMAC secret for signing `user_id` cookies |
 
 All secrets are validated at startup by `web/lib/env.ts` via Zod. Never use `process.env` directly — always import `env` from `@/lib/env`.

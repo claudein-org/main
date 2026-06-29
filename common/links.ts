@@ -5,6 +5,7 @@
 export const links = {
     _: '/',
     auth: {
+        devto: `/auth/devto`,
         facebook: `/auth/facebook`,
         google: `/auth/google`,
         instagram: `/auth/instagram`,

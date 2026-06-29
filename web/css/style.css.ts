@@ -404,6 +404,8 @@ export const postCardActions = css({
 /* Shared */
 export const preWrap = css({ whiteSpace: "pre-wrap" })
 
+export const errorText = css({ color: "#dc2626", fontSize: "0.875rem" })
+
 /* Button */
 export const btn = cva({
   base: {
@@ -425,6 +427,7 @@ export const btn = cva({
       facebook: { background: "facebook" },
       instagram: { background: "instagram" },
       youtube: { background: "youtube" },
+      devto: { background: "devto" },
     },
     size: {
       sm: { padding: "0.3rem 0.75rem", fontSize: "0.8125rem", borderRadius: "7px" },
