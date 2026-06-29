@@ -12,7 +12,7 @@ assets:
   - type: video
     created: 2026-06-24
     target: [LinkedIn]
-    description: Claude Code + Linkedin = ClaudeIn.
+    description: Claude Code + LinkedIn = ClaudeIn.
     src: ClaudeInText.mp4
 
   - type: video
@@ -23,5 +23,23 @@ assets:
 
   - type: article
     created: 2026-06-29
-    target: ['DEV.to']
+    target: ["DEV.to"]
     src: what-is-claudein.md
+
+  - type: video
+    created: 2026-06-29
+    target: [LinkedIn, YouTube, Instagram]
+    description: "A typical Claude Code session."
+    src: ClaudeJoke-dark-mode.mp4
+
+  - type: video
+    created: 2026-06-29
+    target: [LinkedIn, YouTube, Instagram]
+    description: "A typical Claude Code session."
+    src: ClaudeJoke-git-blame.mp4
+
+  - type: video
+    created: 2026-06-29
+    target: [LinkedIn, YouTube, Instagram]
+    description: "A typical Claude Code session."
+    src: ClaudeJoke-context-window.mp4
