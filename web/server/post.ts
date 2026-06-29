@@ -5,7 +5,7 @@ import { db } from "@/lib/db"
 import { linkedin } from "@/lib/linkedin"
 import * as instagram from "@/provider/instagram"
 import * as youtube from "@/provider/youtube"
-import { Platform, proto } from "@claudein.org/common"
+import { Platform, PlatformSupport, proto } from "@claudein.org/common"
 import assert from "assert"
 import ky from "ky"
 import z from "zod"
@@ -48,7 +48,7 @@ export async function postToLinkedin(raw: proto.Payload) {
 export async function postToInstagram(raw: proto.Payload) {
     const { hash, post } = proto.Payload.parse(raw)
 
-    if (post.type !== 'media') throw new Error('Instagram requires a media post')
+    if (post.type !== 'image' && post.type !== 'video') throw new Error('Instagram requires an image or video post')
 
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
@@ -73,7 +73,7 @@ const DevtoArticle = z.object({ url: z.string() })
 
 export async function postToDevto(raw: proto.Payload) {
     const { hash, post } = proto.Payload.parse(raw)
-    if (post.type === 'media') throw new Error('dev.to does not support media posts')
+    if (!PlatformSupport['DEV.to'].includes(post.type)) throw new Error(`dev.to does not support '${post.type}' posts`)
 
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
@@ -109,18 +109,17 @@ export async function postToDevto(raw: proto.Payload) {
 export async function postToYoutube(raw: proto.Payload, channel_id: string) {
     const { hash, post } = proto.Payload.parse(raw)
 
-    assert(post.type === 'media' && post.media.type === 'video', 'YouTube requires a video post')
+    assert(post.type === 'video', 'YouTube requires a video post')
     assert(channel_id, 'No YouTube channel selected')
 
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
 
-    const { media } = post
-    const videoBlob = new Blob([Uint8Array.from(atob(media.base64), c => c.charCodeAt(0))], { type: 'video/mp4' })
+    const videoBlob = new Blob([Uint8Array.from(atob(post.video.base64), c => c.charCodeAt(0))], { type: 'video/mp4' })
 
     const { id } = await youtube.upload(user_id, channel_id, videoBlob, {
-        title: media.title ?? 'Video',
-        description: media.description,
+        title: post.video.title ?? 'Video',
+        description: post.video.description,
         privacyStatus: 'public',
     })
 

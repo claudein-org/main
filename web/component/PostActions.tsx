@@ -4,7 +4,7 @@ import { btn, postCardActions, ytAvatar } from "@/css/style.css"
 import { postToDevto, postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
-import { Platform, proto } from "@claudein.org/common"
+import { Platform, PlatformSupport, proto } from "@claudein.org/common"
 import { useState } from "react"
 
 type Published = Record<string, Record<number, string>>
@@ -83,7 +83,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
 
     return (
         <div className={postCardActions}>
-            {linkedinConnected && post.platforms.includes('LinkedIn') && (
+            {linkedinConnected && post.platforms.includes('LinkedIn') && PlatformSupport.LinkedIn.includes(post.type) && (
                 linkedinLink
                     ? <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
                         View on LinkedIn
@@ -92,12 +92,12 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingLinkedin ? 'Posting…' : 'LinkedIn'}
                     </button>
             )}
-            {facebookConnected && post.platforms.includes('Facebook') && (
+            {facebookConnected && post.platforms.includes('Facebook') && PlatformSupport.Facebook.includes(post.type) && (
                 <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
                     Facebook
                 </button>
             )}
-            {instagramConnected && post.platforms.includes('Instagram') && (
+            {instagramConnected && post.platforms.includes('Instagram') && PlatformSupport.Instagram.includes(post.type) && (
                 instagramLink
                     ? <a href={instagramLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))}>
                         View on Instagram
@@ -106,7 +106,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingInstagram ? 'Posting…' : 'Instagram'}
                     </button>
             )}
-            {devtoConnected && post.platforms.includes('DEV.to') && post.type !== 'media' && (
+            {devtoConnected && post.platforms.includes('DEV.to') && PlatformSupport['DEV.to'].includes(post.type) && (
                 devtoLink
                     ? <a href={devtoLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'devto', size: 'sm' }))}>
                         View on dev.to
@@ -115,7 +115,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingDevto ? 'Posting…' : 'dev.to'}
                     </button>
             )}
-            {youtubeConnected && post.platforms.includes('YouTube') && youtubeChannels.map((channel) => {
+            {youtubeConnected && post.platforms.includes('YouTube') && PlatformSupport.YouTube.includes(post.type) && youtubeChannels.map((channel) => {
                 const key = `${hash}:${channel.channel_id}`
                 const isPosting = posting.has(key)
                 // Prefer this session's upload; fall back to the stored URL only with a single

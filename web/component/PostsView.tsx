@@ -3,7 +3,7 @@ import { align, col, gap, row } from "@/css/layout.css"
 import { avatar, font, muted, postCard, postImg, postsGrid, preWrap } from "@/css/style.css"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
-import { MediaType, PostType, proto } from "@claudein.org/common"
+import { PostType, proto } from "@claudein.org/common"
 import { ReactElement } from "react"
 import PostActions from "./PostActions"
 
@@ -21,22 +21,6 @@ interface Props {
 }
 
 export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
-    const Media: { [key in MediaType]: (media: Extract<proto.Media, { type: key }>) => ReactElement } = {
-        image({ base64 }) {
-            return <img className={postImg} src={`data:image/*;base64,${base64}`} alt="Post media" />
-        },
-        video({ base64 }) {
-            return <video className={postImg} autoPlay loop muted playsInline>
-                <source src={`data:video/*;base64,${base64}`} type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
-        }
-    }
-
-    function showMedia<T extends MediaType>(media: Extract<proto.Media, { type: T }>) {
-        return Media[media.type](media)
-    }
-
     const Poster: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) => ReactElement | null } = {
         text({ text }) {
             return <p className={preWrap}>{text}</p>
@@ -45,11 +29,22 @@ export default function PostsView({ payloads, published, linkedinConnected, face
         article() {
             return null
         },
-        media({ text, media }) {
+        image({ text, image }) {
             return (
                 <>
                     {text && <p className={preWrap}>{text}</p>}
-                    {showMedia(media)}
+                    <img className={postImg} src={`data:image/*;base64,${image.base64}`} alt="Post media" />
+                </>
+            )
+        },
+        video({ text, video }) {
+            return (
+                <>
+                    {text && <p className={preWrap}>{text}</p>}
+                    <video className={postImg} autoPlay loop muted playsInline>
+                        <source src={`data:video/*;base64,${video.base64}`} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                 </>
             )
         }

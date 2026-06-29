@@ -56,11 +56,26 @@ brand:
   src: brand.md
 ```
 
-## Platforms
+## Post types
 
-Each post must include a `platforms` field listing the target platforms. The client decides which platforms a post is for — the web app uses this list to show the correct publish buttons.
+| Type | Required fields | Notes |
+|------|-----------------|-------|
+| `text` | `text` | Plain text — supported by LinkedIn, Facebook |
+| `image` | `src` | Image file in `media/` (`.jpg`, `.jpeg`, `.png`) — supported by LinkedIn, Facebook |
+| `video` | `src` | Video file in `media/` (`.mp4`, `.mkv`, `.avi`) — supported by LinkedIn, Facebook, Instagram, YouTube |
+| `article` | `src` | Markdown file in `articles/` (`.md`) — supported by DEV.to |
 
-Available platforms: `LinkedIn`, `Facebook`, `Instagram`, `YouTube`
+## Platforms and supported post types
+
+| Platform | Supported types |
+|----------|----------------|
+| `LinkedIn` | `text`, `image`, `video` |
+| `Facebook` | `text`, `image`, `video` |
+| `Instagram` | `video` |
+| `YouTube` | `video` |
+| `DEV.to` | `article` |
+
+Each post must include a `platforms` field listing the target platforms. The web app only shows publish buttons for platforms that support the post type.
 
 ```yaml
 posts:
@@ -69,16 +84,19 @@ posts:
     platforms: [LinkedIn]
     text: "Hello LinkedIn!"
 
-  - type: media
+  - type: image
     created: 2026-01-02
-    platforms: [Instagram, Facebook]
-    media:
-      type: image
-      src: photo.jpg          # media/photo.jpg
+    platforms: [LinkedIn, Facebook]
+    src: photo.jpg            # media/photo.jpg
+
+  - type: video
+    created: 2026-01-03
+    platforms: [Instagram, YouTube]
+    src: clip.mp4             # media/clip.mp4
 
   - type: article
-    created: 2026-01-03
-    platforms: [LinkedIn]
+    created: 2026-01-04
+    platforms: ['DEV.to']
     src: my-article.md        # articles/my-article.md
 ```
 

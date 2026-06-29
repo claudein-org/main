@@ -1,4 +1,4 @@
-import { MediaType, proto } from '@claudein.org/common'
+import { proto } from '@claudein.org/common'
 import ky from 'ky'
 import z from 'zod'
 // https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin
@@ -58,7 +58,6 @@ export namespace linkedin {
         return { urn }
     }
 
-    // UPLOAD IMAGE
     type Recipe = 'urn:li:digitalmediaRecipe:feedshare-image' | 'urn:li:digitalmediaRecipe:feedshare-video'
     interface RegisterBinary {
         registerUploadRequest: {
@@ -117,11 +116,6 @@ export namespace linkedin {
         author_urn: string
     }
 
-    const recipes: { [key in MediaType]: Recipe } = {
-        image: 'urn:li:digitalmediaRecipe:feedshare-image',
-        video: 'urn:li:digitalmediaRecipe:feedshare-video'
-    }
-
     export async function post({ access_token, author_urn }: Author, post: proto.Post) {
         const postHandler: { [key in proto.Post['type']]: (args: Extract<proto.Post, { type: key }>) => ReturnType<typeof share> } = {
             async text({ text }) {
@@ -160,10 +154,10 @@ export namespace linkedin {
                 })
             },
 
-            async media({ text, media: { type, base64, title, description } }) {
-                const { asset, status } = await uploadBinary(access_token, {
+            async image({ text, image: { base64, title, description } }) {
+                const { asset } = await uploadBinary(access_token, {
                     registerUploadRequest: {
-                        recipes: [recipes[type]],
+                        recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
                         owner: urnPerson(author_urn),
                         serviceRelationships: [{
                             relationshipType: 'OWNER',
@@ -172,10 +166,38 @@ export namespace linkedin {
                     }
                 }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))]))
 
-                const shareMediaCategory: { [key in MediaType]: 'IMAGE' | 'VIDEO' } = {
-                    image: 'IMAGE',
-                    video: 'VIDEO'
-                }
+                return await share(access_token, {
+                    author: urnPerson(author_urn),
+                    lifecycleState: 'PUBLISHED',
+                    specificContent: {
+                        'com.linkedin.ugc.ShareContent': {
+                            shareCommentary: { text: text ?? '' },
+                            shareMediaCategory: 'IMAGE',
+                            media: [{
+                                status: 'READY',
+                                description: description ? { text: description } : undefined,
+                                media: asset,
+                                title: title ? { text: title } : undefined,
+                            }],
+                        }
+                    },
+                    visibility: {
+                        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+                    }
+                })
+            },
+
+            async video({ text, video: { base64, title, description } }) {
+                const { asset } = await uploadBinary(access_token, {
+                    registerUploadRequest: {
+                        recipes: ['urn:li:digitalmediaRecipe:feedshare-video'],
+                        owner: urnPerson(author_urn),
+                        serviceRelationships: [{
+                            relationshipType: 'OWNER',
+                            identifier: 'urn:li:userGeneratedContent'
+                        }]
+                    }
+                }, new Blob([Uint8Array.from(atob(base64), c => c.charCodeAt(0))]))
 
                 return await share(access_token, {
                     author: urnPerson(author_urn),
@@ -183,7 +205,7 @@ export namespace linkedin {
                     specificContent: {
                         'com.linkedin.ugc.ShareContent': {
                             shareCommentary: { text: text ?? '' },
-                            shareMediaCategory: shareMediaCategory[type],
+                            shareMediaCategory: 'VIDEO',
                             media: [{
                                 status: 'READY',
                                 description: description ? { text: description } : undefined,

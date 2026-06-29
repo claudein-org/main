@@ -95,13 +95,14 @@ interface Credentials {
 
 export async function upload(
     { access_token, instagram_account_id, user_id, post_id }: Credentials,
-    post: Extract<proto.Post, { type: 'media' }>
+    post: Extract<proto.Post, { type: 'image' | 'video' }>
 ) {
-    const { media, text } = post
+    const { text } = post
+    const mediaData = post.type === 'image' ? post.image : post.video
     const id = randomBytes(16).toString('hex')
-    const contentType = media.type === 'image' ? 'image/jpeg' : 'video/mp4'
+    const contentType = post.type === 'image' ? 'image/jpeg' : 'video/mp4'
 
-    const mediaUrl = await storeMedia(id, media.base64, contentType)
+    const mediaUrl = await storeMedia(id, mediaData.base64, contentType)
 
     try {
         const containerParams: Record<string, string> = {
@@ -109,7 +110,7 @@ export async function upload(
             access_token,
         }
 
-        if (media.type === 'image') {
+        if (post.type === 'image') {
             containerParams.image_url = mediaUrl
         } else {
             containerParams.video_url = mediaUrl
@@ -127,7 +128,7 @@ export async function upload(
             .execute()
 
         try {
-            if (media.type === 'video') {
+            if (post.type === 'video') {
                 await waitForContainer(creation_id, access_token)
             }
 

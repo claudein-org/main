@@ -9,23 +9,19 @@ posts:
     platforms: [LinkedIn]
     text: "Claude Code + LinkedIn = ClaudeIn."
 
-  - type: media
+  - type: video
     created: 2026-06-24
     platforms: [LinkedIn]
     text: Claude Code + Linkedin = ClaudeIn.
-    media:
-      type: video
-      src: ClaudeInText.mp4
+    src: ClaudeInText.mp4
 
-  - type: media
+  - type: video
     created: 2026-06-28
     platforms: [LinkedIn]
     text: ClaudeIn turns your Claude Code into a social media manager.
-    media:
-      type: video
-      src: Demo.mp4
+    src: Demo.mp4
 
   - type: article
     created: 2026-06-29
-    platforms: [LinkedIn]
+    platforms: ['DEV.to']
     src: what-is-claudein.md

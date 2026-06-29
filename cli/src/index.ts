@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { links, PostType, proto, yml } from '@claudein.org/common'
+import { links, PlatformSupport, PostType, proto, yml } from '@claudein.org/common'
 import type { Shell } from '@versecafe/zcli'
 import { cli, command, fmt, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
@@ -28,7 +28,10 @@ const hasher: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) =>
   article({ markdown }) {
     return [markdown]
   },
-  media({ text, media: { title, description, base64 } }) {
+  image({ text, image: { title, description, base64 } }) {
+    return [text, title, description, base64]
+  },
+  video({ text, video: { title, description, base64 } }) {
     return [text, title, description, base64]
   }
 }
@@ -70,15 +73,14 @@ const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>, dir: st
     return { ...post, markdown }
   },
 
-  async media({ media, ...info }, dir) {
-    const base64 = await readFile(mediaPath(dir, media.src)).then(buf => buf.toString('base64'))
-    return {
-      ...info,
-      media: {
-        ...media,
-        base64,
-      }
-    }
+  async image(post, dir) {
+    const base64 = await readFile(mediaPath(dir, post.src)).then(buf => buf.toString('base64'))
+    return { ...post, image: { type: 'image' as const, src: post.src, base64 } }
+  },
+
+  async video(post, dir) {
+    const base64 = await readFile(mediaPath(dir, post.src)).then(buf => buf.toString('base64'))
+    return { ...post, video: { type: 'video' as const, src: post.src, base64 } }
   }
 }
 
@@ -192,9 +194,18 @@ const start = command('start')
 
         mediaWatchers.forEach(w => w.close())
         mediaWatchers.length = 0
+
+        for (const post of posts) {
+          for (const platform of post.platforms) {
+            if (!PlatformSupport[platform]?.includes(post.type)) {
+              console.warn(`⚠ ${platform} does not support '${post.type}' posts (created: ${post.created})`)
+            }
+          }
+        }
+
         const mediaPaths = [
           join(dir, brand.src),
-          ...posts.flatMap(post => post.type === 'media' ? [mediaPath(dir, post.media.src)] : []),
+          ...posts.flatMap(post => (post.type === 'image' || post.type === 'video') ? [mediaPath(dir, post.src)] : []),
           ...posts.flatMap(post => post.type === 'article' ? [articlePath(dir, post.src)] : []),
         ]
         mediaPaths.forEach(src => {
