@@ -7,11 +7,11 @@ interface Props {
 }
 
 export default function ClaudeCode({ children }: Props) {
-    const line = <div style={{ borderTop: '2px solid #6b7280' }} />
+    const line = <div style={{ borderTop: '0.2cqw solid #6b7280' }} />
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <Terminal>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '1.2em', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '1.8cqw', alignItems: 'center' }}>
                     <img src={staticFile('claudecode-color.svg')} style={{ width: '20cqw' }} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1cqw', fontSize: '2.5cqw' }}>
                         <div style={{ fontWeight: 'bold' }}>
@@ -24,7 +24,7 @@ export default function ClaudeCode({ children }: Props) {
 
 
                 {line}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75em', marginTop: '0.75em', paddingBottom: '0.75em' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1cqw', marginTop: '1.1cqw', paddingBottom: '1.1cqw' }}>
                     {children}
                 </div>
                 {line}
@@ -34,7 +34,7 @@ export default function ClaudeCode({ children }: Props) {
                     justifyContent: 'space-between',
                     fontSize: '2.2cqw',
                     color: '#768390',
-                    paddingTop: '0.75em',
+                    paddingTop: '1.1cqw',
                 }}>
                     <span>Sonnet 6.7 · ctx 1% | tok 0.9k | $0.001</span>
                     <span>claudein.org</span>
