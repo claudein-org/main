@@ -2,6 +2,7 @@
 import { align, gap, row } from "@/css/layout.css"
 import { btn, postCardActions, ytAvatar } from "@/css/style.css"
 import { postToDevto, postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
+import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
@@ -14,7 +15,7 @@ interface Props {
     payload: proto.Payload
     published: Published
     linkedinConnected: boolean
-    facebookConnected: boolean
+    facebookPages: Page[]
     instagramAccounts: Account[]
     youtubeConnected: boolean
     youtubeChannels: Channel[]
@@ -23,7 +24,7 @@ interface Props {
 
 // Publish buttons shared by post and article cards. Posting state is tracked
 // per-card; `published` seeds any links already persisted in the posts table.
-export default function PostActions({ payload, published, linkedinConnected, facebookConnected, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
+export default function PostActions({ payload, published, linkedinConnected, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     const { hash, asset } = payload
     // `published` seeds links already persisted in the posts table; it's a static
     // server prop, so we read it once on mount rather than syncing via effect.
@@ -93,11 +94,11 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingLinkedin ? 'Posting…' : 'LinkedIn'}
                     </button>
             )}
-            {facebookConnected && asset.target.includes('Facebook') && PlatformSupport.Facebook.includes(asset.type) && (
-                <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
-                    Facebook
+            {facebookPages.length > 0 && asset.target.includes('Facebook') && PlatformSupport.Facebook.includes(asset.type) && facebookPages.map(page => (
+                <button key={page.page_id} className={btn({ color: 'facebook', size: 'sm' })} disabled title={page.page_name}>
+                    {facebookPages.length > 1 ? page.page_name : 'Facebook'}
                 </button>
-            )}
+            ))}
             {instagramAccounts.length > 0 && asset.target.includes('Instagram') && PlatformSupport.Instagram.includes(asset.type) && instagramAccounts.map((account) => {
                 const key = `${hash}:${account.instagram_account_id}`
                 const isPosting = posting.has(key)

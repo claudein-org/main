@@ -1,6 +1,7 @@
 'use client'
 import { align, col, gap, row } from "@/css/layout.css"
 import { avatar, font, muted, postCard, postImg, postsGrid, preWrap } from "@/css/style.css"
+import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
@@ -13,7 +14,7 @@ interface Props {
     payloads: proto.Payload[]
     published: Published
     linkedinConnected: boolean
-    facebookConnected: boolean
+    facebookPages: Page[]
     instagramAccounts: Account[]
     youtubeConnected: boolean
     youtubeChannels: Channel[]
@@ -22,7 +23,7 @@ interface Props {
 
 // Shared view for the Images and Videos sidebar tabs — both are media assets
 // with optional title/description and a base64-encoded body.
-export default function MediaView({ kind, payloads, published, linkedinConnected, facebookConnected, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
+export default function MediaView({ kind, payloads, published, linkedinConnected, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     if (payloads.length === 0) {
         return <div className={muted}>
             {kind === 'image'
@@ -60,7 +61,7 @@ export default function MediaView({ kind, payloads, published, linkedinConnected
                             payload={payload}
                             published={published}
                             linkedinConnected={linkedinConnected}
-                            facebookConnected={facebookConnected}
+                            facebookPages={facebookPages}
                             instagramAccounts={instagramAccounts}
                             youtubeConnected={youtubeConnected}
                             youtubeChannels={youtubeChannels}

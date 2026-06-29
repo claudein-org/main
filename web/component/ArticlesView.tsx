@@ -1,6 +1,7 @@
 'use client'
 import { align, col, gap, row } from "@/css/layout.css"
 import { articleBody, articleCard, articlesGrid, avatar, font, muted } from "@/css/style.css"
+import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
@@ -13,14 +14,14 @@ interface Props {
     payloads: proto.Payload[]
     published: Published
     linkedinConnected: boolean
-    facebookConnected: boolean
+    facebookPages: Page[]
     instagramAccounts: Account[]
     youtubeConnected: boolean
     youtubeChannels: Channel[]
     devtoConnected: boolean
 }
 
-export default function ArticlesView({ payloads, published, linkedinConnected, facebookConnected, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
+export default function ArticlesView({ payloads, published, linkedinConnected, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     if (payloads.length === 0) {
         return <div className={muted}>No articles yet — add an article post pointing to a .md file in your brand.yml.</div>
     }
@@ -45,7 +46,7 @@ export default function ArticlesView({ payloads, published, linkedinConnected, f
                         payload={payload}
                         published={published}
                         linkedinConnected={linkedinConnected}
-                        facebookConnected={facebookConnected}
+                        facebookPages={facebookPages}
                         instagramAccounts={instagramAccounts}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}

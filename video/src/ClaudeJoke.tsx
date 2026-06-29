@@ -31,13 +31,23 @@ function Typed({ text, from, to }: { text: string; from: number; to: number }) {
 function Thinking({ from, to }: { from: number; to: number }) {
     const frame = useCurrentFrame()
     const { fps } = useVideoConfig()
-    if (frame < from || frame >= to) return null
-    const elapsed = 42 + Math.floor((frame - from) / fps)
-    const symbol = THINKING_SYMBOLS[Math.floor((frame - from) / 5) % THINKING_SYMBOLS.length]
-    const msgIdx = Math.min(Math.floor((frame - from) / 45), THINKING_MESSAGES.length - 1)
+    const active = frame >= from && frame < to
+    const done = frame >= to
+    const effectiveFrame = done ? to - 1 : frame
+    const elapsed = 42 + Math.floor((effectiveFrame - from) / fps)
+    const symbol = THINKING_SYMBOLS[Math.floor((effectiveFrame - from) / 5) % THINKING_SYMBOLS.length]
+    const msgIdx = Math.min(Math.floor((effectiveFrame - from) / 45), THINKING_MESSAGES.length - 1)
     return (
         <div style={{ color: '#DAAA3F', fontSize: '2.5cqw' }}>
-            {symbol} Thinking… ({elapsed}s · {THINKING_MESSAGES[msgIdx]})
+            <div style={{ visibility: frame >= from ? 'visible' : 'hidden' }}>
+                <span style={{ display: 'inline-block', width: '1.5cqw', textAlign: 'center' }}>
+                    {active ? symbol : '✓'}
+                </span>
+                {' '}Thinking… ({elapsed}s · {THINKING_MESSAGES[msgIdx]})
+            </div>
+            <div style={{ visibility: done ? 'visible' : 'hidden' }}>
+                {'  '}Thought for {elapsed}s
+            </div>
         </div>
     )
 }
@@ -72,19 +82,15 @@ export function ClaudeJoke({ q, a }: Props) {
     return (
         <AbsoluteFill>
             <ClaudeCode laughing={laughing} ctx={ctx} tok={tok} cost={cost}>
-                {frame >= Q_TYPE[0] && (
-                    <div style={{ whiteSpace: 'pre-wrap' }}>
-                        {input}
-                        <Typed text={q} from={Q_TYPE[0]} to={Q_TYPE[1]} />
-                    </div>
-                )}
+                <div style={{ whiteSpace: 'pre-wrap', visibility: frame >= Q_TYPE[0] ? 'visible' : 'hidden' }}>
+                    {input}
+                    <Typed text={q} from={Q_TYPE[0]} to={Q_TYPE[1]} />
+                </div>
                 <Thinking from={THINK[0]} to={THINK[1]} />
-                {frame >= A_TYPE[0] && (
-                    <div>
-                        {output}
-                        <Typed text={a} from={A_TYPE[0]} to={A_TYPE[1]} />
-                    </div>
-                )}
+                <div style={{ visibility: frame >= A_TYPE[0] ? 'visible' : 'hidden' }}>
+                    {output}
+                    <Typed text={a} from={A_TYPE[0]} to={A_TYPE[1]} />
+                </div>
             </ClaudeCode>
         </AbsoluteFill>
     )
