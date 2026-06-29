@@ -9,6 +9,7 @@ import { proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
 import ArticlesView from "./ArticlesView"
 import BrandView from "./BrandView"
+import MediaView from "./MediaView"
 import PostsView from "./PostsView"
 import Reload from "./Reload"
 
@@ -18,6 +19,8 @@ const ONE_HOUR_MS = 60 * 60 * 1000
 const VIEWS = [
     { id: 'brand', label: 'Brand' },
     { id: 'posts', label: 'Posts' },
+    { id: 'images', label: 'Images' },
+    { id: 'videos', label: 'Videos' },
     { id: 'articles', label: 'Articles' },
 ] as const
 
@@ -92,8 +95,10 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
     const linkedinConnected = !!expires_at && (expires_at * 1000 - now) >= ONE_DAY_MS
 
     const payloads = bundle?.payloads ?? []
-    const articlePayloads = payloads.filter(p => p.post.type === 'article')
-    const postPayloads = payloads.filter(p => p.post.type !== 'article')
+    const postPayloads = payloads.filter(p => p.asset.type === 'post')
+    const imagePayloads = payloads.filter(p => p.asset.type === 'image')
+    const videoPayloads = payloads.filter(p => p.asset.type === 'video')
+    const articlePayloads = payloads.filter(p => p.asset.type === 'article')
 
     return (
         <div className={dashboardLayout}>
@@ -145,6 +150,32 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                 {view === 'posts' && (
                     <PostsView
                         payloads={postPayloads}
+                        published={published}
+                        linkedinConnected={linkedinConnected}
+                        facebookConnected={facebookConnected}
+                        instagramConnected={instagramConnected}
+                        youtubeConnected={youtubeConnected}
+                        youtubeChannels={youtubeChannels}
+                        devtoConnected={devtoConnected}
+                    />
+                )}
+                {view === 'images' && (
+                    <MediaView
+                        kind="image"
+                        payloads={imagePayloads}
+                        published={published}
+                        linkedinConnected={linkedinConnected}
+                        facebookConnected={facebookConnected}
+                        instagramConnected={instagramConnected}
+                        youtubeConnected={youtubeConnected}
+                        youtubeChannels={youtubeChannels}
+                        devtoConnected={devtoConnected}
+                    />
+                )}
+                {view === 'videos' && (
+                    <MediaView
+                        kind="video"
+                        payloads={videoPayloads}
                         published={published}
                         linkedinConnected={linkedinConnected}
                         facebookConnected={facebookConnected}

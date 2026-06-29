@@ -23,7 +23,7 @@ interface Props {
 // Publish buttons shared by post and article cards. Posting state is tracked
 // per-card; `published` seeds any links already persisted in the posts table.
 export default function PostActions({ payload, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
-    const { hash, post } = payload
+    const { hash, asset } = payload
     // `published` seeds links already persisted in the posts table; it's a static
     // server prop, so we read it once on mount rather than syncing via effect.
     const [links, setLinks] = useState<Record<number, string>>(published[hash] ?? {})
@@ -39,7 +39,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
     async function handlePost() {
         const done = trackPosting(`${hash}:${Platform.LinkedIn}`)
         try {
-            const res = await postToLinkedin({ hash, post })
+            const res = await postToLinkedin({ hash, asset })
             if (!res) return
             setLinks(prev => ({ ...prev, [Platform.LinkedIn]: res.url }))
         } finally { done() }
@@ -48,7 +48,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
     async function handleInstagramPost() {
         const done = trackPosting(`${hash}:${Platform.Instagram}`)
         try {
-            const res = await postToInstagram({ hash, post })
+            const res = await postToInstagram({ hash, asset })
             if (!res) return
             setLinks(prev => ({ ...prev, [Platform.Instagram]: res.url }))
         } finally { done() }
@@ -58,7 +58,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
         const key = `${hash}:${channel_id}`
         const done = trackPosting(key)
         try {
-            const res = await postToYoutube({ hash, post }, channel_id)
+            const res = await postToYoutube({ hash, asset }, channel_id)
             if (!res) return
             setYtPosted(prev => ({ ...prev, [key]: res.url }))
         } finally { done() }
@@ -67,7 +67,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
     async function handleDevtoPost() {
         const done = trackPosting(`${hash}:${Platform['DEV.to']}`)
         try {
-            const res = await postToDevto({ hash, post })
+            const res = await postToDevto({ hash, asset })
             if (!res) return
             setLinks(prev => ({ ...prev, [Platform['DEV.to']]: res.url }))
         } finally { done() }
@@ -83,7 +83,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
 
     return (
         <div className={postCardActions}>
-            {linkedinConnected && post.platforms.includes('LinkedIn') && PlatformSupport.LinkedIn.includes(post.type) && (
+            {linkedinConnected && asset.target.includes('LinkedIn') && PlatformSupport.LinkedIn.includes(asset.type) && (
                 linkedinLink
                     ? <a href={linkedinLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'linkedin', size: 'sm' }))}>
                         View on LinkedIn
@@ -92,12 +92,12 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingLinkedin ? 'Posting…' : 'LinkedIn'}
                     </button>
             )}
-            {facebookConnected && post.platforms.includes('Facebook') && PlatformSupport.Facebook.includes(post.type) && (
+            {facebookConnected && asset.target.includes('Facebook') && PlatformSupport.Facebook.includes(asset.type) && (
                 <button className={btn({ color: 'facebook', size: 'sm' })} disabled>
                     Facebook
                 </button>
             )}
-            {instagramConnected && post.platforms.includes('Instagram') && PlatformSupport.Instagram.includes(post.type) && (
+            {instagramConnected && asset.target.includes('Instagram') && PlatformSupport.Instagram.includes(asset.type) && (
                 instagramLink
                     ? <a href={instagramLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))}>
                         View on Instagram
@@ -106,7 +106,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingInstagram ? 'Posting…' : 'Instagram'}
                     </button>
             )}
-            {devtoConnected && post.platforms.includes('DEV.to') && PlatformSupport['DEV.to'].includes(post.type) && (
+            {devtoConnected && asset.target.includes('DEV.to') && PlatformSupport['DEV.to'].includes(asset.type) && (
                 devtoLink
                     ? <a href={devtoLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'devto', size: 'sm' }))}>
                         View on dev.to
@@ -115,7 +115,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingDevto ? 'Posting…' : 'dev.to'}
                     </button>
             )}
-            {youtubeConnected && post.platforms.includes('YouTube') && PlatformSupport.YouTube.includes(post.type) && youtubeChannels.map((channel) => {
+            {youtubeConnected && asset.target.includes('YouTube') && PlatformSupport.YouTube.includes(asset.type) && youtubeChannels.map((channel) => {
                 const key = `${hash}:${channel.channel_id}`
                 const isPosting = posting.has(key)
                 // Prefer this session's upload; fall back to the stored URL only with a single

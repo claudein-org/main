@@ -9,7 +9,7 @@ import PostActions from "./PostActions"
 
 type Published = Record<string, Record<number, string>>
 interface Props {
-    payloads: proto.Payloads
+    payloads: proto.Payload[]
     published: Published
     linkedinConnected: boolean
     facebookConnected: boolean
@@ -26,19 +26,19 @@ export default function ArticlesView({ payloads, published, linkedinConnected, f
 
     return (
         <div className={articlesGrid}>
-            {payloads.map((payload) => payload.post.type === 'article' && (
+            {payloads.map((payload) => payload.asset.type === 'article' && (
                 <div key={payload.hash} className={articleCard}>
                     <div className={cx(row, align.center, gap.sm)}>
                         <div className={avatar} />
                         <div className={cx(col, gap.xs)}>
                             <span className={font.weight.medium}>You</span>
                             <span className={cx(muted, font.size.sm)}>
-                                {new Date(payload.post.created).toLocaleDateString()}
+                                {new Date(payload.asset.created).toLocaleDateString()}
                             </span>
                         </div>
                     </div>
                     <div className={articleBody}>
-                        <Markdown>{payload.post.markdown}</Markdown>
+                        <Markdown>{payload.asset.markdown}</Markdown>
                     </div>
                     <PostActions
                         payload={payload}

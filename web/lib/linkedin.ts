@@ -116,9 +116,9 @@ export namespace linkedin {
         author_urn: string
     }
 
-    export async function post({ access_token, author_urn }: Author, post: proto.Post) {
-        const postHandler: { [key in proto.Post['type']]: (args: Extract<proto.Post, { type: key }>) => ReturnType<typeof share> } = {
-            async text({ text }) {
+    export async function post({ access_token, author_urn }: Author, asset: proto.Asset) {
+        const postHandler: { [key in proto.Asset['type']]: (args: Extract<proto.Asset, { type: key }>) => ReturnType<typeof share> } = {
+            async post({ text }) {
                 return await share(access_token, {
                     author: urnPerson(author_urn),
                     lifecycleState: 'PUBLISHED',
@@ -154,7 +154,7 @@ export namespace linkedin {
                 })
             },
 
-            async image({ text, image: { base64, title, description } }) {
+            async image({ base64, title, description }) {
                 const { asset } = await uploadBinary(access_token, {
                     registerUploadRequest: {
                         recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
@@ -171,7 +171,7 @@ export namespace linkedin {
                     lifecycleState: 'PUBLISHED',
                     specificContent: {
                         'com.linkedin.ugc.ShareContent': {
-                            shareCommentary: { text: text ?? '' },
+                            shareCommentary: { text: description ?? '' },
                             shareMediaCategory: 'IMAGE',
                             media: [{
                                 status: 'READY',
@@ -187,7 +187,7 @@ export namespace linkedin {
                 })
             },
 
-            async video({ text, video: { base64, title, description } }) {
+            async video({ base64, title, description }) {
                 const { asset } = await uploadBinary(access_token, {
                     registerUploadRequest: {
                         recipes: ['urn:li:digitalmediaRecipe:feedshare-video'],
@@ -204,7 +204,7 @@ export namespace linkedin {
                     lifecycleState: 'PUBLISHED',
                     specificContent: {
                         'com.linkedin.ugc.ShareContent': {
-                            shareCommentary: { text: text ?? '' },
+                            shareCommentary: { text: description ?? '' },
                             shareMediaCategory: 'VIDEO',
                             media: [{
                                 status: 'READY',
@@ -221,11 +221,11 @@ export namespace linkedin {
             }
         }
 
-        function handle<T extends proto.Post['type']>(post: Extract<proto.Post, { type: T }>) {
-            return postHandler[post.type]!(post)
+        function handle<T extends proto.Asset['type']>(asset: Extract<proto.Asset, { type: T }>) {
+            return postHandler[asset.type]!(asset)
         }
 
-        return await handle(post)
+        return await handle(asset)
     }
 }
 

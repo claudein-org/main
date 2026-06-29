@@ -12,7 +12,7 @@ import z from "zod"
 
 const MIN_MS = 1000 * 60
 export async function postToLinkedin(raw: proto.Payload) {
-    const { hash, post } = proto.Payload.parse(raw)
+    const { hash, asset } = proto.Payload.parse(raw)
 
     const { user_id } = await cook.get()
 
@@ -26,7 +26,7 @@ export async function postToLinkedin(raw: proto.Payload) {
 
     assert(expires_at > Date.now() / 1000 + MIN_MS, 'Linkedin access token expired')
 
-    const { urn } = await linkedin.post({ access_token, author_urn }, post)
+    const { urn } = await linkedin.post({ access_token, author_urn }, asset)
 
     if (!urn) return
 
@@ -46,9 +46,9 @@ export async function postToLinkedin(raw: proto.Payload) {
 }
 
 export async function postToInstagram(raw: proto.Payload) {
-    const { hash, post } = proto.Payload.parse(raw)
+    const { hash, asset } = proto.Payload.parse(raw)
 
-    if (post.type !== 'image' && post.type !== 'video') throw new Error('Instagram requires an image or video post')
+    if (asset.type !== 'image' && asset.type !== 'video') throw new Error('Instagram requires an image or video post')
 
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
@@ -59,7 +59,7 @@ export async function postToInstagram(raw: proto.Payload) {
         .where('user_id', '=', user_id)
         .executeTakeFirstOrThrow()
 
-    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id, user_id, post_id: hash }, post)
+    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id, user_id, post_id: hash }, asset)
 
     await db
         .insertInto('posts')
@@ -72,8 +72,8 @@ export async function postToInstagram(raw: proto.Payload) {
 const DevtoArticle = z.object({ url: z.string() })
 
 export async function postToDevto(raw: proto.Payload) {
-    const { hash, post } = proto.Payload.parse(raw)
-    if (!PlatformSupport['DEV.to'].includes(post.type)) throw new Error(`dev.to does not support '${post.type}' posts`)
+    const { hash, asset } = proto.Payload.parse(raw)
+    if (!PlatformSupport['DEV.to'].includes(asset.type)) throw new Error(`dev.to does not support '${asset.type}' posts`)
 
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
@@ -84,7 +84,9 @@ export async function postToDevto(raw: proto.Payload) {
         .where('user_id', '=', user_id)
         .executeTakeFirstOrThrow()
 
-    const content = post.type === 'text' ? post.text : post.markdown
+    const content = asset.type === 'post' ? asset.text
+        : asset.type === 'article' ? asset.markdown
+            : ''
     const headingMatch = content.match(/^#[ \t]+(.+)(\r?\n|$)/)
     const title = headingMatch
         ? headingMatch[1]!.trim()
@@ -107,19 +109,19 @@ export async function postToDevto(raw: proto.Payload) {
 }
 
 export async function postToYoutube(raw: proto.Payload, channel_id: string) {
-    const { hash, post } = proto.Payload.parse(raw)
+    const { hash, asset } = proto.Payload.parse(raw)
 
-    assert(post.type === 'video', 'YouTube requires a video post')
+    assert(asset.type === 'video', 'YouTube requires a video post')
     assert(channel_id, 'No YouTube channel selected')
 
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
 
-    const videoBlob = new Blob([Uint8Array.from(atob(post.video.base64), c => c.charCodeAt(0))], { type: 'video/mp4' })
+    const videoBlob = new Blob([Uint8Array.from(atob(asset.base64), c => c.charCodeAt(0))], { type: 'video/mp4' })
 
     const { id } = await youtube.upload(user_id, channel_id, videoBlob, {
-        title: post.video.title ?? 'Video',
-        description: post.video.description,
+        title: asset.title ?? 'Video',
+        description: asset.description,
         privacyStatus: 'public',
     })
 
