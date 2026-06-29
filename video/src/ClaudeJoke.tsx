@@ -18,14 +18,21 @@ const THINKING_MESSAGES = [
 
 function Typed({ text, from, to }: { text: string; from: number; to: number }) {
     const frame = useCurrentFrame()
-    if (frame < from) return null
     const n = Math.floor(
         interpolate(frame, [from, to], [0, text.length], {
             extrapolateRight: 'clamp',
             extrapolateLeft: 'clamp',
         })
     )
-    return <>{text.slice(0, n)}</>
+    const typing = frame >= from && frame < to
+    const caretOn = Math.floor(frame / 15) % 2 === 0
+    return (
+        <>
+            {text.slice(0, n)}
+            <span style={{ visibility: typing && caretOn ? 'visible' : 'hidden' }}>▋</span>
+            <span style={{ visibility: 'hidden' }}>{text.slice(n)}</span>
+        </>
+    )
 }
 
 function Thinking({ from, to }: { from: number; to: number }) {
@@ -33,21 +40,14 @@ function Thinking({ from, to }: { from: number; to: number }) {
     const { fps } = useVideoConfig()
     const active = frame >= from && frame < to
     const done = frame >= to
-    const effectiveFrame = done ? to - 1 : frame
+    const effectiveFrame = Math.max(from, Math.min(frame, to - 1))
     const elapsed = 42 + Math.floor((effectiveFrame - from) / fps)
     const symbol = THINKING_SYMBOLS[Math.floor((effectiveFrame - from) / 5) % THINKING_SYMBOLS.length]
     const msgIdx = Math.min(Math.floor((effectiveFrame - from) / 45), THINKING_MESSAGES.length - 1)
     return (
-        <div style={{ color: '#DAAA3F', fontSize: '2.5cqw' }}>
-            <div style={{ visibility: frame >= from ? 'visible' : 'hidden' }}>
-                <span style={{ display: 'inline-block', width: '1.5cqw', textAlign: 'center' }}>
-                    {active ? symbol : '✓'}
-                </span>
-                {' '}Thinking… ({elapsed}s · {THINKING_MESSAGES[msgIdx]})
-            </div>
-            <div style={{ visibility: done ? 'visible' : 'hidden' }}>
-                {'  '}Thought for {elapsed}s
-            </div>
+        <div style={{ color: '#DAAA3F', fontSize: '2.5cqw', whiteSpace: 'nowrap', visibility: frame >= from ? 'visible' : 'hidden', display: 'flex', gap: '1cqw', alignItems: 'center' }}>
+            <div style={{ width: '1.5cqw', textAlign: 'center', height: '1.1em', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{active ? symbol : '✓'}</div>
+            <div>Thinking… ({elapsed}s · {THINKING_MESSAGES[msgIdx]})</div>
         </div>
     )
 }
