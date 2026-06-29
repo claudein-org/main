@@ -7,6 +7,7 @@ import { cx } from "@/styled-system/css"
 import type { Channel } from "@/provider/youtube"
 import { proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
+import ArticlesView from "./ArticlesView"
 import BrandView from "./BrandView"
 import PostsView from "./PostsView"
 import Reload from "./Reload"
@@ -17,6 +18,7 @@ const ONE_HOUR_MS = 60 * 60 * 1000
 const VIEWS = [
     { id: 'brand', label: 'Brand' },
     { id: 'posts', label: 'Posts' },
+    { id: 'articles', label: 'Articles' },
 ] as const
 
 type View = (typeof VIEWS)[number]['id']
@@ -89,6 +91,10 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
 
     const linkedinConnected = !!expires_at && (expires_at * 1000 - now) >= ONE_DAY_MS
 
+    const payloads = bundle?.payloads ?? []
+    const articlePayloads = payloads.filter(p => p.post.type === 'article')
+    const postPayloads = payloads.filter(p => p.post.type !== 'article')
+
     return (
         <div className={dashboardLayout}>
             <Reload />
@@ -135,17 +141,19 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
             </aside>
 
             <div className={dashboardMain}>
-                {view === 'brand'
-                    ? <BrandView brand={bundle?.brand} />
-                    : <PostsView
-                        payloads={bundle?.payloads ?? []}
+                {view === 'brand' && <BrandView brand={bundle?.brand} />}
+                {view === 'posts' && (
+                    <PostsView
+                        payloads={postPayloads}
                         published={published}
                         linkedinConnected={linkedinConnected}
                         facebookConnected={facebookConnected}
                         instagramConnected={instagramConnected}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}
-                    />}
+                    />
+                )}
+                {view === 'articles' && <ArticlesView payloads={articlePayloads} />}
             </div>
         </div>
     )

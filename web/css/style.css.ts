@@ -392,6 +392,67 @@ export const postCard = css({
   height: "100%",
 })
 
+/* Articles view — responsive grid: 1 column on mobile, 2 on desktop. */
+export const articlesGrid = css({
+  display: "grid",
+  width: "100%",
+  maxWidth: "1100px",
+  gap: "1.25rem",
+  gridTemplateColumns: "1fr",
+  "@media (min-width: 1024px)": { gridTemplateColumns: "repeat(2, 1fr)" },
+})
+
+export const articleCard = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.5rem 1.75rem",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+  background: "#ffffff",
+  height: "100%",
+})
+
+/* Rendered markdown preview — caps height and fades out the overflow. */
+export const articleBody = css({
+  position: "relative",
+  maxHeight: "420px",
+  overflow: "hidden",
+  lineHeight: 1.6,
+  "& > * + *": { marginTop: "0.85rem" },
+  "& h1": { fontSize: "1.5rem", fontWeight: 600, letterSpacing: "-0.02em" },
+  "& h2": { fontSize: "1.25rem", fontWeight: 600, letterSpacing: "-0.01em" },
+  "& h3": { fontSize: "1.0625rem", fontWeight: 600 },
+  "& ul, & ol": { paddingLeft: "1.25rem", display: "flex", flexDirection: "column", gap: "0.35rem" },
+  "& a": { color: "linkedin", textDecoration: "underline" },
+  "& img": { maxWidth: "100%", height: "auto", borderRadius: "8px" },
+  "& pre": {
+    background: "#1B1F24",
+    color: "#CDD9E5",
+    padding: "1rem",
+    borderRadius: "8px",
+    overflowX: "auto",
+    fontFamily: "mono",
+    fontSize: "0.8125rem",
+  },
+  "& pre code": { background: "transparent", padding: 0 },
+  "& blockquote": {
+    borderLeft: "3px solid #e0e0e0",
+    paddingLeft: "1rem",
+    color: "textSecondary",
+  },
+  // Fade the bottom edge so it reads as a truncated preview.
+  _after: {
+    content: '""',
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "4rem",
+    background: "linear-gradient(transparent, #ffffff)",
+  },
+})
+
 export const postCardActions = css({
   marginTop: "auto",
   display: "flex",

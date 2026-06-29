@@ -25,6 +25,9 @@ const hasher: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) =>
   text({ text }) {
     return [text]
   },
+  article({ markdown }) {
+    return [markdown]
+  },
   media({ text, media: { title, description, base64 } }) {
     return [text, title, description, base64]
   }
@@ -72,6 +75,11 @@ async function readAsset(src: string): Promise<proto.Asset> {
 const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>) => Promise<Extract<proto.Post, { type: key }>> } = {
   async text(post) {
     return post
+  },
+
+  async article(post) {
+    const markdown = await readFile(post.src, 'utf-8')
+    return { ...post, markdown }
   },
 
   async media({ media, ...info }) {
@@ -166,6 +174,7 @@ const start = command('start')
           brand.logo,
           ...brand.images,
           ...posts.flatMap(post => post.type === 'media' ? [post.media.src] : []),
+          ...posts.flatMap(post => post.type === 'article' ? [post.src] : []),
         ]
         mediaPaths.forEach(src => {
           try {

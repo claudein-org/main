@@ -14,19 +14,35 @@ Introduction:
 TODO:
   - providers:
   - common:
-      - Articles:
-          - I updated the schema to support articles, you need to update the reset of the code (both cli and web) to support this:
-              - cli:
-                  - watch referenced .md files for changes
-                  - load the content of the .md file and send it to the web app
-                  - add the content of the .md to hash parts.
-              - web:
-                  - add another section for articles in the sidebar
-                  - add a (use react-markdown) preview responsive grid for articles (2 on desktop, 1 on mobile)
   - cli:
+      - file system structure:
+          - refactor the structure of the local files the cli expected:
+          - claudein:
+              - claudein.yml (all the information about the brand excluding media and .md files)
+              - media:
+                  - file.jpg
+                  - file.mp4
+                  - ...
+              - articles:
+                  - file.md
+                  - ...
+
+          - if the file structure does not exists, create it and create populate it with the default claudein.yml file and example article.
+          - update the SKILL.md file to reflect the new file structure.
   - web:
   - video:
 
 Done:
+  - Articles:
+      - I updated the schema to support articles, you need to update the reset of the code (both cli and web) to support this:
+          - cli:
+              - watch referenced .md files for changes
+              - load the content of the .md file and send it to the web app
+              - add the content of the .md to hash parts.
+          - web:
+              - add another section for articles in the sidebar
+              - add a (use react-markdown) preview responsive grid for articles (2 on desktop, 1 on mobile)
+
+      - When done write a short article about claudein and add it to the .yml file.
   - Add a post to brand.yml: "ClaudeIn turns your Claude Code into a social media manager."
   - YouTube - let users add multiple channels, then use their channel profile picture on the post button so they know which channel they are posting to.

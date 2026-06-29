@@ -141,6 +141,10 @@ export namespace linkedin {
                 })
             },
 
+            async article() {
+                throw new Error('Article posts are not yet supported on LinkedIn')
+            },
+
             async media({ text, media: { type, base64, title, description } }) {
                 const { asset, status } = await uploadBinary(access_token, {
                     registerUploadRequest: {

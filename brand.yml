@@ -37,3 +37,8 @@ posts:
     media:
       type: video
       src: video/out/Demo.mp4
+
+  - type: article
+    created: 2026-06-29
+    platforms: [LinkedIn]
+    src: articles/what-is-claudein.md

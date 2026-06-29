@@ -76,9 +76,13 @@ export default function PostsView({ payloads, published, linkedinConnected, face
         return Media[media.type](media)
     }
 
-    const Poster: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) => ReactElement } = {
+    const Poster: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) => ReactElement | null } = {
         text({ text }) {
             return <p className={preWrap}>{text}</p>
+        },
+        // Articles are shown in their own Articles view, never here.
+        article() {
+            return null
         },
         media({ text, media }) {
             return (
