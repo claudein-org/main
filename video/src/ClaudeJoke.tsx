@@ -1,10 +1,10 @@
 import { AbsoluteFill } from "remotion"
-import Terminal from "./Terminal"
+import ClaudeCode from "./ClaudeCode"
 
 export function ClaudeJoke() {
     return <AbsoluteFill>
-        <Terminal>
+        <ClaudeCode>
 
-        </Terminal>
+        </ClaudeCode>
     </AbsoluteFill>
 }

@@ -14,17 +14,17 @@ export default function Terminal({ children }: Props) {
     }}>
         <div style={{
             background: '#2D333B',
-            padding: '0.75rem 1rem',
+            padding: '1.2cqw 1.6cqw',
             display: 'flex',
-            gap: '6px',
+            gap: '1cqw',
             alignItems: 'center',
         }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, background: '#F47067' }} />
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, background: '#DAAA3F' }} />
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, background: '#57AB5A' }} />
+            <div style={{ width: '3cqw', aspectRatio: 1, borderRadius: '50%', flexShrink: 0, background: '#F47067' }} />
+            <div style={{ width: '3cqw', aspectRatio: 1, borderRadius: '50%', flexShrink: 0, background: '#DAAA3F' }} />
+            <div style={{ width: '3cqw', aspectRatio: 1, borderRadius: '50%', flexShrink: 0, background: '#57AB5A' }} />
         </div>
         <div style={{
-            padding: '1.25rem 1.5rem',
+            padding: '2cqw 2.4cqw',
             color: '#CDD9E5',
             display: 'flex',
             flexDirection: 'column',
