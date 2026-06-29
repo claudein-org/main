@@ -1,5 +1,5 @@
 ---
-description: Add a new OAuth social provider (route, DB table, env var, settings, menu button, docs)
+description: Add a new OAuth social provider (route, DB table, env var, settings, menu button, posting, docs)
 allowed-tools: [Read, Edit, Write, Bash]
 ---
 
@@ -7,10 +7,12 @@ allowed-tools: [Read, Edit, Write, Bash]
 
 Ask the user for:
 - **Provider name** (e.g. `twitter`, `tiktok`) — used as the route slug and identifier
+- **Display name** (e.g. `Twitter`, `TikTok`) — shown in the UI
 - **Brand color** (hex) — for the connect button
 - **OAuth authorization URL**
 - **Token exchange URL**
 - **User-info API call** (to get the account/channel/user ID to store)
+- **Post publishing API call** (endpoint + request shape to publish a post)
 - **Scopes** needed
 - **Whether a refresh token is needed** (e.g. YouTube needs one; most don't)
 - **Client ID** (or placeholder if not yet registered)
@@ -59,13 +61,33 @@ export interface DB {
 }
 ```
 
-### 4. Client ID — `web/lib/settings.ts`
+### 4. Platform enum — `common/index.ts`
+
+Add the new provider to both the `Platform` zod enum and the `PlatformEnum` integer map (use the next integer):
+
+```ts
+const Platform = z.enum([
+    // …existing…
+    '<DisplayName>',
+])
+
+const PlatformEnum: { [key in Platform]: number } = {
+    // …existing…
+    '<DisplayName>': <next-int>,
+}
+```
+
+### 5. Schema — `claudein.schema.yml`
+
+Add `'<DisplayName>'` to **every** `platforms.items.enum` array in the file (there are three — one per post type: `text`, `article`, `media`).
+
+### 6. Client ID — `web/lib/settings.ts`
 
 ```ts
 export const <PROVIDER>_CLIENT_ID = '<actual-id-or-YOUR_<PROVIDER>_CLIENT_ID>'
 ```
 
-### 5. Client secret — `web/lib/env.ts`
+### 7. Client secret — `web/lib/env.ts`
 
 Add to the `Env` zod schema and to the `DUMMY` object:
 
@@ -77,7 +99,7 @@ Add to the `Env` zod schema and to the `DUMMY` object:
 <PROVIDER>_CLIENT_SECRET: "",
 ```
 
-### 6. Redirect URI support — `web/lib/auth.ts`
+### 8. Redirect URI support — `web/lib/auth.ts`
 
 Extend the provider union:
 
@@ -85,7 +107,7 @@ Extend the provider union:
 export function getRedirectUri(provider: '…' | '<provider>') {
 ```
 
-### 7. Auth URL — `web/lib/app.ts`
+### 9. Auth URL — `web/lib/app.ts`
 
 Import the new client ID from `settings`. Build a `URLSearchParams` object and add to `app`:
 
@@ -106,18 +128,7 @@ export const app = {
 }
 ```
 
-### 8. Links — `common/links.ts`
-
-Add to the `auth` object:
-
-```ts
-auth: {
-    // …existing…
-    <provider>: `/auth/<provider>`,
-},
-```
-
-### 9. OAuth callback route — `web/app/auth/<provider>/route.ts`
+### 10. OAuth callback route — `web/app/auth/<provider>/route.ts`
 
 Create the file. Follow the pattern of existing routes (`linkedin`, `facebook`, `instagram`):
 
@@ -169,7 +180,13 @@ export async function GET(request: NextRequest) {
 }
 ```
 
-### 10. Brand color — `web/panda.config.ts`
+After creating the file, regenerate `common/links.ts` (auto-generated — never edit it manually):
+
+```bash
+cd web && bun tools/app.ts
+```
+
+### 11. Brand color — `web/panda.config.ts`
 
 Add to `theme.extend.tokens.colors`:
 
@@ -177,7 +194,7 @@ Add to `theme.extend.tokens.colors`:
 <provider>: { value: "<hex>" },
 ```
 
-### 11. Button variant — `web/css/style.css.ts`
+### 12. Button variant — `web/css/style.css.ts`
 
 Add to `btn` cva variants:
 
@@ -185,13 +202,13 @@ Add to `btn` cva variants:
 <provider>: { background: "<provider>" },
 ```
 
-### 12. Provider file — `web/provider/<provider>.ts`
+### 13. Provider status — `web/provider/<provider>.ts`
 
 Create the file. It must export a `getStatus(user_id: number)` function that:
 1. Queries the DB for the user's token row
 2. Checks if the token is valid (`expires_at > now`)
 3. If the provider supports token refresh and the token is expired (or expiring soon), refreshes it and updates the DB
-4. Returns `{ connected: boolean }` (or `{ expires_at: number | undefined }` for providers like LinkedIn where the Poster needs the raw expiry for client-side rendering)
+4. Returns `{ connected: boolean }`
 
 ```ts
 import { db } from '@/lib/db'
@@ -221,9 +238,9 @@ export async function getStatus(user_id: number) {
 - **Long-lived token refresh** (Instagram): refresh proactively if `expires_at - now < SEVEN_DAYS`
 - **Short-lived + refresh_token** (YouTube/Google): refresh whenever `expires_at - now < FIVE_MINUTES`
 
-### 13. Connection menu — `web/app/post/[port]/page.tsx`
+### 14. Dash page — `web/app/dash/[port]/page.tsx`
 
-Import the new provider and call `getStatus` inside `Promise.all`. Pass the result as `<provider>Connected` to `<Poster>`:
+Import the new provider and call `getStatus` inside the existing `Promise.all`. Pass the result to `<Dashboard>`:
 
 ```ts
 import * as <provider> from "@/provider/<provider>"
@@ -233,26 +250,102 @@ const [/* …existing… */, <provider>Status] = await Promise.all([
     <provider>.getStatus(user_id),
     // …
 ])
-// pass: <provider>Connected={<provider>Status.connected}
+
+// In the JSX:
+// <provider>Connected={<provider>Status.connected}
 ```
 
-### 14. Poster component — `web/component/Poster.tsx`
+### 15. Dashboard sidebar — `web/component/Dashboard.tsx`
 
-- Add `<provider>Connected: boolean` to `Props` and destructure it
-- Add `'<provider>'` to `ServiceRowProps.color` union
-- Add a `<ServiceRow>` entry in the menu:
+- Add `<provider>Connected: boolean` to the `Props` interface and destructure it
+- Add `'<provider>'` to the `ServiceRowProps.color` union
+- Add a `<ServiceRow>` entry inside the Connections section:
 
 ```tsx
-<ServiceRow name="<ProviderName>" connected={<provider>Connected} href={app.<provider>} color="<provider>" />
+<ServiceRow name="<DisplayName>" connected={<provider>Connected} href={app.<provider>} color="<provider>" />
 ```
 
-### 15. Type-check
+- Pass `<provider>Connected` down to `<PostsView>` and `<ArticlesView>` (both components take platform-connected props).
 
-Run `bunx tsc --noEmit` and fix any errors before finishing.
+### 16. Posting server action — `web/server/post.ts`
 
-### 16. Documentation — `authentication.md`
+Add a new `'use server'` export. Follow the pattern of `postToInstagram` (simple token) or `postToLinkedin` (URN-based). The action must:
+1. Parse the raw `proto.Payload`
+2. Read the token row from the DB
+3. Call the provider's publish API
+4. Insert a row into `posts` using `Platform.<DisplayName>` as the provider integer
+5. Return `{ url: post_url }`
 
-Add a new `## <ProviderName>` section following the same structure as existing providers:
+```ts
+export async function postTo<Provider>(raw: proto.Payload) {
+    const { hash, post } = proto.Payload.parse(raw)
+
+    const { user_id } = await cook.get()
+    assert(user_id, 'User not logged in')
+
+    const { access_token, <provider>_account_id } = await db
+        .selectFrom('<provider>')
+        .select(['access_token', '<provider>_account_id'])
+        .where('user_id', '=', user_id)
+        .executeTakeFirstOrThrow()
+
+    // Call the provider publish API with access_token…
+    const post_url = `<provider-post-url>`
+
+    await db
+        .insertInto('posts')
+        .values({ post_id: hash, post_url, provider: Platform.<DisplayName>, user_id })
+        .execute()
+
+    return { url: post_url }
+}
+```
+
+### 17. Post actions — `web/component/PostActions.tsx`
+
+- Add `<provider>Connected: boolean` to `Props` and destructure it
+- Import `postTo<Provider>` from `@/server/post`
+- Add a handler and tracking state following the same pattern as `handlePost` / `handleInstagramPost`
+- Add the button/link to the JSX, guarded by `<provider>Connected && post.platforms.includes('<DisplayName>')`
+
+```tsx
+// Handler:
+async function handle<Provider>Post() {
+    const done = trackPosting(`${hash}:${Platform.<DisplayName>}`)
+    try {
+        const res = await postTo<Provider>({ hash, post })
+        if (!res) return
+        setLinks(prev => ({ ...prev, [Platform.<DisplayName>]: res.url }))
+    } finally { done() }
+}
+
+// State:
+const <provider>Link = links[Platform.<DisplayName>]
+const isPosting<Provider> = posting.has(`${hash}:${Platform.<DisplayName>}`)
+
+// JSX:
+{<provider>Connected && post.platforms.includes('<DisplayName>') && (
+    <provider>Link
+        ? <a href={<provider>Link} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: '<provider>', size: 'sm' }))}>
+            View on <DisplayName>
+          </a>
+        : <button className={btn({ color: '<provider>', size: 'sm' })} onClick={handle<Provider>Post} disabled={isPosting<Provider>}>
+            {isPosting<Provider> ? 'Posting…' : '<DisplayName>'}
+          </button>
+)}
+```
+
+### 18. PostsView + ArticlesView — `web/component/PostsView.tsx` and `web/component/ArticlesView.tsx`
+
+Both components accept per-platform connected booleans and forward them to `<PostActions>`. Add `<provider>Connected: boolean` to each component's `Props` interface, destructure it, and pass it to `<PostActions>`.
+
+### 19. Type-check
+
+Run `cd web && bunx tsc --noEmit` and fix any errors before finishing.
+
+### 20. Documentation — `authentication.md`
+
+Add a new `## <DisplayName>` section following the same structure as existing providers:
 
 - Purpose
 - Route

@@ -7,6 +7,8 @@ import * as instagram from "@/provider/instagram"
 import * as youtube from "@/provider/youtube"
 import { Platform, proto } from "@claudein.org/common"
 import assert from "assert"
+import ky from "ky"
+import z from "zod"
 
 const MIN_MS = 1000 * 60
 export async function postToLinkedin(raw: proto.Payload) {
@@ -62,6 +64,43 @@ export async function postToInstagram(raw: proto.Payload) {
     await db
         .insertInto('posts')
         .values({ post_id: hash, post_url, provider: Platform.Instagram, user_id })
+        .execute()
+
+    return { url: post_url }
+}
+
+const DevtoArticle = z.object({ url: z.string() })
+
+export async function postToDevto(raw: proto.Payload) {
+    const { hash, post } = proto.Payload.parse(raw)
+    if (post.type === 'media') throw new Error('dev.to does not support media posts')
+
+    const { user_id } = await cook.get()
+    assert(user_id, 'User not logged in')
+
+    const { api_key } = await db
+        .selectFrom('devto')
+        .select(['api_key'])
+        .where('user_id', '=', user_id)
+        .executeTakeFirstOrThrow()
+
+    const content = post.type === 'text' ? post.text : post.markdown
+    const headingMatch = content.match(/^#[ \t]+(.+)(\r?\n|$)/)
+    const title = headingMatch
+        ? headingMatch[1]!.trim()
+        : (content.split('\n')[0]?.trim().slice(0, 100) || 'Post')
+    const body_markdown = headingMatch ? content.slice(headingMatch[0].length).trimStart() : content
+
+    const { url: post_url } = DevtoArticle.parse(
+        await ky.post('https://dev.to/api/articles', {
+            headers: { 'api-key': api_key, accept: 'application/vnd.forem.api-v1+json' },
+            json: { article: { title, body_markdown, published: true } },
+        }).json()
+    )
+
+    await db
+        .insertInto('posts')
+        .values({ post_id: hash, post_url, provider: Platform['DEV.to'], user_id })
         .execute()
 
     return { url: post_url }

@@ -16,9 +16,10 @@ interface Props {
     instagramConnected: boolean
     youtubeConnected: boolean
     youtubeChannels: Channel[]
+    devtoConnected: boolean
 }
 
-export default function ArticlesView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels }: Props) {
+export default function ArticlesView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     if (payloads.length === 0) {
         return <div className={muted}>No articles yet — add an article post pointing to a .md file in your brand.yml.</div>
     }
@@ -47,6 +48,7 @@ export default function ArticlesView({ payloads, published, linkedinConnected, f
                         instagramConnected={instagramConnected}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}
+                        devtoConnected={devtoConnected}
                     />
                 </div>
             ))}

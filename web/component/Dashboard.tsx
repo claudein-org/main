@@ -151,6 +151,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         instagramConnected={instagramConnected}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}
+                        devtoConnected={devtoConnected}
                     />
                 )}
                 {view === 'articles' && (
@@ -162,6 +163,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         instagramConnected={instagramConnected}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}
+                        devtoConnected={devtoConnected}
                     />
                 )}
             </div>

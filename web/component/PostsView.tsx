@@ -17,9 +17,10 @@ interface Props {
     instagramConnected: boolean
     youtubeConnected: boolean
     youtubeChannels: Channel[]
+    devtoConnected: boolean
 }
 
-export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels }: Props) {
+export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     const Media: { [key in MediaType]: (media: Extract<proto.Media, { type: key }>) => ReactElement } = {
         image({ base64 }) {
             return <img className={postImg} src={`data:image/*;base64,${base64}`} alt="Post media" />
@@ -84,6 +85,7 @@ export default function PostsView({ payloads, published, linkedinConnected, face
                             instagramConnected={instagramConnected}
                             youtubeConnected={youtubeConnected}
                             youtubeChannels={youtubeChannels}
+                            devtoConnected={devtoConnected}
                         />
                     </div>
                 )

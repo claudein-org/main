@@ -14,6 +14,13 @@ Introduction:
 TODO:
   - providers:
   - common:
+      - I updated the schema. Now each platform declares which post types it supports. Update the rest of the code to support this:
+          - cli:
+              - when user tries to add a post, check if the platform supports the post type and show an error if not.
+          - web:
+              - when user tries to add a post, check if the platform supports the post type and show an error if not.
+          - SKILL.md:
+              - update the skill to reflect the new schema and the new post types.
   - cli:
   - web:
   - video:

@@ -1,7 +1,7 @@
 'use client'
 import { align, gap, row } from "@/css/layout.css"
 import { btn, postCardActions, ytAvatar } from "@/css/style.css"
-import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
+import { postToDevto, postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
 import { Platform, proto } from "@claudein.org/common"
@@ -17,11 +17,12 @@ interface Props {
     instagramConnected: boolean
     youtubeConnected: boolean
     youtubeChannels: Channel[]
+    devtoConnected: boolean
 }
 
 // Publish buttons shared by post and article cards. Posting state is tracked
 // per-card; `published` seeds any links already persisted in the posts table.
-export default function PostActions({ payload, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels }: Props) {
+export default function PostActions({ payload, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     const { hash, post } = payload
     // `published` seeds links already persisted in the posts table; it's a static
     // server prop, so we read it once on mount rather than syncing via effect.
@@ -63,11 +64,22 @@ export default function PostActions({ payload, published, linkedinConnected, fac
         } finally { done() }
     }
 
+    async function handleDevtoPost() {
+        const done = trackPosting(`${hash}:${Platform['DEV.to']}`)
+        try {
+            const res = await postToDevto({ hash, post })
+            if (!res) return
+            setLinks(prev => ({ ...prev, [Platform['DEV.to']]: res.url }))
+        } finally { done() }
+    }
+
     const linkedinLink = links[Platform.LinkedIn]
     const instagramLink = links[Platform.Instagram]
     const youtubeLink = links[Platform.YouTube]
+    const devtoLink = links[Platform['DEV.to']]
     const isPostingLinkedin = posting.has(`${hash}:${Platform.LinkedIn}`)
     const isPostingInstagram = posting.has(`${hash}:${Platform.Instagram}`)
+    const isPostingDevto = posting.has(`${hash}:${Platform['DEV.to']}`)
 
     return (
         <div className={postCardActions}>
@@ -92,6 +104,15 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                     </a>
                     : <button className={btn({ color: 'instagram', size: 'sm' })} onClick={handleInstagramPost} disabled={isPostingInstagram}>
                         {isPostingInstagram ? 'Posting…' : 'Instagram'}
+                    </button>
+            )}
+            {devtoConnected && post.platforms.includes('DEV.to') && post.type !== 'media' && (
+                devtoLink
+                    ? <a href={devtoLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'devto', size: 'sm' }))}>
+                        View on dev.to
+                    </a>
+                    : <button className={btn({ color: 'devto', size: 'sm' })} onClick={handleDevtoPost} disabled={isPostingDevto}>
+                        {isPostingDevto ? 'Posting…' : 'dev.to'}
                     </button>
             )}
             {youtubeConnected && post.platforms.includes('YouTube') && youtubeChannels.map((channel) => {

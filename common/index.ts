@@ -20,6 +20,14 @@ const PlatformEnum: { [key in Platform]: number } = {
     'DEV.to': 5,
 }
 
+export const PlatformSupport: { [key in Platform]: PostType[] } = {
+    LinkedIn: ['text', 'image', 'video'],
+    Facebook: ['text', 'image', 'video'],
+    Instagram: ['video'],
+    YouTube: ['video'],
+    'DEV.to': ['article']
+}
+
 
 export namespace yml {
     const ImgSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
@@ -41,9 +49,6 @@ export namespace yml {
         src: VideoSrc,
     })
 
-    export type Media = z.infer<typeof Media>
-    export const Media = z.discriminatedUnion('type', [Image, Video])
-
     const BasePost = z.object({
         created: z.iso.date(),
         platforms: z.array(Platform),
@@ -59,14 +64,26 @@ export namespace yml {
         src: MD
     })
 
-    export const PostMedia = BasePost.extend({
-        type: z.literal('media'),
+    export const PostImage = BasePost.extend({
+        type: z.literal('image'),
         text: z.string().optional(),
-        media: Media,
+        src: ImgSrc,
+    })
+
+    export const PostVideo = BasePost.extend({
+        type: z.literal('video'),
+        text: z.string().optional(),
+        src: VideoSrc,
     })
 
     export type Post = z.infer<typeof Post>
-    export const Post = z.discriminatedUnion('type', [PostText, PostArticle, PostMedia])
+    export const Post = z.discriminatedUnion(
+        'type', [
+        PostText,
+        PostArticle,
+        PostImage,
+        PostVideo
+    ])
 
     export type Posts = z.infer<typeof Posts>
     export const Posts = z.object({ posts: z.array(Post) })
@@ -87,14 +104,18 @@ export namespace proto {
     const Image = yml.Image.extend({ base64: z.string() })
     const Video = yml.Video.extend({ base64: z.string() })
 
-    export type Media = z.infer<typeof Media>
-    const Media = z.discriminatedUnion('type', [Image, Video])
-
     const PostArticle = yml.PostArticle.extend({ markdown: z.string() })
-    const PostMedia = yml.PostMedia.extend({ media: Media })
+    const PostImage = yml.PostImage.extend({ image: Image })
+    const PostVideo = yml.PostVideo.extend({ video: Video })
 
     export type Post = z.infer<typeof Post>
-    export const Post = z.discriminatedUnion('type', [yml.PostText, PostArticle, PostMedia])
+    export const Post = z.discriminatedUnion(
+        'type', [
+        yml.PostText,
+        PostArticle,
+        PostImage,
+        PostVideo
+    ])
 
     export type Payload = z.infer<typeof Payload>
     export const Payload = z.object({
@@ -126,4 +147,3 @@ export namespace proto {
 }
 
 export type PostType = yml.Post['type']
-export type MediaType = yml.Media['type']
