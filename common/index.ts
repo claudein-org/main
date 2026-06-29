@@ -4,12 +4,20 @@ export { PlatformEnum as Platform }
 import z from "zod"
 
 type Platform = z.infer<typeof Platform>
-const Platform = z.enum(['LinkedIn', 'Facebook', 'Instagram', 'YouTube'])
+const Platform = z.enum([
+    'LinkedIn',
+    'Facebook',
+    'Instagram',
+    'YouTube',
+    'DEV.to'
+])
+
 const PlatformEnum: { [key in Platform]: number } = {
     LinkedIn: 1,
     Facebook: 2,
     Instagram: 3,
     YouTube: 4,
+    'DEV.to': 5,
 }
 
 
