@@ -18,8 +18,9 @@ A claudein project is a **directory** (default `claudein/`, or pass another with
 
 ```
 claudein/
-  claudein.yml      # brand metadata + posts
-  media/            # images and video referenced by brand/posts
+  claudein.yml      # brand reference + posts
+  brand.md          # brand description in Markdown — shown on the Brand view
+  media/            # images and video referenced by posts
     logo.svg
     shot.png
     clip.mp4
@@ -27,25 +28,32 @@ claudein/
     welcome.md
 ```
 
-`claudein.yml` holds everything *except* media and article bodies. It references assets by **bare filename**: the CLI resolves images/video against `media/` and article markdown against `articles/`. So `logo: logo.svg` means `claudein/media/logo.svg`, and an article `src: welcome.md` means `claudein/articles/welcome.md`. Put new images/videos in `media/` and new articles in `articles/`, then reference them by name.
+`claudein.yml` holds the brand reference and posts list. It references media assets by **bare filename**: the CLI resolves images/video against `media/` and article markdown against `articles/`. So a media `src: shot.png` means `claudein/media/shot.png`, and an article `src: welcome.md` means `claudein/articles/welcome.md`. Put new images/videos in `media/` and new articles in `articles/`, then reference them by name.
 
-`claudein.yml` has two top-level keys: `brand` (metadata shown on the dashboard's **Brand** view) and `posts` (shown on the **Posts** view).
+`claudein.yml` has two top-level keys: `brand` (points to `brand.md`) and `posts` (shown on the **Posts** and **Articles** views).
 
-`cin start` watches `claudein.yml` — and every asset it references — and updates the browser dashboard live. Always edit files in place, never delete and recreate them. If the directory doesn't exist, `cin start` scaffolds it with a sample post and example article.
+`cin start` watches `claudein.yml`, `brand.md`, and every asset referenced by posts, updating the browser dashboard live. Always edit files in place, never delete and recreate them. If the directory doesn't exist, `cin start` scaffolds it with a sample post and example article.
 
 ### Brand metadata
 
+The brand is written as a plain Markdown file named `brand.md` in the project root. The dashboard's **Brand** view renders it directly. Write whatever describes the brand — heading, description, bullet points, etc.:
+
+```markdown
+# My Brand
+
+A short description of the brand — what it is and who it is for.
+
+## What makes it special
+
+- A selling point
+- Another selling point
+```
+
+`claudein.yml` simply points to it:
+
 ```yaml
 brand:
-  title: My Brand
-  description: A short description of the brand — what it is and who it is for.
-  logo: logo.svg            # media/logo.svg — .svg, .png or .jpg
-  features:
-    - A short selling point
-    - Another selling point
-  images:                   # .png/.jpg gallery shown on the Brand view (from media/)
-    - shot-1.png
-    - shot-2.png
+  src: brand.md
 ```
 
 ## Platforms

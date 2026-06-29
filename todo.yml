@@ -14,10 +14,6 @@ Introduction:
 TODO:
   - providers:
   - common:
-      - I updated the schema and changed the brand field. From now on it is just a fixed value "brand.md". You need to:
-          - Update the cli to watch the "brand.md" for changes.
-          - Update the web app to simply show the brand md file (use react-markdown).
-          - Update the SKILL.md file to reflect this change.
   - cli:
   - web:
   - video:
@@ -51,3 +47,4 @@ Done:
       - When done write a short article about claudein and add it to the .yml file.
   - Add a post to brand.yml: "ClaudeIn turns your Claude Code into a social media manager."
   - YouTube - let users add multiple channels, then use their channel profile picture on the post button so they know which channel they are posting to.
+  - common - brand.md: Updated the schema so brand is now just a fixed reference to "brand.md". CLI watches brand.md for live reload; web BrandView renders it via react-markdown; SKILL.md updated; claudein/claudein.yml migrated and claudein/brand.md created.

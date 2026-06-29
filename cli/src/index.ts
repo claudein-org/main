@@ -45,37 +45,12 @@ export function hash(post: proto.Post) {
     .substring(0, 16)
 }
 
-const MIME: Record<string, string> = {
-  svg: 'image/svg+xml',
-  png: 'image/png',
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  mp4: 'video/mp4',
-  mkv: 'video/x-matroska',
-  avi: 'video/x-msvideo',
-}
-
-function mimeOf(src: string): string {
-  const ext = src.split('.').pop()?.toLowerCase() ?? ''
-  return MIME[ext] ?? 'application/octet-stream'
-}
-
-// Inline a brand asset (logo / image) as base64 with its mime type. Missing
-// files degrade gracefully so a single absent asset doesn't break the preview.
-async function readAsset(src: string): Promise<proto.Asset> {
-  try {
-    const base64 = await readFile(src).then(buf => buf.toString('base64'))
-    return { base64, mime: mimeOf(src) }
-  } catch {
-    console.error(`Failed to read brand asset: ${src}`)
-    return { base64: '', mime: mimeOf(src) }
-  }
-}
-
-// A claudein project is a directory: claudein.yml at the root, media (images /
-// video) under media/, and article markdown under articles/. The yml references
-// assets by bare filename; these helpers resolve them to real paths on disk.
+// A claudein project is a directory: claudein.yml at the root, brand.md for
+// the brand description, media (images / video) under media/, and article
+// markdown under articles/. The yml references assets by bare filename; these
+// helpers resolve them to real paths on disk.
 const YML_FILE = 'claudein.yml'
+const BRAND_FILE = 'brand.md'
 
 function mediaPath(dir: string, src: string) {
   return join(dir, 'media', src)
@@ -123,16 +98,19 @@ const formatter = new Intl.DateTimeFormat('en-CA', {
 
 const EXAMPLE_ARTICLE = 'welcome.md'
 
+const sampleBrand = `# My Brand
+
+A short description of your brand — what it is and who it is for.
+
+## What makes it special
+
+- The first thing that makes your brand stand out
+- The second thing that makes your brand stand out
+`
+
 const sampleYml: yml.YML = {
   brand: {
-    title: 'My Brand',
-    description: 'A short description of your brand — what it is and who it is for.',
-    logo: 'logo.png',
-    features: [
-      'The first thing that makes your brand stand out',
-      'The second thing that makes your brand stand out',
-    ],
-    images: [],
+    src: 'brand.md',
   },
   posts: [
     {
@@ -164,12 +142,13 @@ Edit this file — or ask Claude Code to write one for you — and the browser
 preview updates the moment you save.
 `
 
-// Scaffold a fresh claudein/ project: claudein.yml + empty media/ and articles/
-// folders, seeded with a sample post and an example article so it runs as-is.
+// Scaffold a fresh claudein/ project: claudein.yml + brand.md + empty media/
+// and articles/ folders, seeded with a sample post and example article.
 async function scaffold(dir: string) {
   await mkdir(join(dir, 'media'), { recursive: true })
   await mkdir(join(dir, 'articles'), { recursive: true })
   await writeFile(join(dir, YML_FILE), sample, 'utf-8')
+  await writeFile(join(dir, BRAND_FILE), sampleBrand, 'utf-8')
   await writeFile(articlePath(dir, EXAMPLE_ARTICLE), exampleArticle, 'utf-8')
   console.log(`Created ${join(dir, YML_FILE)} with a sample post and article`)
 }
@@ -214,8 +193,7 @@ const start = command('start')
         mediaWatchers.forEach(w => w.close())
         mediaWatchers.length = 0
         const mediaPaths = [
-          mediaPath(dir, brand.logo),
-          ...brand.images.map(img => mediaPath(dir, img)),
+          join(dir, brand.src),
           ...posts.flatMap(post => post.type === 'media' ? [mediaPath(dir, post.media.src)] : []),
           ...posts.flatMap(post => post.type === 'article' ? [articlePath(dir, post.src)] : []),
         ]
@@ -227,12 +205,10 @@ const start = command('start')
           }
         })
 
+        const brandMarkdown = await readFile(join(dir, brand.src), 'utf-8')
         const protoBrand: proto.Brand = {
-          title: brand.title,
-          description: brand.description,
-          logo: await readAsset(mediaPath(dir, brand.logo)),
-          features: brand.features,
-          images: await Promise.all(brand.images.map(img => readAsset(mediaPath(dir, img)))),
+          src: brand.src,
+          markdown: brandMarkdown,
         }
 
         const protoPosts = await ps2ps(posts, dir)

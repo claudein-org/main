@@ -1,20 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml
 
 brand:
-  title: ClaudeIn
-  description: >-
-    Post to LinkedIn — or let Claude Code do it for you. ClaudeIn turns a local
-    claudein.yml file into a live, browser-based preview you can publish from in
-    a single click.
-  logo: logo.svg
-  features:
-    - Draft and publish posts straight from the command line
-    - Live browser preview that updates the moment you save
-    - Edit claudein.yml by hand, or let Claude Code write it for you
-    - One file, many platforms — LinkedIn, Instagram, YouTube and more
-  images:
-    - logo.png
-    - og.png
+  src: brand.md
 
 posts:
   - type: text
