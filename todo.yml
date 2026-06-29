@@ -14,6 +14,10 @@ Introduction:
 TODO:
   - providers:
   - common:
+      - I updated the schema and changed the brand field. From now on it is just a fixed value "brand.md". You need to:
+          - Update the cli to watch the "brand.md" for changes.
+          - Update the web app to simply show the brand md file (use react-markdown).
+          - Update the SKILL.md file to reflect this change.
   - cli:
   - web:
   - video:

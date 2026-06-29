@@ -15,19 +15,8 @@ const PlatformEnum: { [key in Platform]: number } = {
 
 export namespace yml {
     const ImgSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
-    const LogoSrc = z.string().regex(/.*\.(jpg|jpeg|png|svg)$/)
     const VideoSrc = z.string().regex(/.*\.(mp4|mkv|avi)$/)
-    const ArticleSrc = z.string().regex(/.*\.(md)$/)
-
-    export type Brand = z.infer<typeof Brand>
-    export const Brand = z.object({
-        title: z.string(),
-        description: z.string(),
-        logo: LogoSrc,
-
-        features: z.array(z.string()),
-        images: z.array(ImgSrc),
-    })
+    const MD = z.string().regex(/.*\.(md)$/)
 
     const BasicMedia = z.object({
         title: z.string().optional(),
@@ -59,7 +48,7 @@ export namespace yml {
 
     export const PostArticle = BasePost.extend({
         type: z.literal('article'),
-        src: ArticleSrc
+        src: MD
     })
 
     export const PostMedia = BasePost.extend({
@@ -73,6 +62,11 @@ export namespace yml {
 
     export type Posts = z.infer<typeof Posts>
     export const Posts = z.object({ posts: z.array(Post) })
+
+    export type Brand = z.infer<typeof Brand>
+    export const Brand = z.object({
+        src: z.literal('brand.md'),
+    })
 
     export type YML = z.infer<typeof YML>
     export const YML = z.object({
@@ -111,12 +105,8 @@ export namespace proto {
     })
 
     export type Brand = z.infer<typeof Brand>
-    export const Brand = z.object({
-        title: z.string(),
-        description: z.string(),
-        logo: Asset,
-        features: z.array(z.string()),
-        images: z.array(Asset),
+    export const Brand = yml.Brand.extend({
+        markdown: z.string(),
     })
 
     // The full brand bundle streamed to the web app over the websocket.
