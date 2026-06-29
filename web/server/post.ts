@@ -3,10 +3,12 @@
 import { cook } from "@/lib/cookie"
 import { db } from "@/lib/db"
 import { linkedin } from "@/lib/linkedin"
+import { deleteMedia, storeMedia } from "@/lib/media-store"
 import * as instagram from "@/provider/instagram"
 import * as youtube from "@/provider/youtube"
 import { Platform, PlatformSupport, proto } from "@claudein.org/common"
 import assert from "assert"
+import { randomBytes } from "crypto"
 import ky from "ky"
 import z from "zod"
 
@@ -133,6 +135,120 @@ export async function postToYoutube(raw: proto.Payload, channel_id: string) {
     await db
         .insertInto('posts')
         .values({ post_id: hash, post_url, provider: Platform.YouTube, user_id })
+        .onConflict((oc) => oc.columns(['user_id', 'post_id', 'provider']).doUpdateSet({ post_url }))
+        .execute()
+
+    return { url: post_url }
+}
+
+const FbFeedResponse = z.object({ id: z.string() })
+const FbPhotoResponse = z.object({ id: z.string(), post_id: z.string().optional() })
+
+export async function postToFacebook(raw: proto.Payload, page_id: string) {
+    const { hash, asset } = proto.Payload.parse(raw)
+    if (!PlatformSupport.Facebook.includes(asset.type)) throw new Error(`Facebook does not support '${asset.type}' posts`)
+
+    const { user_id } = await cook.get()
+    assert(user_id, 'User not logged in')
+
+    const { access_token } = await db
+        .selectFrom('facebook')
+        .select(['access_token'])
+        .where('user_id', '=', user_id)
+        .where('page_id', '=', page_id)
+        .executeTakeFirstOrThrow()
+
+    let post_url: string
+
+    if (asset.type === 'post') {
+        const res = FbFeedResponse.parse(
+            await ky.post(`https://graph.facebook.com/v21.0/${page_id}/feed`, {
+                searchParams: { access_token, message: asset.text },
+            }).json()
+        )
+        const [pid, nid] = res.id.split('_')
+        post_url = `https://www.facebook.com/permalink.php?story_fbid=${nid}&id=${pid}`
+    } else if (asset.type === 'image') {
+        const id = randomBytes(16).toString('hex')
+        const mediaUrl = await storeMedia(id, asset.base64, 'image/jpeg')
+        try {
+            const res = FbPhotoResponse.parse(
+                await ky.post(`https://graph.facebook.com/v21.0/${page_id}/photos`, {
+                    searchParams: { access_token, url: mediaUrl, caption: asset.description ?? '' },
+                }).json()
+            )
+            const postRef = res.post_id ?? res.id
+            const [pid, nid] = postRef.split('_')
+            post_url = `https://www.facebook.com/permalink.php?story_fbid=${nid}&id=${pid}`
+        } finally {
+            await deleteMedia(id)
+        }
+    } else if (asset.type === 'video') {
+        const videoData = Buffer.from(asset.base64, 'base64')
+        const fileSize = videoData.length
+
+        // Phase 1: start upload session — params go in the POST body, not query string
+        const StartRes = z.object({
+            upload_session_id: z.string(),
+            video_id: z.string(),
+            start_offset: z.coerce.number(),
+            end_offset: z.coerce.number(),
+        })
+        const startForm = new FormData()
+        startForm.append('upload_phase', 'start')
+        startForm.append('file_size', String(fileSize))
+        const startJson = await ky.post(`https://graph.facebook.com/v21.0/${page_id}/videos`, {
+            searchParams: { access_token },
+            body: startForm,
+            timeout: 30000,
+            throwHttpErrors: false,
+        }).json()
+        const startParsed = StartRes.safeParse(startJson)
+        if (!startParsed.success) throw new Error(`Facebook video start failed: ${JSON.stringify(startJson)}`)
+        const session = startParsed.data
+
+        // Phase 2: transfer (send all data in one or more chunks until Facebook says done)
+        const TransferRes = z.object({ start_offset: z.coerce.number(), end_offset: z.coerce.number() })
+        let { start_offset, end_offset } = session
+        while (start_offset < fileSize) {
+            const chunk = videoData.subarray(start_offset, end_offset)
+            const form = new FormData()
+            form.append('upload_phase', 'transfer')
+            form.append('upload_session_id', session.upload_session_id)
+            form.append('start_offset', String(start_offset))
+            form.append('video_file_chunk', new Blob([chunk], { type: 'video/mp4' }), 'chunk')
+            const next = TransferRes.parse(
+                await ky.post(`https://graph.facebook.com/v21.0/${page_id}/videos`, {
+                    searchParams: { access_token },
+                    body: form,
+                    timeout: 120000,
+                }).json()
+            )
+            start_offset = next.start_offset
+            end_offset = next.end_offset
+        }
+
+        // Phase 3: finish / publish — params in POST body
+        const finishForm = new FormData()
+        finishForm.append('upload_phase', 'finish')
+        finishForm.append('upload_session_id', session.upload_session_id)
+        finishForm.append('description', asset.description ?? '')
+        if (asset.title) finishForm.append('title', asset.title)
+        finishForm.append('published', 'true')
+        await ky.post(`https://graph.facebook.com/v21.0/${page_id}/videos`, {
+            searchParams: { access_token },
+            body: finishForm,
+            timeout: 30000,
+        }).json()
+
+        post_url = `https://www.facebook.com/watch/?v=${session.video_id}`
+    } else {
+        throw new Error('unreachable')
+    }
+
+    await db
+        .insertInto('posts')
+        .values({ post_id: hash, post_url, provider: Platform.Facebook, user_id })
         .onConflict((oc) => oc.columns(['user_id', 'post_id', 'provider']).doUpdateSet({ post_url }))
         .execute()
 

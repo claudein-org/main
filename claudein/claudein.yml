@@ -28,7 +28,7 @@ assets:
 
   - type: video
     created: 2026-06-29
-    target: [LinkedIn, YouTube, Instagram]
+    target: [LinkedIn, YouTube, Instagram, Facebook]
     description: "A typical Claude Code session."
     src: ClaudeJoke-dark-mode.mp4
 

@@ -1,7 +1,7 @@
 'use client'
 import { align, gap, row } from "@/css/layout.css"
 import { btn, postCardActions, ytAvatar } from "@/css/style.css"
-import { postToDevto, postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
+import { postToDevto, postToFacebook, postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
 import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
@@ -30,9 +30,10 @@ export default function PostActions({ payload, published, linkedinConnected, fac
     // server prop, so we read it once on mount rather than syncing via effect.
     const [links, setLinks] = useState<Record<number, string>>(published[hash] ?? {})
     const [posting, setPosting] = useState<Set<string>>(new Set())
-    // Instagram/YouTube uploads tracked per `${hash}:${account_id}` since the same post can go to several accounts.
+    // Instagram/YouTube/Facebook uploads tracked per `${hash}:${account_id}` since the same post can go to several accounts.
     const [igPosted, setIgPosted] = useState<Record<string, string>>({})
     const [ytPosted, setYtPosted] = useState<Record<string, string>>({})
+    const [fbPosted, setFbPosted] = useState<Record<string, string>>({})
 
     function trackPosting(key: string) {
         setPosting(prev => new Set(prev).add(key))
@@ -45,6 +46,16 @@ export default function PostActions({ payload, published, linkedinConnected, fac
             const res = await postToLinkedin({ hash, asset })
             if (!res) return
             setLinks(prev => ({ ...prev, [Platform.LinkedIn]: res.url }))
+        } finally { done() }
+    }
+
+    async function handleFacebookPost(page_id: string) {
+        const key = `${hash}:${page_id}`
+        const done = trackPosting(key)
+        try {
+            const res = await postToFacebook({ hash, asset }, page_id)
+            if (!res) return
+            setFbPosted(prev => ({ ...prev, [key]: res.url }))
         } finally { done() }
     }
 
@@ -94,11 +105,18 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                         {isPostingLinkedin ? 'Posting…' : 'LinkedIn'}
                     </button>
             )}
-            {facebookPages.length > 0 && asset.target.includes('Facebook') && PlatformSupport.Facebook.includes(asset.type) && facebookPages.map(page => (
-                <button key={page.page_id} className={btn({ color: 'facebook', size: 'sm' })} disabled title={page.page_name}>
-                    {facebookPages.length > 1 ? page.page_name : 'Facebook'}
-                </button>
-            ))}
+            {facebookPages.length > 0 && asset.target.includes('Facebook') && PlatformSupport.Facebook.includes(asset.type) && facebookPages.map(page => {
+                const key = `${hash}:${page.page_id}`
+                const isPosting = posting.has(key)
+                const url = fbPosted[key] ?? (facebookPages.length === 1 ? links[Platform.Facebook] : undefined)
+                return url
+                    ? <a key={page.page_id} href={url} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'facebook', size: 'sm' }))} title={page.page_name}>
+                        View on Facebook
+                    </a>
+                    : <button key={page.page_id} className={btn({ color: 'facebook', size: 'sm' })} onClick={() => handleFacebookPost(page.page_id)} disabled={isPosting} title={page.page_name}>
+                        {isPosting ? 'Posting…' : facebookPages.length > 1 ? page.page_name : 'Facebook'}
+                    </button>
+            })}
             {instagramAccounts.length > 0 && asset.target.includes('Instagram') && PlatformSupport.Instagram.includes(asset.type) && instagramAccounts.map((account) => {
                 const key = `${hash}:${account.instagram_account_id}`
                 const isPosting = posting.has(key)
