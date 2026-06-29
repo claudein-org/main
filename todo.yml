@@ -14,10 +14,17 @@ Introduction:
 TODO:
   - providers:
   - common:
+      - Articles:
+          - I updated the schema to support articles, you need to update the reset of the code (both cli and web) to support this:
+              - cli:
+                  - watch referenced .md files for changes
+                  - load the content of the .md file and send it to the web app
+                  - add the content of the .md to hash parts.
+              - web:
+                  - add another section for articles in the sidebar
+                  - add a (use react-markdown) preview responsive grid for articles (2 on desktop, 1 on mobile)
   - cli:
   - web:
-      - Articles:
-          -
   - video:
 
 Done:
