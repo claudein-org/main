@@ -20,28 +20,27 @@ export default function ClaudeCode({
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <Terminal>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '1.8cqw', alignItems: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '2.2cqw', alignItems: 'center' }}>
                     <ClaudeLaughing laughing={laughing} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1cqw', fontSize: '2.5cqw' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1cqw', fontSize: '3cqw' }}>
                         <div style={{ fontWeight: 'bold' }}>
                             Claude Code <span style={{ color: '#6b6b6b' }}>v3.14</span>
                         </div>
-                        <div>Sonnet 6.7 with high effort · Claude Pro</div>
-                        <div>~/ClaudeIn.org</div>
+                        <div>Sonnet 6.7 · Claude Pro</div>
                     </div>
                 </div>
 
 
-                {line}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1cqw', marginTop: '1.1cqw', paddingBottom: '1.1cqw' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2cqw', fontSize: '2.8cqw' }}>
+                    {line}
                     {children}
+                    {line}
                 </div>
-                {line}
 
                 <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    fontSize: '2.2cqw',
+                    fontSize: '2.5cqw',
                     color: '#768390',
                     paddingTop: '1.1cqw',
                 }}>

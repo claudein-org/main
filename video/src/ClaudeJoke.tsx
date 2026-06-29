@@ -1,20 +1,91 @@
-import { AbsoluteFill } from "remotion"
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion"
+import z from "zod"
 import ClaudeCode from "./ClaudeCode"
 
-interface Props {
-    q: string
-    a: string
+// Timing (frames at 30fps, total 600 = 20s)
+const Q_TYPE: [number, number] = [30, 120]
+const THINK: [number, number] = [150, 370]
+const A_TYPE: [number, number] = [390, 470]
+const LAUGH_START = 490
+
+const THINKING_SYMBOLS = ['+', '✦', '✧', '⊹', '◆', '✺', '⋆']
+const THINKING_MESSAGES = [
+    'thinking with high effort',
+    'thinking more with high effort',
+    'still thinking with high effort',
+    'thinking even harder with high effort',
+]
+
+function Typed({ text, from, to }: { text: string; from: number; to: number }) {
+    const frame = useCurrentFrame()
+    if (frame < from) return null
+    const n = Math.floor(
+        interpolate(frame, [from, to], [0, text.length], {
+            extrapolateRight: 'clamp',
+            extrapolateLeft: 'clamp',
+        })
+    )
+    return <>{text.slice(0, n)}</>
 }
+
+function Thinking({ from, to }: { from: number; to: number }) {
+    const frame = useCurrentFrame()
+    const { fps } = useVideoConfig()
+    if (frame < from || frame >= to) return null
+    const elapsed = 42 + Math.floor((frame - from) / fps)
+    const symbol = THINKING_SYMBOLS[Math.floor((frame - from) / 5) % THINKING_SYMBOLS.length]
+    const msgIdx = Math.min(Math.floor((frame - from) / 45), THINKING_MESSAGES.length - 1)
+    return (
+        <div style={{ color: '#DAAA3F', fontSize: '2.5cqw' }}>
+            {symbol} Thinking… ({elapsed}s · {THINKING_MESSAGES[msgIdx]})
+        </div>
+    )
+}
+
+type Props = z.infer<typeof Props>
+export const Props = z.object({
+    q: z.string(),
+    a: z.string(),
+})
+
 export function ClaudeJoke({ q, a }: Props) {
-    return <AbsoluteFill>
-        <ClaudeCode>
-            {/*  
-     TODO:
-     This is a template for a question and answer joke.
-     - Type the question
-     - Animate claude thinking, meanwhile animate the context, tokens and spending increasing (exaggerate the numbers)
-     - then type the answer and animate claude laughing
-        */}
-        </ClaudeCode>
-    </AbsoluteFill>
+    const frame = useCurrentFrame()
+
+    const laughing = frame >= LAUGH_START
+
+    const easing = Easing.out(Easing.cubic)
+
+    const ctx = Math.min(
+        99,
+        Math.floor(interpolate(frame, THINK, [0, 99], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing }))
+    )
+    const tok = Math.floor(
+        interpolate(frame, THINK, [0, 9871234], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing })
+    )
+    const cost = Math.round(
+        interpolate(frame, THINK, [0, 2847.5], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing }) * 100
+    ) / 100
+
+    const input = <span style={{ color: '#d97757' }}>&gt; </span>
+    const output = <span style={{ color: '#ffffff' }}>● </span>
+
+    return (
+        <AbsoluteFill>
+            <ClaudeCode laughing={laughing} ctx={ctx} tok={tok} cost={cost}>
+                {frame >= Q_TYPE[0] && (
+                    <div style={{ whiteSpace: 'pre-wrap' }}>
+                        {input}
+                        <Typed text={q} from={Q_TYPE[0]} to={Q_TYPE[1]} />
+                    </div>
+                )}
+                <Thinking from={THINK[0]} to={THINK[1]} />
+                {frame >= A_TYPE[0] && (
+                    <div>
+                        {output}
+                        <Typed text={a} from={A_TYPE[0]} to={A_TYPE[1]} />
+                    </div>
+                )}
+            </ClaudeCode>
+        </AbsoluteFill>
+    )
 }
