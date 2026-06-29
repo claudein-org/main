@@ -241,7 +241,7 @@ export const dashboardLayout = css({
 })
 
 export const sidebar = css({
-  width: "240px",
+  width: "280px",
   flexShrink: 0,
   alignSelf: "flex-start",
   position: "sticky",
@@ -252,7 +252,7 @@ export const sidebar = css({
   display: "flex",
   flexDirection: "column",
   gap: "1.5rem",
-  padding: "1.5rem 1rem",
+  padding: "1.5rem 1rem 2.5rem",
 })
 
 export const sidebarBrand = css({
