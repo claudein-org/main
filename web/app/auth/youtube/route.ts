@@ -17,7 +17,19 @@ const Token = z.object({
 })
 
 const ChannelList = z.object({
-  items: z.array(z.object({ id: z.string() })).min(1),
+  items: z
+    .array(
+      z.object({
+        id: z.string(),
+        snippet: z.object({
+          title: z.string(),
+          thumbnails: z.object({
+            default: z.object({ url: z.string() }),
+          }),
+        }),
+      }),
+    )
+    .min(1),
 })
 
 export async function GET(request: NextRequest) {
@@ -52,19 +64,24 @@ export async function GET(request: NextRequest) {
   const { items } = ChannelList.parse(
     await ky
       .get('https://www.googleapis.com/youtube/v3/channels', {
-        searchParams: { part: 'id', mine: 'true' },
+        searchParams: { part: 'id,snippet', mine: 'true' },
         headers: { Authorization: `Bearer ${access_token}` },
       })
       .json(),
   )
 
-  const channel_id = items[0]!.id
+  const channel = items[0]!
+  const channel_id = channel.id
+  const channel_title = channel.snippet.title
+  const channel_thumbnail = channel.snippet.thumbnails.default.url
 
   await db
     .insertInto('youtube')
-    .values({ user_id, access_token, refresh_token, expires_at, channel_id })
+    .values({ user_id, channel_id, channel_title, channel_thumbnail, access_token, refresh_token, expires_at })
     .onConflict((oc) =>
-      oc.column('user_id').doUpdateSet({ access_token, refresh_token, expires_at, channel_id }),
+      oc
+        .columns(['user_id', 'channel_id'])
+        .doUpdateSet({ channel_title, channel_thumbnail, access_token, refresh_token, expires_at }),
     )
     .execute()
 

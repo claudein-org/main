@@ -67,10 +67,11 @@ export async function postToInstagram(raw: proto.Payload) {
     return { url: post_url }
 }
 
-export async function postToYoutube(raw: proto.Payload) {
+export async function postToYoutube(raw: proto.Payload, channel_id: string) {
     const { hash, post } = proto.Payload.parse(raw)
 
     assert(post.type === 'media' && post.media.type === 'video', 'YouTube requires a video post')
+    assert(channel_id, 'No YouTube channel selected')
 
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
@@ -78,7 +79,7 @@ export async function postToYoutube(raw: proto.Payload) {
     const { media } = post
     const videoBlob = new Blob([Uint8Array.from(atob(media.base64), c => c.charCodeAt(0))], { type: 'video/mp4' })
 
-    const { id } = await youtube.upload(user_id, videoBlob, {
+    const { id } = await youtube.upload(user_id, channel_id, videoBlob, {
         title: media.title ?? 'Video',
         description: media.description,
         privacyStatus: 'public',
@@ -86,9 +87,12 @@ export async function postToYoutube(raw: proto.Payload) {
 
     const post_url = `https://www.youtube.com/watch?v=${id}`
 
+    // The posts table tracks one URL per (user, post, provider); re-posting to
+    // another channel overwrites it rather than failing the unique constraint.
     await db
         .insertInto('posts')
         .values({ post_id: hash, post_url, provider: Platform.YouTube, user_id })
+        .onConflict((oc) => oc.columns(['user_id', 'post_id', 'provider']).doUpdateSet({ post_url }))
         .execute()
 
     return { url: post_url }

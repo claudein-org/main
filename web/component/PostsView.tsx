@@ -1,7 +1,8 @@
 'use client'
 import { align, col, gap, row } from "@/css/layout.css"
-import { avatar, btn, font, muted, postCard, postCardActions, postImg, postsGrid, preWrap } from "@/css/style.css"
+import { avatar, btn, font, muted, postCard, postCardActions, postImg, postsGrid, preWrap, ytAvatar } from "@/css/style.css"
 import { postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
+import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
 import { MediaType, Platform, PostType, proto } from "@claudein.org/common"
 import { ReactElement, useEffect, useState } from "react"
@@ -15,22 +16,24 @@ interface Props {
     facebookConnected: boolean
     instagramConnected: boolean
     youtubeConnected: boolean
+    youtubeChannels: Channel[]
 }
 
-export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected }: Props) {
+export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels }: Props) {
     const [links, setLinks] = useState<Published>(published)
     const [posting, setPosting] = useState<Set<string>>(new Set())
+    // YouTube uploads tracked per `${hash}:${channel_id}` since the same post can go to several channels.
+    const [ytPosted, setYtPosted] = useState<Record<string, string>>({})
 
     useEffect(() => { setLinks(published) }, [published])
 
-    function trackPosting(hash: string, provider: number) {
-        const key = `${hash}:${provider}`
+    function trackPosting(key: string) {
         setPosting(prev => new Set(prev).add(key))
         return () => setPosting(prev => { const s = new Set(prev); s.delete(key); return s })
     }
 
     async function handlePost({ hash, post }: proto.Payload) {
-        const done = trackPosting(hash, Platform.LinkedIn)
+        const done = trackPosting(`${hash}:${Platform.LinkedIn}`)
         try {
             const res = await postToLinkedin({ hash, post })
             if (!res) return
@@ -39,7 +42,7 @@ export default function PostsView({ payloads, published, linkedinConnected, face
     }
 
     async function handleInstagramPost({ hash, post }: proto.Payload) {
-        const done = trackPosting(hash, Platform.Instagram)
+        const done = trackPosting(`${hash}:${Platform.Instagram}`)
         try {
             const res = await postToInstagram({ hash, post })
             if (!res) return
@@ -47,12 +50,13 @@ export default function PostsView({ payloads, published, linkedinConnected, face
         } finally { done() }
     }
 
-    async function handleYoutubePost({ hash, post }: proto.Payload) {
-        const done = trackPosting(hash, Platform.YouTube)
+    async function handleYoutubePost({ hash, post }: proto.Payload, channel_id: string) {
+        const key = `${hash}:${channel_id}`
+        const done = trackPosting(key)
         try {
-            const res = await postToYoutube({ hash, post })
+            const res = await postToYoutube({ hash, post }, channel_id)
             if (!res) return
-            setLinks(prev => ({ ...prev, [hash]: { ...prev[hash], [Platform.YouTube]: res.url } }))
+            setYtPosted(prev => ({ ...prev, [key]: res.url }))
         } finally { done() }
     }
 
@@ -97,7 +101,6 @@ export default function PostsView({ payloads, published, linkedinConnected, face
         const youtubeLink = postLinks[Platform.YouTube]
         const isPostingLinkedin = posting.has(`${hash}:${Platform.LinkedIn}`)
         const isPostingInstagram = posting.has(`${hash}:${Platform.Instagram}`)
-        const isPostingYoutube = posting.has(`${hash}:${Platform.YouTube}`)
 
         return (
             <div className={postCardActions}>
@@ -124,15 +127,26 @@ export default function PostsView({ payloads, published, linkedinConnected, face
                             {isPostingInstagram ? 'Posting…' : 'Instagram'}
                         </button>
                 )}
-                {youtubeConnected && post.platforms.includes('YouTube') && (
-                    youtubeLink
-                        ? <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'youtube', size: 'sm' }))}>
-                            View on YouTube
+                {youtubeConnected && post.platforms.includes('YouTube') && youtubeChannels.map((channel) => {
+                    const key = `${hash}:${channel.channel_id}`
+                    const isPosting = posting.has(key)
+                    // Prefer this session's upload; fall back to the stored URL only with a single
+                    // channel, since the posts table can't attribute history to a specific channel.
+                    const url = ytPosted[key] ?? (youtubeChannels.length === 1 ? youtubeLink : undefined)
+                    const label = (
+                        <span className={cx(row, align.center, gap.xs)}>
+                            <img className={ytAvatar} src={channel.thumbnail} alt="" />
+                            <span>{url ? 'View on YouTube' : isPosting ? 'Uploading…' : channel.title}</span>
+                        </span>
+                    )
+                    return url
+                        ? <a key={channel.channel_id} href={url} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'youtube', size: 'sm' }))} title={channel.title}>
+                            {label}
                         </a>
-                        : <button className={btn({ color: 'youtube', size: 'sm' })} onClick={() => handleYoutubePost({ hash, post })} disabled={isPostingYoutube}>
-                            {isPostingYoutube ? 'Uploading…' : 'YouTube'}
+                        : <button key={channel.channel_id} className={btn({ color: 'youtube', size: 'sm' })} onClick={() => handleYoutubePost({ hash, post }, channel.channel_id)} disabled={isPosting} title={channel.title}>
+                            {label}
                         </button>
-                )}
+                })}
             </div>
         )
     }

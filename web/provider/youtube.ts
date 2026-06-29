@@ -11,12 +11,13 @@ const RefreshedToken = z.object({
 
 const FIVE_MINUTES = 5 * 60
 
-async function refreshedToken(user_id: number) {
+async function refreshedToken(user_id: number, channel_id: string) {
     const now = Math.floor(Date.now() / 1000)
     const row = await db
         .selectFrom('youtube')
         .select(['access_token', 'refresh_token', 'expires_at'])
         .where('user_id', '=', user_id)
+        .where('channel_id', '=', channel_id)
         .executeTakeFirst()
 
     if (!row) return null
@@ -40,6 +41,7 @@ async function refreshedToken(user_id: number) {
                 .updateTable('youtube')
                 .set({ access_token, expires_at })
                 .where('user_id', '=', user_id)
+                .where('channel_id', '=', channel_id)
                 .execute()
 
             return access_token
@@ -51,9 +53,27 @@ async function refreshedToken(user_id: number) {
     return row.access_token
 }
 
-export async function getStatus(user_id: number) {
-    const token = await refreshedToken(user_id)
-    return { connected: token !== null }
+export interface Channel {
+    channel_id: string
+    title: string
+    thumbnail: string
+}
+
+export async function getStatus(user_id: number): Promise<{ connected: boolean; channels: Channel[] }> {
+    const rows = await db
+        .selectFrom('youtube')
+        .select(['channel_id', 'channel_title', 'channel_thumbnail'])
+        .where('user_id', '=', user_id)
+        .orderBy('channel_title')
+        .execute()
+
+    const channels = rows.map((r) => ({
+        channel_id: r.channel_id,
+        title: r.channel_title,
+        thumbnail: r.channel_thumbnail,
+    }))
+
+    return { connected: channels.length > 0, channels }
 }
 
 export interface VideoUploadOptions {
@@ -87,8 +107,8 @@ export interface VideoUploadOptions {
 
 const UploadResponse = z.object({ id: z.string() })
 
-export async function upload(user_id: number, video: Blob, options: VideoUploadOptions) {
-    const access_token = await refreshedToken(user_id)
+export async function upload(user_id: number, channel_id: string, video: Blob, options: VideoUploadOptions) {
+    const access_token = await refreshedToken(user_id, channel_id)
     if (!access_token) throw new Error('YouTube not connected')
 
     const parts = ['snippet', 'status']

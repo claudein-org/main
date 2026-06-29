@@ -46,6 +46,7 @@ export default async function page({ params }: Params) {
       facebookConnected={fb.connected}
       instagramConnected={ig.connected}
       youtubeConnected={yt.connected}
+      youtubeChannels={yt.channels}
       published={published} />
   </main>
 }

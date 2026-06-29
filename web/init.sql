@@ -25,11 +25,14 @@ create table if not exists instagram (
 );
 
 create table if not exists youtube (
-    user_id int primary key references users(user_id) on delete cascade,
+    user_id int references users(user_id) on delete cascade,
+    channel_id varchar(100) not null,
+    channel_title varchar(256) not null,
+    channel_thumbnail varchar(1000) not null,
     access_token varchar(1000) not null,
     refresh_token varchar(1000) not null,
     expires_at int not null,
-    channel_id varchar(100) not null
+    primary key (user_id, channel_id)
 );
 
 create table if not exists instagram_containers (

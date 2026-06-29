@@ -15,10 +15,10 @@ TODO:
   - common:
   - cli:
   - web:
-      - YouTube - let users add multiple channels, then use their channel profile picture on the post button so they know which channel they are posting to.
   - video:
       - See the Linkedin video for inspiration.
       - Finally, add a post to brand.yml that says something like "ClaudeIn turns your claude code into a social media manager."
 
 Done:
   - Add a post to brand.yml: "ClaudeIn turns your Claude Code into a social media manager."
+  - YouTube - let users add multiple channels, then use their channel profile picture on the post button so they know which channel they are posting to.

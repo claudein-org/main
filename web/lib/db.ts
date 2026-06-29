@@ -45,10 +45,12 @@ namespace db {
 
     interface Youtube {
         user_id: number
+        channel_id: string
+        channel_title: string
+        channel_thumbnail: string
         access_token: string
         refresh_token: string
         expires_at: number
-        channel_id: string
     }
 
     interface InstagramContainers {

@@ -66,6 +66,25 @@ export const avatar = css({
   flexShrink: 0,
 })
 
+/* Small round channel avatar — shown inside post buttons and the connections list */
+export const ytAvatar = css({
+  width: "18px",
+  height: "18px",
+  borderRadius: "50%",
+  objectFit: "cover",
+  flexShrink: 0,
+})
+
+/* A connected-channel row in the sidebar Connections list */
+export const channelRow = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "0.5rem",
+  padding: "0.25rem 0.625rem 0.25rem 1.25rem",
+  color: "textSecondary",
+  fontSize: "0.8125rem",
+})
+
 export const postFooter = css({
   borderTop: "1px solid #e0e0e0",
   paddingTop: "0.75rem",

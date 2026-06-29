@@ -1,9 +1,10 @@
 'use client'
 
-import { color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarLogo, sidebarNav, sidebarSectionTitle, sidebarSpacer } from "@/css/style.css"
+import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarLogo, sidebarNav, sidebarSectionTitle, sidebarSpacer, ytAvatar } from "@/css/style.css"
 import { app } from "@/lib/app"
 import { btn } from "@/css/style.css"
 import { cx } from "@/styled-system/css"
+import type { Channel } from "@/provider/youtube"
 import { proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
 import BrandView from "./BrandView"
@@ -26,6 +27,7 @@ interface Props {
     facebookConnected: boolean
     instagramConnected: boolean
     youtubeConnected: boolean
+    youtubeChannels: Channel[]
     published: Record<string, Record<number, string>>
 }
 
@@ -48,7 +50,7 @@ function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
     )
 }
 
-export default function Dashboard({ port, expires_at, facebookConnected, instagramConnected, youtubeConnected, published }: Props) {
+export default function Dashboard({ port, expires_at, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
     const [view, setView] = useState<View>('brand')
@@ -112,7 +114,21 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                     <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" />
                     <ServiceRow name="Facebook" connected={facebookConnected} href={app.facebook} color="facebook" />
                     <ServiceRow name="Instagram" connected={instagramConnected} href={app.instagram} color="instagram" />
-                    <ServiceRow name="YouTube" connected={youtubeConnected} href={app.youtube} color="youtube" />
+
+                    {/* YouTube supports multiple channels, so it lists each connected channel and always offers to add another. */}
+                    <div className={connectMenuRow}>
+                        <span>YouTube</span>
+                        <a className={cx(btn({ color: 'youtube', size: 'sm' }))} href={app.youtube} target="_blank">
+                            {youtubeChannels.length > 0 ? 'Add channel' : 'Connect'}
+                        </a>
+                    </div>
+                    {youtubeChannels.map(channel => (
+                        <div key={channel.channel_id} className={channelRow}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img className={ytAvatar} src={channel.thumbnail} alt="" />
+                            <span>{channel.title}</span>
+                        </div>
+                    ))}
                 </div>
             </aside>
 
@@ -126,6 +142,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         facebookConnected={facebookConnected}
                         instagramConnected={instagramConnected}
                         youtubeConnected={youtubeConnected}
+                        youtubeChannels={youtubeChannels}
                     />}
             </div>
         </div>

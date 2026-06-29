@@ -38,7 +38,8 @@ const youtubeParams = new URLSearchParams({
     redirect_uri: auth.getRedirectUri('youtube'),
     scope: "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly",
     access_type: "offline",
-    prompt: "consent",
+    // select_account lets the user add another channel by choosing a different account; consent forces a refresh token.
+    prompt: "select_account consent",
 })
 
 export const app = {
