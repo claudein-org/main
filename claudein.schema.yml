@@ -4,28 +4,11 @@ properties:
   brand:
     type: object
     properties:
-      title:
+      src:
         type: string
-      description:
-        type: string
-      logo:
-        type: string
-        pattern: .*\.(jpg|jpeg|png|svg)$
-      features:
-        type: array
-        items:
-          type: string
-      images:
-        type: array
-        items:
-          type: string
-          pattern: .*\.(jpg|jpeg|png)$
+        const: brand.md
     required:
-      - title
-      - description
-      - logo
-      - features
-      - images
+      - src
     additionalProperties: false
   posts:
     type: array
