@@ -22,7 +22,9 @@ const facebookParams = new URLSearchParams({
     response_type: "code",
     client_id: META_APP_ID,
     redirect_uri: auth.getRedirectUri('facebook'),
-    scope: "public_profile,pages_show_list,pages_read_engagement,pages_manage_posts,publish_video,business_management",
+    // Regular (non-live) Page video uploads via /{page-id}/videos need only pages_manage_posts;
+    // publish_video is for live video / crossposting and is not grantable under the Pages API use case.
+    scope: "public_profile,pages_show_list,pages_read_engagement,pages_manage_posts,business_management",
 })
 
 const instagramParams = new URLSearchParams({
