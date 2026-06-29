@@ -22,7 +22,7 @@ const facebookParams = new URLSearchParams({
     response_type: "code",
     client_id: META_APP_ID,
     redirect_uri: auth.getRedirectUri('facebook'),
-    scope: "email,public_profile,pages_manage_posts,pages_show_list,pages_read_engagement",
+    scope: "public_profile,pages_show_list",
 })
 
 const instagramParams = new URLSearchParams({

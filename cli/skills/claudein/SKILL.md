@@ -100,12 +100,32 @@ posts:
     src: my-article.md        # articles/my-article.md
 ```
 
+## Asset resolution rule
+
+Before writing a `src:` value into `claudein.yml`, verify the file is present in the correct subdirectory:
+
+- `image` / `video` posts → must exist at `claudein/media/<filename>`
+- `article` posts → must exist at `claudein/articles/<filename>`
+
+If the file lives somewhere else (e.g. a Remotion render output, a download, another project folder), **create a symlink** into the right subdirectory first, then reference the bare filename:
+
+```bash
+# media asset sitting outside the project
+ln -s /absolute/path/to/clip.mp4 claudein/media/clip.mp4
+
+# article sitting outside the project
+ln -s /absolute/path/to/post.md claudein/articles/post.md
+```
+
+Never copy large files — symlinks keep the project lean and avoid duplicating assets that may still be in flux.
+
 ## Workflow
 
-1. Edit `claudein/claudein.yml` (brand metadata and/or posts); drop any new media in `claudein/media/` and articles in `claudein/articles/`
-2. Check if `cin start` is already running: `pgrep -fa "cin start"` — if it is, skip step 3
-3. If not running: `cin start [dir]` — scaffolds `claudein/` if missing and opens the live browser dashboard
-4. Click the platform button in the browser to publish
+1. For any post with a `src:` field, confirm the asset exists in `claudein/media/` (or `claudein/articles/`); if it doesn't, symlink it there before editing `claudein.yml`
+2. Edit `claudein/claudein.yml` (brand metadata and/or posts)
+3. Check if `cin start` is already running: `pgrep -fa "cin start"` — if it is, skip step 4
+4. If not running: `cin start [dir]` — scaffolds `claudein/` if missing and opens the live browser dashboard
+5. Click the platform button in the browser to publish
 
 ## Media guidelines
 
