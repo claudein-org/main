@@ -1,6 +1,7 @@
 import { Composition } from 'remotion'
 import { ClaudeInTextAnimation } from './ClaudeInTextAnimation'
 import { ClaudeJoke } from './ClaudeJoke'
+import { ClaudeLaughingComposition } from './ClaudeLaughing'
 import { DemoComposition } from './DemoComposition'
 import { LinkedInLogoAnimation } from './LinkedInLogoAnimation'
 import { ViralPostComposition } from './ViralPostComposition'
@@ -47,6 +48,14 @@ export function RemotionRoot() {
         fps={30}
         width={1080}
         height={1350}
+      />
+      <Composition
+        id="ClaudeLaughing"
+        component={ClaudeLaughingComposition}
+        durationInFrames={120}
+        fps={30}
+        width={1080}
+        height={1080}
       />
     </>
   )

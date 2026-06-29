@@ -1,18 +1,27 @@
 import { ReactNode } from 'react'
-import { staticFile } from 'remotion'
+import { ClaudeLaughing } from './ClaudeLaughing'
 import Terminal from './Terminal'
 
 interface Props {
+    laughing?: boolean
+    ctx?: number
+    tok?: number
+    cost?: number
     children?: ReactNode
 }
 
-export default function ClaudeCode({ children }: Props) {
+export default function ClaudeCode({
+    laughing = false,
+    ctx = 0,
+    tok = 0,
+    cost = 0,
+    children }: Props) {
     const line = <div style={{ borderTop: '0.2cqw solid #6b7280' }} />
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <Terminal>
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '1.8cqw', alignItems: 'center' }}>
-                    <img src={staticFile('claudecode-color.svg')} style={{ width: '20cqw' }} />
+                    <ClaudeLaughing laughing={laughing} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1cqw', fontSize: '2.5cqw' }}>
                         <div style={{ fontWeight: 'bold' }}>
                             Claude Code <span style={{ color: '#6b6b6b' }}>v3.14</span>
@@ -36,7 +45,7 @@ export default function ClaudeCode({ children }: Props) {
                     color: '#768390',
                     paddingTop: '1.1cqw',
                 }}>
-                    <span>Sonnet 6.7 · ctx 1% | tok 0.9k | $0.001</span>
+                    <span>Sonnet 6.7 · ctx {ctx}% | tok {tok} | ${cost}</span>
                     <span>claudein.org</span>
                 </div>
             </Terminal>
