@@ -20,41 +20,53 @@ export enum PostStatus {
     Failed = 4,
 }
 
-export async function getStatus(user_id: number) {
+export interface Account {
+    instagram_account_id: string
+    username: string
+}
+
+export async function getStatus(user_id: number): Promise<{ connected: boolean; accounts: Account[] }> {
     const now = Math.floor(Date.now() / 1000)
-    const row = await db
+    const rows = await db
         .selectFrom('instagram')
-        .select(['access_token', 'expires_at'])
+        .select(['instagram_account_id', 'username', 'access_token', 'expires_at'])
         .where('user_id', '=', user_id)
-        .executeTakeFirst()
+        .where('expires_at', '>', now)
+        .execute()
 
-    if (!row) return { connected: false }
-    if (row.expires_at <= now) return { connected: false }
+    // Proactively refresh accounts expiring within 7 days (long-lived tokens last 60 days)
+    await Promise.all(rows
+        .filter(r => r.expires_at - now < SEVEN_DAYS)
+        .map(async r => {
+            try {
+                const res = await api.get('https://graph.instagram.com/refresh_access_token', {
+                    searchParams: {
+                        grant_type: 'ig_refresh_token',
+                        access_token: r.access_token,
+                    },
+                }).json()
 
-    // Proactively refresh if expiring within 7 days (long-lived tokens last 60 days)
-    if (row.expires_at - now < SEVEN_DAYS) {
-        try {
-            const res = await api.get('https://graph.instagram.com/refresh_access_token', {
-                searchParams: {
-                    grant_type: 'ig_refresh_token',
-                    access_token: row.access_token,
-                },
-            }).json()
+                const { access_token, expires_in } = RefreshedToken.parse(res)
+                const expires_at = now + expires_in
 
-            const { access_token, expires_in } = RefreshedToken.parse(res)
-            const expires_at = now + expires_in
+                await db
+                    .updateTable('instagram')
+                    .set({ access_token, expires_at })
+                    .where('user_id', '=', user_id)
+                    .where('instagram_account_id', '=', r.instagram_account_id)
+                    .execute()
+            } catch {
+                // refresh failed — still valid until actual expiry
+            }
+        })
+    )
 
-            await db
-                .updateTable('instagram')
-                .set({ access_token, expires_at })
-                .where('user_id', '=', user_id)
-                .execute()
-        } catch {
-            // refresh failed — still valid until actual expiry
-        }
-    }
+    const accounts = rows.map(r => ({
+        instagram_account_id: r.instagram_account_id,
+        username: r.username,
+    }))
 
-    return { connected: true }
+    return { connected: accounts.length > 0, accounts }
 }
 
 const BASE = 'https://graph.instagram.com/v21.0'

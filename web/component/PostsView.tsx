@@ -1,6 +1,7 @@
 'use client'
 import { align, col, gap, row } from "@/css/layout.css"
 import { avatar, font, muted, postCard, postsGrid, preWrap } from "@/css/style.css"
+import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
 import { proto } from "@claudein.org/common"
@@ -13,13 +14,13 @@ interface Props {
     published: Published
     linkedinConnected: boolean
     facebookConnected: boolean
-    instagramConnected: boolean
+    instagramAccounts: Account[]
     youtubeConnected: boolean
     youtubeChannels: Channel[]
     devtoConnected: boolean
 }
 
-export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
+export default function PostsView({ payloads, published, linkedinConnected, facebookConnected, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     if (payloads.length === 0) return <div className={muted}>No posts yet — add one to your brand.yml.</div>
 
     return (
@@ -44,7 +45,7 @@ export default function PostsView({ payloads, published, linkedinConnected, face
                             published={published}
                             linkedinConnected={linkedinConnected}
                             facebookConnected={facebookConnected}
-                            instagramConnected={instagramConnected}
+                            instagramAccounts={instagramAccounts}
                             youtubeConnected={youtubeConnected}
                             youtubeChannels={youtubeChannels}
                             devtoConnected={devtoConnected}

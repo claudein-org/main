@@ -2,6 +2,7 @@
 import { align, gap, row } from "@/css/layout.css"
 import { btn, postCardActions, ytAvatar } from "@/css/style.css"
 import { postToDevto, postToInstagram, postToLinkedin, postToYoutube } from "@/server/post"
+import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import { cx } from "@/styled-system/css"
 import { Platform, PlatformSupport, proto } from "@claudein.org/common"
@@ -14,7 +15,7 @@ interface Props {
     published: Published
     linkedinConnected: boolean
     facebookConnected: boolean
-    instagramConnected: boolean
+    instagramAccounts: Account[]
     youtubeConnected: boolean
     youtubeChannels: Channel[]
     devtoConnected: boolean
@@ -22,13 +23,14 @@ interface Props {
 
 // Publish buttons shared by post and article cards. Posting state is tracked
 // per-card; `published` seeds any links already persisted in the posts table.
-export default function PostActions({ payload, published, linkedinConnected, facebookConnected, instagramConnected, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
+export default function PostActions({ payload, published, linkedinConnected, facebookConnected, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     const { hash, asset } = payload
     // `published` seeds links already persisted in the posts table; it's a static
     // server prop, so we read it once on mount rather than syncing via effect.
     const [links, setLinks] = useState<Record<number, string>>(published[hash] ?? {})
     const [posting, setPosting] = useState<Set<string>>(new Set())
-    // YouTube uploads tracked per `${hash}:${channel_id}` since the same post can go to several channels.
+    // Instagram/YouTube uploads tracked per `${hash}:${account_id}` since the same post can go to several accounts.
+    const [igPosted, setIgPosted] = useState<Record<string, string>>({})
     const [ytPosted, setYtPosted] = useState<Record<string, string>>({})
 
     function trackPosting(key: string) {
@@ -45,12 +47,13 @@ export default function PostActions({ payload, published, linkedinConnected, fac
         } finally { done() }
     }
 
-    async function handleInstagramPost() {
-        const done = trackPosting(`${hash}:${Platform.Instagram}`)
+    async function handleInstagramPost(instagram_account_id: string) {
+        const key = `${hash}:${instagram_account_id}`
+        const done = trackPosting(key)
         try {
-            const res = await postToInstagram({ hash, asset })
+            const res = await postToInstagram({ hash, asset }, instagram_account_id)
             if (!res) return
-            setLinks(prev => ({ ...prev, [Platform.Instagram]: res.url }))
+            setIgPosted(prev => ({ ...prev, [key]: res.url }))
         } finally { done() }
     }
 
@@ -74,11 +77,9 @@ export default function PostActions({ payload, published, linkedinConnected, fac
     }
 
     const linkedinLink = links[Platform.LinkedIn]
-    const instagramLink = links[Platform.Instagram]
     const youtubeLink = links[Platform.YouTube]
     const devtoLink = links[Platform['DEV.to']]
     const isPostingLinkedin = posting.has(`${hash}:${Platform.LinkedIn}`)
-    const isPostingInstagram = posting.has(`${hash}:${Platform.Instagram}`)
     const isPostingDevto = posting.has(`${hash}:${Platform['DEV.to']}`)
 
     return (
@@ -97,15 +98,18 @@ export default function PostActions({ payload, published, linkedinConnected, fac
                     Facebook
                 </button>
             )}
-            {instagramConnected && asset.target.includes('Instagram') && PlatformSupport.Instagram.includes(asset.type) && (
-                instagramLink
-                    ? <a href={instagramLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))}>
+            {instagramAccounts.length > 0 && asset.target.includes('Instagram') && PlatformSupport.Instagram.includes(asset.type) && instagramAccounts.map((account) => {
+                const key = `${hash}:${account.instagram_account_id}`
+                const isPosting = posting.has(key)
+                const url = igPosted[key] ?? (instagramAccounts.length === 1 ? links[Platform.Instagram] : undefined)
+                return url
+                    ? <a key={account.instagram_account_id} href={url} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))} title={account.username}>
                         View on Instagram
                     </a>
-                    : <button className={btn({ color: 'instagram', size: 'sm' })} onClick={handleInstagramPost} disabled={isPostingInstagram}>
-                        {isPostingInstagram ? 'Posting…' : 'Instagram'}
+                    : <button key={account.instagram_account_id} className={btn({ color: 'instagram', size: 'sm' })} onClick={() => handleInstagramPost(account.instagram_account_id)} disabled={isPosting} title={account.username}>
+                        {isPosting ? 'Posting…' : instagramAccounts.length > 1 ? `@${account.username}` : 'Instagram'}
                     </button>
-            )}
+            })}
             {devtoConnected && asset.target.includes('DEV.to') && PlatformSupport['DEV.to'].includes(asset.type) && (
                 devtoLink
                     ? <a href={devtoLink} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'devto', size: 'sm' }))}>

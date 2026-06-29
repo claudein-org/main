@@ -22,6 +22,7 @@ const LongLivedToken = z.object({
 
 const UserInfo = z.object({
   id: z.string(),
+  username: z.string(),
 })
 
 export async function GET(request: NextRequest) {
@@ -64,19 +65,19 @@ export async function GET(request: NextRequest) {
   const { access_token, expires_in } = LongLivedToken.parse(await longLivedRes.json())
   const expires_at = Math.floor(Date.now() / 1000) + expires_in
 
-  const { id: instagram_account_id } = UserInfo.parse(
+  const { id: instagram_account_id, username } = UserInfo.parse(
     await ky
       .get('https://graph.instagram.com/v21.0/me', {
-        searchParams: { fields: 'id', access_token },
+        searchParams: { fields: 'id,username', access_token },
       })
       .json(),
   )
 
   await db
     .insertInto('instagram')
-    .values({ user_id, access_token, expires_at, instagram_account_id })
+    .values({ user_id, instagram_account_id, username, access_token, expires_at })
     .onConflict((oc) =>
-      oc.column('user_id').doUpdateSet({ access_token, expires_at, instagram_account_id }),
+      oc.columns(['user_id', 'instagram_account_id']).doUpdateSet({ username, access_token, expires_at }),
     )
     .execute()
 

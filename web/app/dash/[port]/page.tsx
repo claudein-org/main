@@ -46,7 +46,7 @@ export default async function page({ params }: Params) {
       port={port}
       expires_at={li.expires_at}
       facebookConnected={fb.connected}
-      instagramConnected={ig.connected}
+      instagramAccounts={ig.accounts}
       youtubeConnected={yt.connected}
       youtubeChannels={yt.channels}
       devtoConnected={dt.connected}

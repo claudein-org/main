@@ -18,10 +18,12 @@ create table if not exists facebook (
 );
 
 create table if not exists instagram (
-    user_id int primary key references users(user_id) on delete cascade,
+    user_id int references users(user_id) on delete cascade,
+    instagram_account_id varchar(100) not null,
+    username varchar(100) not null,
     access_token varchar(1000) not null,
     expires_at int not null,
-    instagram_account_id varchar(100) not null
+    primary key (user_id, instagram_account_id)
 );
 
 -- dev.to (Forem) uses a static personal API key, not OAuth: no token expiry.

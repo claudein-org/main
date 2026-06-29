@@ -45,7 +45,7 @@ export async function postToLinkedin(raw: proto.Payload) {
     return { url: post_url }
 }
 
-export async function postToInstagram(raw: proto.Payload) {
+export async function postToInstagram(raw: proto.Payload, instagram_account_id: string) {
     const { hash, asset } = proto.Payload.parse(raw)
 
     if (asset.type !== 'image' && asset.type !== 'video') throw new Error('Instagram requires an image or video post')
@@ -53,10 +53,11 @@ export async function postToInstagram(raw: proto.Payload) {
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
 
-    const { access_token, instagram_account_id } = await db
+    const { access_token } = await db
         .selectFrom('instagram')
-        .select(['access_token', 'instagram_account_id'])
+        .select(['access_token'])
         .where('user_id', '=', user_id)
+        .where('instagram_account_id', '=', instagram_account_id)
         .executeTakeFirstOrThrow()
 
     const { url: post_url } = await instagram.upload({ access_token, instagram_account_id, user_id, post_id: hash }, asset)

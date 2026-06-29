@@ -38,9 +38,10 @@ namespace db {
 
     interface Instagram {
         user_id: number
+        instagram_account_id: string
+        username: string
         access_token: string
         expires_at: number
-        instagram_account_id: string
     }
 
     interface Devto {
