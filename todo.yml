@@ -29,6 +29,7 @@ TODO:
 
           - if the file structure does not exists, create it and create populate it with the default claudein.yml file and example article.
           - update the SKILL.md file to reflect the new file structure.
+          - also create this structure in the current project and populate it with existing posts, articles and media.
   - web:
   - video:
 
