@@ -66,33 +66,36 @@ const FS = {
 const A2A: A2A = {
   async post(post) { return post },
   async article({ src, ...info }) {
+    const path = join(FS.ARTICLES, src)
     let markdown: string
     try {
-      markdown = await readFile(src, 'utf-8')
+      markdown = await readFile(path, 'utf-8')
     } catch {
-      console.warn(`⚠ Article not found: ${src}`)
-      markdown = ''
+      console.warn(`⚠ Article not found: ${path}`)
+      markdown = `> **Article not found:** \`${src}\` — create this file at \`${path}\` to fill in the content.`
     }
     return { ...info, src, markdown }
   },
 
   async image({ src, ...info }) {
+    const path = join(FS.MEDIA, src)
     let base64: string
     try {
-      base64 = await readFile(src).then(buf => buf.toString('base64'))
+      base64 = await readFile(path).then(buf => buf.toString('base64'))
     } catch {
-      console.warn(`⚠ Image not found: ${src}, using placeholder`)
+      console.warn(`⚠ Image not found: ${path}, using placeholder`)
       base64 = MISSING_IMAGE_BASE64
     }
     return { ...info, src, base64 }
   },
 
   async video({ src, ...info }) {
+    const path = join(FS.MEDIA, src)
     let base64: string
     try {
-      base64 = await readFile(src).then(buf => buf.toString('base64'))
+      base64 = await readFile(path).then(buf => buf.toString('base64'))
     } catch {
-      console.warn(`⚠ Video not found: ${src}, using placeholder`)
+      console.warn(`⚠ Video not found: ${path}, using placeholder`)
       base64 = MISSING_VIDEO_BASE64
     }
     return { ...info, src, base64 }
