@@ -6,11 +6,6 @@ TODO:
               - load and parse the new schema (I already implemented this, just verify)
           - SKILL.md
             - update to reflect the new schema
-  - cli:
-    Error Handling:
-      - When parsing the yml fails or when some media or .md files are missing, the CLI should output a clear error message.
-      - Additionally it should not crash:
-          - Hardcode default alternatives for missing files, use the hardcoded base64 strings in cli/src/error.ts
 
   - web:
   - video:
@@ -20,3 +15,8 @@ Done:
       - web:
           - parsed the new proto schema and updated the UI:
               - Sidebar now shows: Posts, Images, Videos, Articles (alongside Brand)
+  - cli:
+    Error Handling:
+      - When parsing the yml fails or when some media or .md files are missing, the CLI should output a clear error message.
+      - Additionally it should not crash:
+          - Hardcode default alternatives for missing files, use the hardcoded base64 strings in cli/src/error.ts

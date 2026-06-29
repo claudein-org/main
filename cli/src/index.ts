@@ -15,6 +15,7 @@ import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { parse, stringify } from 'yaml'
 import z from 'zod'
+import { MISSING_IMAGE_BASE64, MISSING_VIDEO_BASE64 } from './error'
 
 const { version } = createRequire(import.meta.url)('../package.json') as { version: string }
 
@@ -65,17 +66,35 @@ const FS = {
 const A2A: A2A = {
   async post(post) { return post },
   async article({ src, ...info }) {
-    const markdown = await readFile(src, 'utf-8')
+    let markdown: string
+    try {
+      markdown = await readFile(src, 'utf-8')
+    } catch {
+      console.warn(`⚠ Article not found: ${src}`)
+      markdown = ''
+    }
     return { ...info, src, markdown }
   },
 
   async image({ src, ...info }) {
-    const base64 = await readFile(src).then(buf => buf.toString('base64'))
+    let base64: string
+    try {
+      base64 = await readFile(src).then(buf => buf.toString('base64'))
+    } catch {
+      console.warn(`⚠ Image not found: ${src}, using placeholder`)
+      base64 = MISSING_IMAGE_BASE64
+    }
     return { ...info, src, base64 }
   },
 
   async video({ src, ...info }) {
-    const base64 = await readFile(src).then(buf => buf.toString('base64'))
+    let base64: string
+    try {
+      base64 = await readFile(src).then(buf => buf.toString('base64'))
+    } catch {
+      console.warn(`⚠ Video not found: ${src}, using placeholder`)
+      base64 = MISSING_VIDEO_BASE64
+    }
     return { ...info, src, base64 }
   }
 }
@@ -175,7 +194,16 @@ const start = command('start')
       try {
 
         const data = await readFile(FS.CLAUDIN_YML, 'utf-8')
-        const { brand, assets } = yml.YML.parse(parse(data))
+
+        let parsed: yml.YML
+        try {
+          parsed = yml.YML.parse(parse(data))
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err)
+          console.error(`❌ Failed to parse claudein.yml: ${msg}`)
+          return
+        }
+        const { brand, assets } = parsed
 
         watchArray.forEach(w => w.close())
         watchArray.length = 0
@@ -212,7 +240,13 @@ const start = command('start')
           }
         })
 
-        const brandMarkdown = await readFile(FS.BRAND_MD, 'utf-8')
+        let brandMarkdown: string
+        try {
+          brandMarkdown = await readFile(FS.BRAND_MD, 'utf-8')
+        } catch {
+          console.warn(`⚠ ${FS.BRAND_MD} not found, using empty brand`)
+          brandMarkdown = ''
+        }
         const protoBrand: proto.Brand = {
           src: brand.src,
           markdown: brandMarkdown,
