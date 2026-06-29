@@ -10,7 +10,7 @@ properties:
     required:
       - src
     additionalProperties: false
-  posts:
+  assets:
     type: array
     items:
       oneOf:
@@ -20,24 +20,13 @@ properties:
               type: string
               format: date
               pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-            platforms:
-              type: array
-              items:
-                type: string
-                enum:
-                  - LinkedIn
-                  - Facebook
-                  - Instagram
-                  - YouTube
-                  - DEV.to
             type:
               type: string
-              const: text
+              const: post
             text:
               type: string
           required:
             - created
-            - platforms
             - type
             - text
           additionalProperties: false
@@ -47,16 +36,6 @@ properties:
               type: string
               format: date
               pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-            platforms:
-              type: array
-              items:
-                type: string
-                enum:
-                  - LinkedIn
-                  - Facebook
-                  - Instagram
-                  - YouTube
-                  - DEV.to
             type:
               type: string
               const: article
@@ -65,7 +44,6 @@ properties:
               pattern: .*\.(md)$
           required:
             - created
-            - platforms
             - type
             - src
           additionalProperties: false
@@ -75,27 +53,18 @@ properties:
               type: string
               format: date
               pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-            platforms:
-              type: array
-              items:
-                type: string
-                enum:
-                  - LinkedIn
-                  - Facebook
-                  - Instagram
-                  - YouTube
-                  - DEV.to
             type:
               type: string
               const: image
-            text:
+            title:
+              type: string
+            description:
               type: string
             src:
               type: string
               pattern: .*\.(jpg|jpeg|png)$
           required:
             - created
-            - platforms
             - type
             - src
           additionalProperties: false
@@ -105,31 +74,22 @@ properties:
               type: string
               format: date
               pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-            platforms:
-              type: array
-              items:
-                type: string
-                enum:
-                  - LinkedIn
-                  - Facebook
-                  - Instagram
-                  - YouTube
-                  - DEV.to
             type:
               type: string
               const: video
-            text:
+            title:
+              type: string
+            description:
               type: string
             src:
               type: string
               pattern: .*\.(mp4|mkv|avi)$
           required:
             - created
-            - platforms
             - type
             - src
           additionalProperties: false
 required:
   - brand
-  - posts
+  - assets
 additionalProperties: false

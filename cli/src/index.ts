@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { links, PlatformSupport, PostType, proto, yml } from '@claudein.org/common'
+import { A2A, AssetType, links, PlatformSupport, proto, yml } from '@claudein.org/common'
 import type { Shell } from '@versecafe/zcli'
 import { cli, command, fmt, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
@@ -21,29 +21,29 @@ const { version } = createRequire(import.meta.url)('../package.json') as { versi
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
 
-const hasher: { [key in PostType]: (post: Extract<proto.Post, { type: key }>) => (string | undefined)[] } = {
-  text({ text }) {
+const hasher: { [key in AssetType]: (asset: Extract<proto.Asset, { type: key }>) => (string | undefined)[] } = {
+  post({ text }) {
     return [text]
   },
   article({ markdown }) {
     return [markdown]
   },
-  image({ text, image: { title, description, base64 } }) {
-    return [text, title, description, base64]
+  image({ title, description, base64 }) {
+    return [title, description, base64]
   },
-  video({ text, video: { title, description, base64 } }) {
-    return [text, title, description, base64]
+  video({ title, description, base64 }) {
+    return [title, description, base64]
   }
 }
 
-function parts<T extends PostType>(post: Extract<proto.Post, { type: T }>) {
-  return hasher[post.type](post).filter(Boolean).join('|')
+function parts<T extends AssetType>(asset: Extract<proto.Asset, { type: T }>) {
+  return hasher[asset.type](asset).filter(Boolean).join('|')
 }
 
-export function hash(post: proto.Post) {
+export function hash(asset: proto.Asset) {
   return crypto
     .createHash('sha256')
-    .update(parts(post))
+    .update(parts(asset))
     .digest('base64url')
     .substring(0, 16)
 }
@@ -52,44 +52,36 @@ export function hash(post: proto.Post) {
 // the brand description, media (images / video) under media/, and article
 // markdown under articles/. The yml references assets by bare filename; these
 // helpers resolve them to real paths on disk.
-const YML_FILE = 'claudein.yml'
-const BRAND_FILE = 'brand.md'
-
-function mediaPath(dir: string, src: string) {
-  return join(dir, 'media', src)
+const ROOT = 'claudein'
+const FS = {
+  CLAUDIN_YML: `${ROOT}/claudein.yml`,
+  BRAND_MD: `${ROOT}/brand.md`,
+  MEDIA: `${ROOT}/media`,
+  ARTICLES: `${ROOT}/articles`,
 }
 
-function articlePath(dir: string, src: string) {
-  return join(dir, 'articles', src)
-}
 
-const P2P: { [key in PostType]: (post: Extract<yml.Post, { type: key }>, dir: string) => Promise<Extract<proto.Post, { type: key }>> } = {
-  async text(post) {
-    return post
+
+const A2A: A2A = {
+  async post(post) { return post },
+  async article({ src, ...info }) {
+    const markdown = await readFile(src, 'utf-8')
+    return { ...info, src, markdown }
   },
 
-  async article(post, dir) {
-    const markdown = await readFile(articlePath(dir, post.src), 'utf-8')
-    return { ...post, markdown }
+  async image({ src, ...info }) {
+    const base64 = await readFile(src).then(buf => buf.toString('base64'))
+    return { ...info, src, base64 }
   },
 
-  async image(post, dir) {
-    const base64 = await readFile(mediaPath(dir, post.src)).then(buf => buf.toString('base64'))
-    return { ...post, image: { type: 'image' as const, src: post.src, base64 } }
-  },
-
-  async video(post, dir) {
-    const base64 = await readFile(mediaPath(dir, post.src)).then(buf => buf.toString('base64'))
-    return { ...post, video: { type: 'video' as const, src: post.src, base64 } }
+  async video({ src, ...info }) {
+    const base64 = await readFile(src).then(buf => buf.toString('base64'))
+    return { ...info, src, base64 }
   }
 }
 
-function p2p<T extends PostType>(post: Extract<yml.Post, { type: T }>, dir: string): Promise<Extract<proto.Post, { type: T }>> {
-  return P2P[post.type](post, dir)
-}
-
-function ps2ps(posts: yml.Post[], dir: string): Promise<proto.Post[]> {
-  return Promise.all(posts.map((post) => p2p(post, dir)))
+function a2a<T extends AssetType>(asset: Extract<yml.Asset, { type: T }>): Promise<Extract<proto.Asset, { type: T }>> {
+  return A2A[asset.type](asset)
 }
 
 const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -114,17 +106,17 @@ const sampleYml: yml.YML = {
   brand: {
     src: 'brand.md',
   },
-  posts: [
+  assets: [
     {
-      type: 'text',
+      type: 'post',
       created: formatter.format(new Date()),
-      platforms: ['LinkedIn'],
+      target: ['LinkedIn'],
       text: "I'm using ClaudeIn to share my thoughts and ideas!"
     },
     {
       type: 'article',
       created: formatter.format(new Date()),
-      platforms: ['LinkedIn'],
+      target: ['DEV.to'],
       src: EXAMPLE_ARTICLE,
     },
   ],
@@ -146,13 +138,15 @@ preview updates the moment you save.
 
 // Scaffold a fresh claudein/ project: claudein.yml + brand.md + empty media/
 // and articles/ folders, seeded with a sample post and example article.
-async function scaffold(dir: string) {
-  await mkdir(join(dir, 'media'), { recursive: true })
-  await mkdir(join(dir, 'articles'), { recursive: true })
-  await writeFile(join(dir, YML_FILE), sample, 'utf-8')
-  await writeFile(join(dir, BRAND_FILE), sampleBrand, 'utf-8')
-  await writeFile(articlePath(dir, EXAMPLE_ARTICLE), exampleArticle, 'utf-8')
-  console.log(`Created ${join(dir, YML_FILE)} with a sample post and article`)
+async function scaffold() {
+  await mkdir(FS.MEDIA, { recursive: true })
+  await mkdir(FS.ARTICLES, { recursive: true })
+
+  await writeFile(FS.CLAUDIN_YML, sample, 'utf-8')
+  await writeFile(FS.BRAND_MD, sampleBrand, 'utf-8')
+  await writeFile(join(FS.ARTICLES, EXAMPLE_ARTICLE), exampleArticle, 'utf-8')
+
+  console.log(`Created ${ROOT} with a sample post and article`)
 }
 
 // COMMANDS
@@ -160,72 +154,74 @@ const start = command('start')
 
   .meta({
     description: 'Start the live preview server. Claude Code writes your brand and posts to a claudein/ project (claudein.yml + media/ + articles/), you see the dashboard in the browser in real time, and can click to publish.',
-    examples: ['cin start', 'cin start my-brand'],
-  })
-
-  .inputs({
-    dir: positional(z
-      .string()
-      .describe('Path to a claudein project directory'), 0)
-      .default('claudein'),
+    examples: ['cin start'],
   })
 
   .action(async ({ inputs: { dir } }) => {
 
-    const file = join(dir, YML_FILE)
-
     try {
-      await readFile(file)
+      await readFile(FS.CLAUDIN_YML, 'utf-8')
     } catch {
-      await scaffold(dir)
+      await scaffold()
     }
 
     const wss = new WebSocketServer({ port: 0 })
     const $bundle = atom<proto.Bundle | null>(null)
     const $info = atom<string>('')
 
-    const mediaWatchers: ReturnType<typeof watch>[] = []
+    const watchArray: ReturnType<typeof watch>[] = []
 
     async function loadBundle() {
       try {
 
-        const data = await readFile(file, 'utf-8')
-        const { brand, posts } = yml.YML.parse(parse(data))
+        const data = await readFile(FS.CLAUDIN_YML, 'utf-8')
+        const { brand, assets } = yml.YML.parse(parse(data))
 
-        mediaWatchers.forEach(w => w.close())
-        mediaWatchers.length = 0
+        watchArray.forEach(w => w.close())
+        watchArray.length = 0
 
-        for (const post of posts) {
-          for (const platform of post.platforms) {
-            if (!PlatformSupport[platform]?.includes(post.type)) {
-              console.warn(`⚠ ${platform} does not support '${post.type}' posts (created: ${post.created})`)
+        for (const asset of assets) {
+          for (const platform of asset.target) {
+            if (!PlatformSupport[platform]?.includes(asset.type)) {
+              console.warn(`⚠ ${platform} does not support '${asset.type}' posts (created: ${asset.created})`)
             }
           }
         }
 
+        const Watcher: { [key in AssetType]: (asset: Extract<yml.Asset, { type: key }>) => string[] } = {
+          post: () => [],
+          article: ({ src }) => [join(FS.ARTICLES, src)],
+          image: ({ src }) => [join(FS.MEDIA, src)],
+          video: ({ src }) => [join(FS.MEDIA, src)]
+        }
+
+        function watcher<T extends AssetType>(asset: Extract<yml.Asset, { type: T }>) {
+          return Watcher[asset.type](asset)
+        }
+
         const mediaPaths = [
-          join(dir, brand.src),
-          ...posts.flatMap(post => (post.type === 'image' || post.type === 'video') ? [mediaPath(dir, post.src)] : []),
-          ...posts.flatMap(post => post.type === 'article' ? [articlePath(dir, post.src)] : []),
+          join(ROOT, brand.src),
+          ...assets.flatMap(watcher)
         ]
+
         mediaPaths.forEach(src => {
           try {
-            mediaWatchers.push(watch(src, loadBundle))
+            watchArray.push(watch(src, loadBundle))
           } catch {
             // asset not present yet — it'll be picked up on the next file edit
           }
         })
 
-        const brandMarkdown = await readFile(join(dir, brand.src), 'utf-8')
+        const brandMarkdown = await readFile(FS.BRAND_MD, 'utf-8')
         const protoBrand: proto.Brand = {
           src: brand.src,
           markdown: brandMarkdown,
         }
 
-        const protoPosts = await ps2ps(posts, dir)
-        const payloads = protoPosts
-          .map((post) => ({ hash: hash(post), post }))
-          .sort((a, b) => b.post.created.localeCompare(a.post.created))
+        const protoAssets = await Promise.all(assets.map(a2a))
+        const payloads = protoAssets
+          .map<proto.Payload>((asset) => ({ hash: hash(asset), asset }))
+          .sort((a, b) => b.asset.created.localeCompare(a.asset.created))
 
         $bundle.set({ brand: protoBrand, payloads })
       } catch (err) {
@@ -249,7 +245,7 @@ const start = command('start')
       })
     })
 
-    watch(file, loadBundle)
+    watch(FS.CLAUDIN_YML, loadBundle)
     await loadBundle()
 
     const { port } = wss.address() as AddressInfo

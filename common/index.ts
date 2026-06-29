@@ -1,7 +1,7 @@
 export { links } from './links'
 export { PlatformEnum as Platform }
 
-import z from "zod"
+import z, { ZodType } from "zod"
 
 type Platform = z.infer<typeof Platform>
 const Platform = z.enum([
@@ -20,9 +20,9 @@ const PlatformEnum: { [key in Platform]: number } = {
     'DEV.to': 5,
 }
 
-export const PlatformSupport: { [key in Platform]: PostType[] } = {
-    LinkedIn: ['text', 'image', 'video'],
-    Facebook: ['text', 'image', 'video'],
+export const PlatformSupport: { [key in Platform]: AssetType[] } = {
+    LinkedIn: ['post', 'image', 'video'],
+    Facebook: ['post', 'image', 'video'],
     Instagram: ['video'],
     YouTube: ['video'],
     'DEV.to': ['article']
@@ -30,63 +30,46 @@ export const PlatformSupport: { [key in Platform]: PostType[] } = {
 
 
 export namespace yml {
-    const ImgSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
+    const ImageSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
     const VideoSrc = z.string().regex(/.*\.(mp4|mkv|avi)$/)
-    const MD = z.string().regex(/.*\.(md)$/)
+    const MDSrc = z.string().regex(/.*\.(md)$/)
 
-    const BasicMedia = z.object({
+    const BaseAsset = z.object({
+        created: z.iso.date(),
+        target: z.array(Platform)
+    })
+
+    export const Image = BaseAsset.extend({
+        type: z.literal('image'),
         title: z.string().optional(),
         description: z.string().optional(),
+        src: ImageSrc,
     })
 
-    export const Image = BasicMedia.extend({
-        type: z.literal('image'),
-        src: ImgSrc,
-    })
-
-    export const Video = BasicMedia.extend({
+    export const Video = BaseAsset.extend({
         type: z.literal('video'),
+        title: z.string().optional(),
+        description: z.string().optional(),
         src: VideoSrc,
     })
 
-    const BasePost = z.object({
-        created: z.iso.date(),
-        platforms: z.array(Platform),
-    })
-
-    export const PostText = BasePost.extend({
-        type: z.literal('text'),
+    export const Post = BaseAsset.extend({
+        type: z.literal('post'),
         text: z.string(),
     })
 
-    export const PostArticle = BasePost.extend({
+    export const Article = BaseAsset.extend({
         type: z.literal('article'),
-        src: MD
+        src: MDSrc
     })
 
-    export const PostImage = BasePost.extend({
-        type: z.literal('image'),
-        text: z.string().optional(),
-        src: ImgSrc,
-    })
-
-    export const PostVideo = BasePost.extend({
-        type: z.literal('video'),
-        text: z.string().optional(),
-        src: VideoSrc,
-    })
-
-    export type Post = z.infer<typeof Post>
-    export const Post = z.discriminatedUnion(
-        'type', [
-        PostText,
-        PostArticle,
-        PostImage,
-        PostVideo
+    export type Asset = z.infer<typeof Asset>
+    export const Asset = z.discriminatedUnion('type', [
+        Post,
+        Article,
+        Image,
+        Video
     ])
-
-    export type Posts = z.infer<typeof Posts>
-    export const Posts = z.object({ posts: z.array(Post) })
 
     export type Brand = z.infer<typeof Brand>
     export const Brand = z.object({
@@ -96,41 +79,35 @@ export namespace yml {
     export type YML = z.infer<typeof YML>
     export const YML = z.object({
         brand: Brand,
-        posts: z.array(Post),
+        assets: z.array(Asset)
     })
 }
 
 export namespace proto {
-    const Image = yml.Image.extend({ base64: z.string() })
-    const Video = yml.Video.extend({ base64: z.string() })
-
-    const PostArticle = yml.PostArticle.extend({ markdown: z.string() })
-    const PostImage = yml.PostImage.extend({ image: Image })
-    const PostVideo = yml.PostVideo.extend({ video: Video })
-
     export type Post = z.infer<typeof Post>
-    export const Post = z.discriminatedUnion(
-        'type', [
-        yml.PostText,
-        PostArticle,
-        PostImage,
-        PostVideo
+    export const Post = yml.Post.extend({})
+
+    export type Article = z.infer<typeof Article>
+    export const Article = yml.Article.extend({ markdown: z.string() })
+
+    export type Image = z.infer<typeof Image>
+    export const Image = yml.Image.extend({ base64: z.string() })
+
+    export type Video = z.infer<typeof Video>
+    export const Video = yml.Video.extend({ base64: z.string() })
+
+    export type Asset = z.infer<typeof Asset>
+    export const Asset = z.discriminatedUnion('type', [
+        Post,
+        Article,
+        Image,
+        Video
     ])
 
     export type Payload = z.infer<typeof Payload>
     export const Payload = z.object({
         hash: z.string(),
-        post: Post
-    })
-
-    export type Payloads = z.infer<typeof Payloads>
-    export const Payloads = z.array(Payload)
-
-    // A media asset (logo / brand image) inlined as base64 with its mime type.
-    export type Asset = z.infer<typeof Asset>
-    export const Asset = z.object({
-        base64: z.string(),
-        mime: z.string(),
+        asset: Asset
     })
 
     export type Brand = z.infer<typeof Brand>
@@ -142,8 +119,16 @@ export namespace proto {
     export type Bundle = z.infer<typeof Bundle>
     export const Bundle = z.object({
         brand: Brand,
-        payloads: Payloads,
+        payloads: z.array(Payload),
     })
 }
 
-export type PostType = yml.Post['type']
+export type AssetType = yml.Asset['type']
+export const a2a: { [key in AssetType]: ZodType<Extract<proto.Asset, { type: key }>> } = {
+    image: proto.Image,
+    video: proto.Video,
+    post: proto.Post,
+    article: proto.Article
+}
+
+export type A2A = { [K in AssetType]: (asset: Extract<yml.Asset, { type: K }>) => Promise<z.infer<typeof a2a[K]>> }
