@@ -11,10 +11,11 @@ create table if not exists linkedin (
 );
 
 create table if not exists facebook (
-    user_id int primary key references users(user_id) on delete cascade,
+    user_id int references users(user_id) on delete cascade,
+    page_id varchar(100) not null,
+    page_name varchar(256) not null,
     access_token varchar(1000) not null,
-    expires_at int not null,
-    facebook_user_id varchar(100) not null
+    primary key (user_id, page_id)
 );
 
 create table if not exists instagram (

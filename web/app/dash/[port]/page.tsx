@@ -45,7 +45,7 @@ export default async function page({ params }: Params) {
     <Dashboard
       port={port}
       expires_at={li.expires_at}
-      facebookConnected={fb.connected}
+      facebookPages={fb.pages}
       instagramAccounts={ig.accounts}
       youtubeConnected={yt.connected}
       youtubeChannels={yt.channels}

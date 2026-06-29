@@ -1,12 +1,6 @@
 TODO:
   - providers:
   - common:
-      - I updated the schema in common/index.ts. You need to update the entire project to reflect this:
-          - cli:
-              - load and parse the new schema (I already implemented this, just verify)
-          - SKILL.md
-            - update to reflect the new schema
-
   - web:
   - video:
 

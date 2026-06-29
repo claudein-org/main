@@ -4,6 +4,7 @@ import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, das
 import { app } from "@/lib/app"
 import { btn } from "@/css/style.css"
 import { cx } from "@/styled-system/css"
+import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import { proto } from "@claudein.org/common"
@@ -30,7 +31,7 @@ type View = (typeof VIEWS)[number]['id']
 interface Props {
     port: number
     expires_at: number | undefined
-    facebookConnected: boolean
+    facebookPages: Page[]
     instagramAccounts: Account[]
     youtubeConnected: boolean
     youtubeChannels: Channel[]
@@ -57,7 +58,7 @@ function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
     )
 }
 
-export default function Dashboard({ port, expires_at, facebookConnected, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published }: Props) {
+export default function Dashboard({ port, expires_at, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
     const [view, setView] = useState<View>('brand')
@@ -125,7 +126,17 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                 <div>
                     <div className={sidebarSectionTitle}>Connections</div>
                     <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" />
-                    <ServiceRow name="Facebook" connected={facebookConnected} href={app.facebook} color="facebook" />
+                    <div className={connectMenuRow}>
+                        <span>Facebook</span>
+                        <a className={cx(btn({ color: 'facebook', size: 'sm' }))} href={app.facebook} target="_blank">
+                            {facebookPages.length > 0 ? 'Add page' : 'Connect'}
+                        </a>
+                    </div>
+                    {facebookPages.map(page => (
+                        <div key={page.page_id} className={channelRow}>
+                            <span>{page.page_name}</span>
+                        </div>
+                    ))}
                     <div className={connectMenuRow}>
                         <span>Instagram</span>
                         <a className={cx(btn({ color: 'instagram', size: 'sm' }))} href={app.instagram} target="_blank">
@@ -163,7 +174,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         payloads={postPayloads}
                         published={published}
                         linkedinConnected={linkedinConnected}
-                        facebookConnected={facebookConnected}
+                        facebookPages={facebookPages}
                         instagramAccounts={instagramAccounts}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}
@@ -176,7 +187,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         payloads={imagePayloads}
                         published={published}
                         linkedinConnected={linkedinConnected}
-                        facebookConnected={facebookConnected}
+                        facebookPages={facebookPages}
                         instagramAccounts={instagramAccounts}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}
@@ -189,7 +200,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         payloads={videoPayloads}
                         published={published}
                         linkedinConnected={linkedinConnected}
-                        facebookConnected={facebookConnected}
+                        facebookPages={facebookPages}
                         instagramAccounts={instagramAccounts}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}
@@ -201,7 +212,7 @@ export default function Dashboard({ port, expires_at, facebookConnected, instagr
                         payloads={articlePayloads}
                         published={published}
                         linkedinConnected={linkedinConnected}
-                        facebookConnected={facebookConnected}
+                        facebookPages={facebookPages}
                         instagramAccounts={instagramAccounts}
                         youtubeConnected={youtubeConnected}
                         youtubeChannels={youtubeChannels}

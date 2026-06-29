@@ -31,9 +31,9 @@ namespace db {
 
     interface Facebook {
         user_id: number
+        page_id: string
+        page_name: string
         access_token: string
-        expires_at: number
-        facebook_user_id: string
     }
 
     interface Instagram {
