@@ -128,18 +128,12 @@ function Scene1() {
     const opacity = interpolate(frame, [...S1_IN, ...S1_OUT], [0, 1, 1, 0], {
         extrapolateLeft: 'clamp', extrapolateRight: 'clamp',
     })
-    const cameraScale = interpolate(
-        frame,
-        [0, S1_CMD1[1], S1_RESP1[1], S1_CMD2[1], S1_TOOL[0], S1_SUCCESS],
-        [2.3, 2.1, 1.85, 1.65, 1.5, 1.4],
-        { extrapolateRight: 'clamp', extrapolateLeft: 'clamp' }
-    )
     const input = <span style={{ color: '#d97757' }}>&gt; </span>
     const output = <span style={{ color: '#ffffff' }}>● </span>
 
     return (
         <Fill style={{ opacity }}>
-            <div style={{ width: '100%', height: '100%', transform: `scale(${cameraScale})`, transformOrigin: 'top left' }}>
+            <div style={{ width: '100%', height: '100%' }}>
                 <ClaudeCode>
                     {frame >= S1_CMD1[0] && (
                         <div>

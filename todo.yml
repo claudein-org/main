@@ -13,10 +13,9 @@ Introduction:
 
 TODO:
   - common:
-    # post hashing:
-    # - We need to hash only relevant fields on the post, define the fields for each post type and implement the hashing logic.
   - cli:
   - web:
+      - YouTube - let users add multiple channels, then use their channel profile picture on the post button so they know which channel they are posting to.
   - video:
       - See the Linkedin video for inspiration.
       - Finally, add a post to brand.yml that says something like "ClaudeIn turns your claude code into a social media manager."

@@ -24,7 +24,7 @@ export default function ClaudeCode({ children }: Props) {
 
 
                 {line}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75em', paddingBottom: '0.75em' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75em', marginTop: '0.75em', paddingBottom: '0.75em' }}>
                     {children}
                 </div>
                 {line}
