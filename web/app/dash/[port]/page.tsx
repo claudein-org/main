@@ -7,6 +7,7 @@ import * as facebook from "@/provider/facebook"
 import * as instagram from "@/provider/instagram"
 import * as linkedin from "@/provider/linkedin"
 import * as youtube from "@/provider/youtube"
+import { getAnalytics } from "@/server/analytics"
 import z from "zod"
 
 
@@ -24,12 +25,13 @@ export default async function page({ params }: Params) {
 
   if (!user_id) return <LoginPage />
 
-  const [li, fb, ig, yt, dt, published] = await Promise.all([
+  const [li, fb, ig, yt, dt, analytics, published] = await Promise.all([
     linkedin.getStatus(user_id),
     facebook.getStatus(user_id),
     instagram.getStatus(user_id),
     youtube.getStatus(user_id),
     devto.getStatus(user_id),
+    getAnalytics(user_id),
     db.selectFrom('published_posts').select(['local_post_id', 'post_url', 'provider', 'account_id']).where('user_id', '=', user_id).execute()
       .then((res) => {
         // hash -> provider -> account_id -> post_url. The account_id dimension lets
@@ -55,6 +57,7 @@ export default async function page({ params }: Params) {
       youtubeConnected={yt.connected}
       youtubeChannels={yt.channels}
       devtoConnected={dt.connected}
-      published={published} />
+      published={published}
+      analytics={analytics} />
   </main>
 }

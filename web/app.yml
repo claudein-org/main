@@ -59,19 +59,16 @@ services:
 # SPACE_SECRET_KEY is declared per-component, so it is repeated here.
 jobs:
   - name: analytics-sync
-    kind: POST_DEPLOY
+    dockerfile_path: /Dockerfile.job
     github:
       branch: main
       deploy_on_push: true
       repo: claudein-org/main
-
-    source_dir: /
-    dockerfile_path: /Dockerfile.job
-
     instance_count: 1
     instance_size_slug: basic-xxs
-
-    envs:
-      - key: SPACE_SECRET_KEY
-        scope: RUN_TIME
-        type: SECRET
+    kind: SCHEDULED
+    run_command: cd web && bun jobs/book_pdf.ts
+    schedule:
+      cron: "*/60 * * * *"
+    source_dir: /
+    timeout: 600s

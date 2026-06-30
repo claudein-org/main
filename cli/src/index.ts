@@ -286,7 +286,9 @@ const start = command('start')
     await loadBundle()
 
     const { port } = wss.address() as AddressInfo
-    open(`https://${DOMAIN}${links.dash.port(port)}`)
+    const url = `https://${DOMAIN}${links.dash.port(port)}`
+    console.log(fmt.success(`✅ Live preview server running at ${url}`))
+    open(url)
   })
 
 const versionCmd = command('version')

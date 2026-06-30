@@ -7,7 +7,8 @@ import { cx } from "@/styled-system/css"
 import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
-import { proto } from "@claudein.org/common"
+import type { Analytics } from "@/server/analytics"
+import { Platform, proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
 import AnalyticsView from "./AnalyticsView"
 import ArticlesView from "./ArticlesView"
@@ -39,6 +40,7 @@ interface Props {
     youtubeChannels: Channel[]
     devtoConnected: boolean
     published: Record<string, Record<number, Record<string, string>>>
+    analytics: Analytics
 }
 
 interface ServiceRowProps {
@@ -60,7 +62,7 @@ function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
     )
 }
 
-export default function Dashboard({ port, expires_at, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published }: Props) {
+export default function Dashboard({ port, expires_at, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published, analytics }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
     const [view, setView] = useState<View>('brand')
@@ -107,6 +109,15 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
     }, [])
 
     const linkedinConnected = !!expires_at && (expires_at * 1000 - now) >= ONE_DAY_MS
+
+    // Per-provider connection state for the analytics per-provider cards.
+    const connected: Record<number, boolean> = {
+        [Platform.LinkedIn]: linkedinConnected,
+        [Platform.Facebook]: facebookPages.length > 0,
+        [Platform.Instagram]: instagramAccounts.length > 0,
+        [Platform.YouTube]: youtubeConnected,
+        [Platform['DEV.to']]: devtoConnected,
+    }
 
     const payloads = bundle?.payloads ?? []
     const postPayloads = payloads.filter(p => p.asset.type === 'post')
@@ -231,7 +242,7 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                         devtoConnected={devtoConnected}
                     />
                 )}
-                {view === 'analytics' && <AnalyticsView />}
+                {view === 'analytics' && <AnalyticsView analytics={analytics} connected={connected} />}
             </div>
         </div>
     )

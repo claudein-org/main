@@ -449,6 +449,176 @@ export const postCardActions = css({
   paddingTop: "0.25rem",
 })
 
+/* Analytics view */
+export const analyticsPage = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "2.5rem",
+  width: "100%",
+  maxWidth: "1000px",
+})
+
+export const analyticsHeader = css({
+  display: "flex",
+  alignItems: "baseline",
+  justifyContent: "space-between",
+  flexWrap: "wrap",
+  gap: "0.5rem",
+})
+
+export const sectionTitle = css({
+  fontSize: "0.6875rem",
+  fontWeight: 600,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  color: "textSecondary",
+  marginBottom: "0.875rem",
+})
+
+export const metricGrid = css({
+  display: "grid",
+  gap: "1rem",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  "@media (min-width: 720px)": { gridTemplateColumns: "repeat(4, 1fr)" },
+})
+
+export const metricCard = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.25rem 1.375rem",
+  background: "#ffffff",
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.375rem",
+})
+
+export const metricValue = css({
+  fontSize: "1.75rem",
+  fontWeight: 600,
+  letterSpacing: "-0.02em",
+  lineHeight: 1.1,
+})
+
+export const metricLabel = css({
+  fontSize: "0.75rem",
+  fontWeight: 500,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+  color: "textSecondary",
+})
+
+/* Trend chart frame — holds the inline SVG sparkline. */
+export const chartFrame = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.5rem",
+  background: "#ffffff",
+})
+
+export const chartSvg = css({ width: "100%", height: "auto", display: "block", overflow: "visible" })
+
+export const chartLegend = css({
+  display: "flex",
+  gap: "1.25rem",
+  marginTop: "1rem",
+  fontSize: "0.8125rem",
+  color: "textSecondary",
+})
+
+export const legendItem = css({ display: "flex", alignItems: "center", gap: "0.4rem" })
+
+/* Top-posts leaderboard */
+export const leaderboard = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  background: "#ffffff",
+  overflow: "hidden",
+})
+
+export const leaderRow = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "0.875rem",
+  padding: "0.875rem 1.25rem",
+  textDecoration: "none",
+  color: "text",
+  transition: "background 0.15s",
+  "& + &": { borderTop: "1px solid #f0efec" },
+  _hover: { background: "#FAF9F7" },
+})
+
+export const leaderRank = css({
+  fontSize: "0.8125rem",
+  fontWeight: 600,
+  color: "textSecondary",
+  width: "1.25rem",
+  flexShrink: 0,
+})
+
+export const leaderUrl = css({
+  flexGrow: 1,
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  fontSize: "0.875rem",
+})
+
+export const leaderEngagement = css({ fontWeight: 600, fontSize: "0.9375rem", flexShrink: 0 })
+
+/* Per-provider summary cards */
+export const providerGrid = css({
+  display: "grid",
+  gap: "1rem",
+  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+})
+
+export const providerCard = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.25rem",
+  background: "#ffffff",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+  minHeight: "150px",
+})
+
+export const providerHead = css({ display: "flex", alignItems: "center", gap: "0.5rem" })
+
+export const providerName = css({ fontWeight: 600, fontSize: "0.9375rem" })
+
+export const providerStat = css({ display: "flex", flexDirection: "column", gap: "0.125rem" })
+
+export const providerStatRow = css({
+  display: "flex",
+  justifyContent: "space-between",
+  fontSize: "0.875rem",
+  color: "textSecondary",
+})
+
+export const providerNote = css({
+  marginTop: "auto",
+  fontSize: "0.8125rem",
+  color: "textSecondary",
+  lineHeight: 1.4,
+})
+
+/* Colored brand dot keyed by provider — the only per-provider color carrier
+   (no inline styles; three-file rule). */
+export const providerSwatch = cva({
+  base: { width: "10px", height: "10px", borderRadius: "50%", flexShrink: 0 },
+  variants: {
+    color: {
+      linkedin: { background: "linkedin" },
+      facebook: { background: "facebook" },
+      instagram: { background: "instagram" },
+      youtube: { background: "youtube" },
+      devto: { background: "devto" },
+    },
+  },
+})
+
 /* Shared */
 export const preWrap = css({ whiteSpace: "pre-wrap" })
 
