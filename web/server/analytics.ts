@@ -48,6 +48,7 @@ export interface Analytics {
     to: string
     totals: Totals
     trend: TrendPoint[]
+    trendByProvider: Record<number, TrendPoint[]>
     topPosts: TopPost[]
     perProvider: Record<number, ProviderSummary>
     postsByDay: PostsByDayPoint[]
@@ -159,15 +160,27 @@ export async function getAnalytics(user_id: number, range: Range = defaultRange(
         .sort((a, b) => b.engagement - a.engagement)
         .slice(0, 8)
 
-    // Trend sums every post's snapshot on each captured day.
+    // Trend sums every post's snapshot on each captured day — overall and per provider.
     const byDay = new Map<string, TrendPoint>()
+    const byProviderDay = new Map<number, Map<string, TrendPoint>>()
     for (const r of rows) {
         let t = byDay.get(r.day)
         if (!t) { t = { day: r.day, impressions: 0, engagement: 0 }; byDay.set(r.day, t) }
         t.impressions += r.impressions ?? 0
         t.engagement += engagementOf(r)
+
+        let provMap = byProviderDay.get(r.provider)
+        if (!provMap) { provMap = new Map(); byProviderDay.set(r.provider, provMap) }
+        let pt = provMap.get(r.day)
+        if (!pt) { pt = { day: r.day, impressions: 0, engagement: 0 }; provMap.set(r.day, pt) }
+        pt.impressions += r.impressions ?? 0
+        pt.engagement += engagementOf(r)
     }
     const trend = [...byDay.values()].sort((a, b) => a.day.localeCompare(b.day))
+    const trendByProvider: Record<number, TrendPoint[]> = {}
+    for (const [pid, provMap] of byProviderDay) {
+        trendByProvider[pid] = [...provMap.values()].sort((a, b) => a.day.localeCompare(b.day))
+    }
 
     const postsByDayMap = new Map<string, Record<number, number>>()
     for (const r of postRows) {
@@ -184,6 +197,7 @@ export async function getAnalytics(user_id: number, range: Range = defaultRange(
         to: range.to.toISOString().slice(0, 10),
         totals,
         trend,
+        trendByProvider,
         topPosts,
         perProvider,
         postsByDay,

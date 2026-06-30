@@ -66,7 +66,7 @@ interface Props {
 }
 
 export default function AnalyticsView({ analytics, connected }: Props) {
-    const { totals, trend, topPosts, perProvider, postsByDay } = analytics
+    const { totals, trend, trendByProvider, topPosts, perProvider, postsByDay } = analytics
 
     return (
         <div className={analyticsPage}>
@@ -97,6 +97,20 @@ export default function AnalyticsView({ analytics, connected }: Props) {
                     </div>
                 </section>
             )}
+
+            <section>
+                <div className={sectionTitle}>Impressions by provider</div>
+                <div className={chartFrame}>
+                    <ProviderLineChart trendByProvider={trendByProvider} from={analytics.from} to={analytics.to} metric="impressions" />
+                </div>
+            </section>
+
+            <section>
+                <div className={sectionTitle}>Engagement by provider</div>
+                <div className={chartFrame}>
+                    <ProviderLineChart trendByProvider={trendByProvider} from={analytics.from} to={analytics.to} metric="engagement" />
+                </div>
+            </section>
 
             {trend.length >= 2 && (
                 <section>
@@ -241,6 +255,89 @@ function TrendChart({ trend }: { trend: Analytics['trend'] }) {
             <path d={path('impressions')} fill="none" stroke={IMPRESSIONS_COLOR} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             <path d={path('engagement')} fill="none" stroke={ENGAGEMENT_COLOR} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         </svg>
+    )
+}
+
+function ProviderLineChart({ trendByProvider, from, to, metric }: {
+    trendByProvider: Analytics['trendByProvider']
+    from: string
+    to: string
+    metric: 'impressions' | 'engagement'
+}) {
+    const W = 720
+    const H = 140
+    const LABEL_H = 18
+    const SVG_H = H + LABEL_H
+    const PAD = 4
+
+    const days: string[] = []
+    const d = new Date(from + 'T00:00:00Z')
+    const end = new Date(to + 'T00:00:00Z')
+    while (d <= end) {
+        days.push(d.toISOString().slice(0, 10))
+        d.setUTCDate(d.getUTCDate() + 1)
+    }
+    const n = days.length
+    const dayIndex = new Map(days.map((day, i) => [day, i]))
+    const x = (i: number) => n <= 1 ? W / 2 : PAD + (i * (W - 2 * PAD)) / (n - 1)
+    const y = (v: number, maxVal: number) => H - PAD - (v / maxVal) * (H - 2 * PAD)
+
+    const activeProviders = PROVIDERS.filter(p => (trendByProvider[p.id] ?? []).length >= 1)
+
+    if (activeProviders.length === 0) {
+        return <div className={brandEmpty}>No data yet — numbers appear after the daily sync runs.</div>
+    }
+
+    const maxVal = Math.max(1, ...activeProviders.flatMap(p =>
+        (trendByProvider[p.id] ?? []).map(t => t[metric])
+    ))
+
+    const line = (pid: number) => {
+        const series = trendByProvider[pid] ?? []
+        return series.map((t, i) => {
+            const xi = dayIndex.get(t.day) ?? 0
+            return `${i === 0 ? 'M' : 'L'} ${x(xi).toFixed(1)} ${y(t[metric], maxVal).toFixed(1)}`
+        }).join(' ')
+    }
+
+    return (
+        <>
+            <svg className={chartSvg} viewBox={`0 0 ${W} ${SVG_H}`} preserveAspectRatio="none"
+                role="img" aria-label={`${metric} by provider`}>
+                {activeProviders.map(prov => {
+                    const series = trendByProvider[prov.id] ?? []
+                    const color = PROVIDER_COLORS[prov.id] ?? '#999'
+                    if (series.length === 1 && series[0]) {
+                        const xi = dayIndex.get(series[0].day) ?? 0
+                        const cy = y(series[0][metric], maxVal)
+                        return <circle key={prov.id} cx={x(xi).toFixed(1)} cy={cy.toFixed(1)} r="3" fill={color} />
+                    }
+                    return (
+                        <path key={prov.id} d={line(prov.id)}
+                            fill="none" stroke={color} strokeWidth="2"
+                            strokeLinejoin="round" strokeLinecap="round" />
+                    )
+                })}
+                {days.map((day, i) => {
+                    if (i % 7 !== 0 && i !== days.length - 1) return null
+                    return (
+                        <text key={`lbl-${day}`}
+                            x={x(i).toFixed(1)} y={SVG_H - 3}
+                            textAnchor="middle" fontSize="10" fill="#6b6b6b">
+                            {day.slice(5)}
+                        </text>
+                    )
+                })}
+            </svg>
+            <div className={chartLegend}>
+                {activeProviders.map(prov => (
+                    <span key={prov.id} className={legendItem}>
+                        <Dot color={PROVIDER_COLORS[prov.id] ?? '#999'} />
+                        {prov.name}
+                    </span>
+                ))}
+            </div>
+        </>
     )
 }
 
