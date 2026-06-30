@@ -55,9 +55,10 @@ export interface Range {
 // not yet granted, so their adapters return nothing and the dashboard shows a
 // "connect analytics access" state instead of fake zeros.
 export const ANALYTICS_ACCESS: Record<number, boolean> = {
-    [Platform.LinkedIn]: true,
+    // TODO: flip to true once r_member_postAnalytics is approved and scope is added (lib/app.ts)
+    [Platform.LinkedIn]: false,
     [Platform.Facebook]: true,
-    [Platform.Instagram]: false,
+    [Platform.Instagram]: true,
     [Platform.YouTube]: true,
     [Platform['DEV.to']]: true,
 }

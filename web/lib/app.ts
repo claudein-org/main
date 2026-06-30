@@ -15,7 +15,8 @@ const linkedinParams = new URLSearchParams({
     response_type: "code",
     client_id: LINKEDIN_CLIENT_ID,
     redirect_uri: auth.getRedirectUri('linkedin'),
-    scope: "openid profile w_member_social r_member_postAnalytics",
+    // TODO: add r_member_postAnalytics once LinkedIn grants product access (see analytics.md §3.1)
+    scope: "openid profile w_member_social",
 })
 
 const facebookParams = new URLSearchParams({
@@ -31,7 +32,7 @@ const instagramParams = new URLSearchParams({
     response_type: "code",
     client_id: INSTAGRAM_APP_ID,
     redirect_uri: auth.getRedirectUri('instagram'),
-    scope: "instagram_business_basic,instagram_business_content_publish",
+    scope: "instagram_business_basic,instagram_business_content_publish,instagram_business_manage_insights",
 })
 
 const youtubeParams = new URLSearchParams({

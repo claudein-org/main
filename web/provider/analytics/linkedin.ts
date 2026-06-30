@@ -3,6 +3,14 @@ import ky from 'ky'
 import z from 'zod'
 import type { AccountFetcher, Metrics } from './types'
 
+// TODO: uncomment the implementation below once:
+//   1. LinkedIn grants r_member_postAnalytics product access
+//   2. The scope is added back to lib/app.ts
+//   3. ANALYTICS_ACCESS[Platform.LinkedIn] is flipped to true in server/analytics.ts
+export const fetchMetrics: AccountFetcher = async () => new Map()
+
+/* --- implementation ready, not yet active ---
+
 const BASE = 'https://api.linkedin.com/rest'
 // Use the version that added POST_SAVE, LINK_CLICKS, etc. (analytics.md §3.1)
 const LINKEDIN_VERSION = '202504'
@@ -64,3 +72,5 @@ export const fetchMetrics: AccountFetcher = async (user_id, _account_id, posts) 
 
     return out
 }
+
+--- end implementation --- */

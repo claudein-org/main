@@ -1,11 +1,56 @@
-import type { AccountFetcher } from './types'
+import { db } from '@/lib/db'
+import ky from 'ky'
+import z from 'zod'
+import type { AccountFetcher, Metrics } from './types'
 
-// Instagram analytics are gated on the `instagram_business_manage_insights`
-// scope (not yet granted) — the publish-time `media_id` capture landed in phase
-// 1, so only the scope is missing. Until it lands this returns nothing, so the
-// dashboard shows the "connect analytics access" state instead of fake zeros.
-//
-// To wire: resolve the account token from the `instagram` table, then
-// GET /{media_id}/insights?metric=reach,views,likes,comments,saved,shares and
-// map onto Metrics (analytics.md §3.3).
-export const fetchMetrics: AccountFetcher = async () => new Map()
+const BASE = 'https://graph.facebook.com/v21.0'
+
+const InsightsResponse = z.object({
+    data: z.array(z.object({
+        name: z.string(),
+        values: z.array(z.object({ value: z.unknown() })).default([]),
+    })).default([]),
+})
+
+const asNumber = (v: unknown): number | null => (typeof v === 'number' ? v : null)
+
+export const fetchMetrics: AccountFetcher = async (user_id, account_id, posts) => {
+    const out = new Map<number, Metrics>()
+
+    const row = await db.selectFrom('instagram').select(['access_token'])
+        .where('user_id', '=', user_id)
+        .where('instagram_account_id', '=', account_id)
+        .executeTakeFirst()
+    if (!row) return out
+
+    const { access_token } = row
+
+    for (const p of posts) {
+        try {
+            const insights = InsightsResponse.parse(
+                await ky.get(`${BASE}/${p.provider_post_id}/insights`, {
+                    searchParams: { metric: 'reach,views,likes,comments,saved,shares', access_token },
+                    timeout: 30000,
+                }).json()
+            )
+
+            const byName: Record<string, number | null> = {}
+            for (const d of insights.data) byName[d.name] = asNumber(d.values[0]?.value)
+
+            const m: Metrics = {
+                reach: byName['reach'] ?? null,
+                impressions: byName['views'] ?? null,
+                reactions: byName['likes'] ?? null,
+                comments: byName['comments'] ?? null,
+                saves: byName['saved'] ?? null,
+                shares: byName['shares'] ?? null,
+            }
+
+            if (Object.values(m).some(v => v != null)) out.set(p.id, m)
+        } catch {
+            // API error or post deleted — skip
+        }
+    }
+
+    return out
+}
