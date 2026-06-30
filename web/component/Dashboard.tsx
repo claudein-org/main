@@ -9,6 +9,7 @@ import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import { proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
+import AnalyticsView from "./AnalyticsView"
 import ArticlesView from "./ArticlesView"
 import BrandView from "./BrandView"
 import MediaView from "./MediaView"
@@ -24,6 +25,7 @@ const VIEWS = [
     { id: 'images', label: 'Images' },
     { id: 'videos', label: 'Videos' },
     { id: 'articles', label: 'Articles' },
+    { id: 'analytics', label: 'Analytics' },
 ] as const
 
 type View = (typeof VIEWS)[number]['id']
@@ -61,12 +63,13 @@ function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
 export default function Dashboard({ port, expires_at, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
-    const [view, setView] = useState<View>(() => {
-        if (typeof document === 'undefined') return 'brand'
+    const [view, setView] = useState<View>('brand')
+
+    useEffect(() => {
         const match = document.cookie.match(/(?:^|;\s*)claudein_tab=([^;]+)/)
         const saved = match?.[1] as View | undefined
-        return VIEWS.some(v => v.id === saved) ? saved! : 'brand'
-    })
+        if (saved && VIEWS.some(v => v.id === saved)) setView(saved)
+    }, [])
 
     useEffect(() => {
         document.cookie = `claudein_tab=${view}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`
@@ -228,6 +231,7 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                         devtoConnected={devtoConnected}
                     />
                 )}
+                {view === 'analytics' && <AnalyticsView />}
             </div>
         </div>
     )
