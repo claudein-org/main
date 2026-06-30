@@ -258,17 +258,43 @@ function TrendChart({ trend }: { trend: Analytics['trend'] }) {
     )
 }
 
+// "Nice" tick values for a y-axis given the data maximum.
+function yTicks(maxVal: number): number[] {
+    if (maxVal <= 0) return [0]
+    const raw = maxVal / 3
+    const mag = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 0.001))))
+    const n = raw / mag
+    const step = Math.max(1, (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * mag)
+    const ticks: number[] = []
+    for (let v = 0; ; v += step) {
+        ticks.push(v)
+        if (v >= maxVal || ticks.length >= 5) break
+    }
+    return ticks
+}
+
+// Compact number label: 1500 → "1.5k", 2000000 → "2m".
+function fmtK(n: number): string {
+    if (n >= 1_000_000) return `${+(n / 1_000_000).toFixed(1)}m`
+    if (n >= 1_000) return `${+(n / 1_000).toFixed(1)}k`
+    return String(n)
+}
+
+// Shared layout constants for all three charts.
+const CHART_W = 720
+const YAXIS_W = 36      // space reserved on the right for y-axis labels
+const CHART_PAD = 4     // top/bottom breathing room inside the bar/line area
+
 function ProviderLineChart({ trendByProvider, from, to, metric }: {
     trendByProvider: Analytics['trendByProvider']
     from: string
     to: string
     metric: 'impressions' | 'engagement'
 }) {
-    const W = 720
+    const W = CHART_W
     const H = 140
     const LABEL_H = 18
     const SVG_H = H + LABEL_H
-    const PAD = 4
 
     const days: string[] = []
     const d = new Date(from + 'T00:00:00Z')
@@ -278,46 +304,62 @@ function ProviderLineChart({ trendByProvider, from, to, metric }: {
         d.setUTCDate(d.getUTCDate() + 1)
     }
     const n = days.length
-    const dayIndex = new Map(days.map((day, i) => [day, i]))
-    const x = (i: number) => n <= 1 ? W / 2 : PAD + (i * (W - 2 * PAD)) / (n - 1)
-    const y = (v: number, maxVal: number) => H - PAD - (v / maxVal) * (H - 2 * PAD)
+    const chartW = W - 2 * CHART_PAD
+    const x = (i: number) => CHART_PAD + (n <= 1 ? chartW / 2 : (i * chartW) / (n - 1))
 
-    const activeProviders = PROVIDERS.filter(p => (trendByProvider[p.id] ?? []).length >= 1)
+    // Only show providers that have at least one non-zero data point for this metric.
+    const activeProviders = PROVIDERS.filter(p =>
+        (trendByProvider[p.id] ?? []).some(t => t[metric] > 0)
+    )
 
     if (activeProviders.length === 0) {
         return <div className={brandEmpty}>No data yet — numbers appear after the daily sync runs.</div>
     }
 
-    const maxVal = Math.max(1, ...activeProviders.flatMap(p =>
+    const rawMax = Math.max(0, ...activeProviders.flatMap(p =>
         (trendByProvider[p.id] ?? []).map(t => t[metric])
     ))
+    const ticks = yTicks(rawMax)
+    const chartMax = Math.max(1, ticks[ticks.length - 1] ?? 1)
+    const y = (v: number) => H - CHART_PAD - (v / chartMax) * (H - 2 * CHART_PAD)
 
-    const line = (pid: number) => {
-        const series = trendByProvider[pid] ?? []
-        return series.map((t, i) => {
-            const xi = dayIndex.get(t.day) ?? 0
-            return `${i === 0 ? 'M' : 'L'} ${x(xi).toFixed(1)} ${y(t[metric], maxVal).toFixed(1)}`
+    // Fill every day in the range with 0 for missing dates so lines are continuous.
+    const filledLine = (pid: number) => {
+        const map = new Map((trendByProvider[pid] ?? []).map(t => [t.day, t[metric]]))
+        return days.map((day, i) => {
+            const v = map.get(day) ?? 0
+            return `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`
         }).join(' ')
     }
 
     return (
         <>
-            <svg className={chartSvg} viewBox={`0 0 ${W} ${SVG_H}`} preserveAspectRatio="none"
+            <svg className={chartSvg} viewBox={`0 0 ${W + YAXIS_W} ${SVG_H}`} preserveAspectRatio="none"
                 role="img" aria-label={`${metric} by provider`}>
-                {activeProviders.map(prov => {
-                    const series = trendByProvider[prov.id] ?? []
-                    const color = PROVIDER_COLORS[prov.id] ?? '#999'
-                    if (series.length === 1 && series[0]) {
-                        const xi = dayIndex.get(series[0].day) ?? 0
-                        const cy = y(series[0][metric], maxVal)
-                        return <circle key={prov.id} cx={x(xi).toFixed(1)} cy={cy.toFixed(1)} r="3" fill={color} />
-                    }
+
+                {/* Y-axis gridlines + labels */}
+                {ticks.map(tick => {
+                    const ty = y(tick)
                     return (
-                        <path key={prov.id} d={line(prov.id)}
-                            fill="none" stroke={color} strokeWidth="2"
-                            strokeLinejoin="round" strokeLinecap="round" />
+                        <g key={tick}>
+                            <line x1={0} y1={ty} x2={W} y2={ty}
+                                stroke="#ebebeb" strokeWidth="1" />
+                            <text x={W + 4} y={ty + 3.5}
+                                textAnchor="start" fontSize="9" fill="#6b6b6b">
+                                {fmtK(tick)}
+                            </text>
+                        </g>
                     )
                 })}
+
+                {/* Provider lines */}
+                {activeProviders.map(prov => (
+                    <path key={prov.id} d={filledLine(prov.id)}
+                        fill="none" stroke={PROVIDER_COLORS[prov.id] ?? '#999'} strokeWidth="2"
+                        strokeLinejoin="round" strokeLinecap="round" />
+                ))}
+
+                {/* X-axis labels — every 7th day */}
                 {days.map((day, i) => {
                     if (i % 7 !== 0 && i !== days.length - 1) return null
                     return (
@@ -352,7 +394,7 @@ function PostsBarChart({ postsByDay, from, to }: {
         index: number
     } | null>(null)
 
-    const W = 720
+    const W = CHART_W
     const H = 120
     const LABEL_H = 18
     const SVG_H = H + LABEL_H
@@ -368,24 +410,44 @@ function PostsBarChart({ postsByDay, from, to }: {
     }
 
     const byDay = new Map(postsByDay.map(p => [p.day, p.counts]))
-    const maxTotal = Math.max(1, ...days.map(day => {
+    const rawMax = Math.max(0, ...days.map(day => {
         const c = byDay.get(day) ?? {}
         return Object.values(c).reduce((a, b) => a + b, 0)
     }))
+    const ticks = yTicks(rawMax)
+    const chartMax = Math.max(1, ticks[ticks.length - 1] ?? 1)
+    const yPos = (v: number) => H - CHART_PAD - (v / chartMax) * (H - 2 * CHART_PAD)
 
     const barSlotW = W / days.length
     const barGap = 1
     const barInnerW = barSlotW - barGap
 
-    // Pre-compute tooltip position and contents
-    const tooltipX = hovered ? Math.min(hovered.index * barSlotW, W - TOOLTIP_W - 4) : 0
+    // Tooltip geometry
+    const tooltipX = hovered
+        ? Math.min(hovered.index * barSlotW, W - TOOLTIP_W - 4)
+        : 0
     const hoveredProviders = hovered ? PROVIDERS.filter(p => (hovered.counts[p.id] ?? 0) > 0) : []
     const tooltipH = 22 + hoveredProviders.length * 14 + 4
 
     return (
         <>
-            <svg className={chartSvg} viewBox={`0 0 ${W} ${SVG_H}`} preserveAspectRatio="none"
+            <svg className={chartSvg} viewBox={`0 0 ${W + YAXIS_W} ${SVG_H}`} preserveAspectRatio="none"
                 role="img" aria-label="Posts published per day by provider">
+
+                {/* Y-axis gridlines + labels */}
+                {ticks.map(tick => {
+                    const ty = yPos(tick)
+                    return (
+                        <g key={tick}>
+                            <line x1={0} y1={ty} x2={W} y2={ty}
+                                stroke="#ebebeb" strokeWidth="1" />
+                            <text x={W + 4} y={ty + 3.5}
+                                textAnchor="start" fontSize="9" fill="#6b6b6b">
+                                {fmtK(tick)}
+                            </text>
+                        </g>
+                    )
+                })}
 
                 {/* Bars */}
                 {days.map((day, i) => {
@@ -393,24 +455,24 @@ function PostsBarChart({ postsByDay, from, to }: {
                     const total = Object.values(counts).reduce((a, b) => a + b, 0)
                     if (!total) return null
 
-                    const x = i * barSlotW + barGap / 2
-                    let y = H
+                    const bx = i * barSlotW + barGap / 2
+                    let sy = H - CHART_PAD
                     const segs: { pid: number; sy: number; h: number }[] = []
                     for (const pid of providerOrder) {
                         const count = counts[pid] ?? 0
                         if (!count) continue
-                        const h = (count / maxTotal) * H
-                        y -= h
-                        segs.push({ pid, sy: y, h })
+                        const h = (count / chartMax) * (H - 2 * CHART_PAD)
+                        sy -= h
+                        segs.push({ pid, sy, h })
                     }
 
                     return (
                         <g key={day} cursor="pointer"
                             onMouseEnter={() => setHovered({ day, counts, index: i })}
                             onMouseLeave={() => setHovered(null)}>
-                            {segs.map(({ pid, sy, h }) => (
+                            {segs.map(({ pid, sy: barY, h }) => (
                                 <rect key={pid}
-                                    x={x.toFixed(2)} y={sy.toFixed(2)}
+                                    x={bx.toFixed(2)} y={barY.toFixed(2)}
                                     width={barInnerW.toFixed(2)} height={h.toFixed(2)}
                                     fill={PROVIDER_COLORS[pid] ?? '#999'}
                                     opacity={hovered && hovered.day !== day ? 0.45 : 1}
