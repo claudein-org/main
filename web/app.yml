@@ -67,7 +67,7 @@ jobs:
     instance_count: 1
     instance_size_slug: basic-xxs
     kind: SCHEDULED
-    run_command: cd web && bun jobs/book_pdf.ts
+    run_command: cd web && bun jobs/sync.ts
     schedule:
       cron: "*/60 * * * *"
     source_dir: /
