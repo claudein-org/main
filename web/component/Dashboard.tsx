@@ -61,7 +61,16 @@ function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
 export default function Dashboard({ port, expires_at, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
-    const [view, setView] = useState<View>('brand')
+    const [view, setView] = useState<View>(() => {
+        if (typeof document === 'undefined') return 'brand'
+        const match = document.cookie.match(/(?:^|;\s*)claudein_tab=([^;]+)/)
+        const saved = match?.[1] as View | undefined
+        return VIEWS.some(v => v.id === saved) ? saved! : 'brand'
+    })
+
+    useEffect(() => {
+        document.cookie = `claudein_tab=${view}; path=/; max-age=${365 * 24 * 60 * 60}; SameSite=Lax`
+    }, [view])
 
     useEffect(() => {
         const id = setInterval(() => setNow(Date.now()), ONE_HOUR_MS)

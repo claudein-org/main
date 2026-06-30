@@ -2,7 +2,7 @@ TODO:
   - providers:
   - common:
   - web:
-      - remember my last tab (from the side bar) in a cookie then load it on page load.
   - video:
 
 Done:
+  - web: remember my last tab (from the side bar) in a cookie then load it on page load.
