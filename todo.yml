@@ -6,13 +6,11 @@ TODO:
   - common:
   - web:
       - analytics:
-          - Dashboard should have:
-              - Overview (already implemented)
-              - A table of top posts (link, provider, date, impressions, engagement info)
   - video:
 
 Done:
-  - web: Analytics dashboard — stacked bar chart of posts published per day by provider (last 30 days). Added `postsByDay` field to `Analytics` type, parallel DB query in `getAnalytics`, and `PostsBarChart` SVG component in `AnalyticsView`.
+  - web: Analytics bar chart improvements — x-axis date labels (every 7 days), SVG-native hover tooltip showing date + per-provider counts, dimming of non-hovered bars.
+  - web: Analytics top posts — replaced leaderboard with a proper table (rank, provider, link, date, impressions, engagement). Added `impressions` + `post_date` to `TopPost` and query.
   - web: Read posts.md + analytics.md and generate an operative plan for the analytics dashboard (provider-API-pulled metrics, new DB schema, cron sync, phased rollout). Full report written to `plan.v1.md`.
   - web: Research how to track published posts and propose a better DB schema (provider post ids + multi-account + optional sync of all posts). Report written to `posts.md`.
   - web: remember my last tab (from the side bar) in a cookie then load it on page load.

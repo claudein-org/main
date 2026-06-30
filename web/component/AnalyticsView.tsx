@@ -8,10 +8,6 @@ import {
     chartLegend,
     chartSvg,
     font,
-    leaderboard,
-    leaderEngagement,
-    leaderRank,
-    leaderRow,
     leaderUrl,
     legendItem,
     metricCard,
@@ -28,10 +24,17 @@ import {
     providerStatRow,
     providerSwatch,
     sectionTitle,
+    topPostsNumTd,
+    topPostsTable,
+    topPostsTd,
+    topPostsTh,
+    topPostsTr,
+    topPostsWrap,
 } from "@/css/style.css"
 import type { Analytics } from "@/server/analytics"
 import { cx } from "@/styled-system/css"
 import { Platform } from "@claudein.org/common"
+import { useState } from "react"
 
 type SwatchColor = 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'devto'
 
@@ -91,14 +94,6 @@ export default function AnalyticsView({ analytics, connected }: Props) {
                     <div className={sectionTitle}>Posts published</div>
                     <div className={chartFrame}>
                         <PostsBarChart postsByDay={postsByDay} from={analytics.from} to={analytics.to} />
-                        <div className={chartLegend}>
-                            {PROVIDERS.map(prov => (
-                                <span key={prov.id} className={legendItem}>
-                                    <span className={providerSwatch({ color: prov.color })} />
-                                    {prov.name}
-                                </span>
-                            ))}
-                        </div>
                     </div>
                 </section>
             )}
@@ -123,15 +118,35 @@ export default function AnalyticsView({ analytics, connected }: Props) {
             {topPosts.length > 0 && (
                 <section>
                     <div className={sectionTitle}>Top posts</div>
-                    <div className={leaderboard}>
-                        {topPosts.map((p, i) => (
-                            <a key={p.published_post_id} className={leaderRow} href={p.post_url} target="_blank" rel="noreferrer">
-                                <span className={leaderRank}>{i + 1}</span>
-                                <ProviderSwatch provider={p.provider} />
-                                <span className={leaderUrl}>{prettyUrl(p.post_url)}</span>
-                                <span className={leaderEngagement}>{fmt(p.engagement)}</span>
-                            </a>
-                        ))}
+                    <div className={topPostsWrap}>
+                        <table className={topPostsTable}>
+                            <thead>
+                                <tr>
+                                    <th className={topPostsTh}>#</th>
+                                    <th className={topPostsTh}></th>
+                                    <th className={topPostsTh}>Link</th>
+                                    <th className={topPostsTh}>Date</th>
+                                    <th className={cx(topPostsTh, topPostsNumTd)}>Impressions</th>
+                                    <th className={cx(topPostsTh, topPostsNumTd)}>Engagement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {topPosts.map((p, i) => (
+                                    <tr key={p.published_post_id} className={topPostsTr}>
+                                        <td className={cx(topPostsTd, muted)}>{i + 1}</td>
+                                        <td className={topPostsTd}><ProviderSwatch provider={p.provider} /></td>
+                                        <td className={topPostsTd}>
+                                            <a href={p.post_url} target="_blank" rel="noreferrer" className={leaderUrl}>
+                                                {prettyUrl(p.post_url)}
+                                            </a>
+                                        </td>
+                                        <td className={cx(topPostsTd, muted, font.size.sm)}>{p.post_date}</td>
+                                        <td className={topPostsNumTd}>{fmt(p.impressions)}</td>
+                                        <td className={topPostsNumTd}>{fmt(p.engagement)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </section>
             )}
@@ -234,8 +249,17 @@ function PostsBarChart({ postsByDay, from, to }: {
     from: string
     to: string
 }) {
+    const [hovered, setHovered] = useState<{
+        day: string
+        counts: Record<number, number>
+        index: number
+    } | null>(null)
+
     const W = 720
     const H = 120
+    const LABEL_H = 18
+    const SVG_H = H + LABEL_H
+    const TOOLTIP_W = 134
     const providerOrder = PROVIDERS.map(p => p.id)
 
     const days: string[] = []
@@ -256,39 +280,88 @@ function PostsBarChart({ postsByDay, from, to }: {
     const barGap = 1
     const barInnerW = barSlotW - barGap
 
+    // Pre-compute tooltip position and contents
+    const tooltipX = hovered ? Math.min(hovered.index * barSlotW, W - TOOLTIP_W - 4) : 0
+    const hoveredProviders = hovered ? PROVIDERS.filter(p => (hovered.counts[p.id] ?? 0) > 0) : []
+    const tooltipH = 22 + hoveredProviders.length * 14 + 4
+
     return (
-        <svg className={chartSvg} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none"
-            role="img" aria-label="Posts published per day by provider">
-            {days.map((day, i) => {
-                const counts = byDay.get(day) ?? {}
-                const total = Object.values(counts).reduce((a, b) => a + b, 0)
-                if (!total) return null
+        <>
+            <svg className={chartSvg} viewBox={`0 0 ${W} ${SVG_H}`} preserveAspectRatio="none"
+                role="img" aria-label="Posts published per day by provider">
 
-                const x = i * barSlotW + barGap / 2
-                let y = H
-                const segs: { pid: number; sy: number; h: number }[] = []
-                for (const pid of providerOrder) {
-                    const count = counts[pid] ?? 0
-                    if (!count) continue
-                    const h = (count / maxTotal) * H
-                    y -= h
-                    segs.push({ pid, sy: y, h })
-                }
+                {/* Bars */}
+                {days.map((day, i) => {
+                    const counts = byDay.get(day) ?? {}
+                    const total = Object.values(counts).reduce((a, b) => a + b, 0)
+                    if (!total) return null
 
-                return (
-                    <g key={day}>
-                        <title>{day}: {total} post{total !== 1 ? 's' : ''}</title>
-                        {segs.map(({ pid, sy, h }) => (
-                            <rect key={pid}
-                                x={x.toFixed(2)} y={sy.toFixed(2)}
-                                width={barInnerW.toFixed(2)} height={h.toFixed(2)}
-                                fill={PROVIDER_COLORS[pid] ?? '#999'}
-                            />
+                    const x = i * barSlotW + barGap / 2
+                    let y = H
+                    const segs: { pid: number; sy: number; h: number }[] = []
+                    for (const pid of providerOrder) {
+                        const count = counts[pid] ?? 0
+                        if (!count) continue
+                        const h = (count / maxTotal) * H
+                        y -= h
+                        segs.push({ pid, sy: y, h })
+                    }
+
+                    return (
+                        <g key={day} cursor="pointer"
+                            onMouseEnter={() => setHovered({ day, counts, index: i })}
+                            onMouseLeave={() => setHovered(null)}>
+                            {segs.map(({ pid, sy, h }) => (
+                                <rect key={pid}
+                                    x={x.toFixed(2)} y={sy.toFixed(2)}
+                                    width={barInnerW.toFixed(2)} height={h.toFixed(2)}
+                                    fill={PROVIDER_COLORS[pid] ?? '#999'}
+                                    opacity={hovered && hovered.day !== day ? 0.45 : 1}
+                                />
+                            ))}
+                        </g>
+                    )
+                })}
+
+                {/* X-axis labels — every 7th day */}
+                {days.map((day, i) => {
+                    if (i % 7 !== 0 && i !== days.length - 1) return null
+                    return (
+                        <text key={`lbl-${day}`}
+                            x={((i + 0.5) * barSlotW).toFixed(1)} y={SVG_H - 3}
+                            textAnchor="middle" fontSize="10" fill="#6b6b6b">
+                            {day.slice(5)}
+                        </text>
+                    )
+                })}
+
+                {/* SVG tooltip */}
+                {hovered && (
+                    <g pointerEvents="none">
+                        <rect x={tooltipX} y={4} width={TOOLTIP_W} height={tooltipH}
+                            rx="4" fill="white" stroke="#e0e0e0" strokeWidth="1" />
+                        <text x={tooltipX + 8} y={20} fontSize="11" fontWeight="600" fill="#1a1a1a">
+                            {hovered.day}
+                        </text>
+                        {hoveredProviders.map((p, i) => (
+                            <text key={p.id} x={tooltipX + 8} y={35 + i * 14}
+                                fontSize="10" fill="#6b6b6b">
+                                {p.name}: {hovered.counts[p.id]}
+                            </text>
                         ))}
                     </g>
-                )
-            })}
-        </svg>
+                )}
+            </svg>
+
+            <div className={chartLegend}>
+                {PROVIDERS.map(prov => (
+                    <span key={prov.id} className={legendItem}>
+                        <span className={providerSwatch({ color: prov.color })} />
+                        {prov.name}
+                    </span>
+                ))}
+            </div>
+        </>
     )
 }
 

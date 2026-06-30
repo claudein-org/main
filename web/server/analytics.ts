@@ -29,6 +29,8 @@ export interface TopPost {
     post_url: string
     provider: number
     engagement: number
+    impressions: number
+    post_date: string
 }
 
 export interface PostsByDayPoint {
@@ -103,6 +105,7 @@ export async function getAnalytics(user_id: number, range: Range = defaultRange(
                 'pm.shares',
                 'pm.saves',
                 sql<string>`to_char(pm.captured_on, 'YYYY-MM-DD')`.as('day'),
+                sql<string>`to_char(pp.post_date, 'YYYY-MM-DD')`.as('post_date'),
             ])
             .execute(),
         db
@@ -150,6 +153,8 @@ export async function getAnalytics(user_id: number, range: Range = defaultRange(
             post_url: r.post_url,
             provider: r.provider,
             engagement: engagementOf(r),
+            impressions: r.impressions ?? 0,
+            post_date: r.post_date,
         }))
         .sort((a, b) => b.engagement - a.engagement)
         .slice(0, 8)

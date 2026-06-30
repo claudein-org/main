@@ -619,6 +619,53 @@ export const providerSwatch = cva({
   },
 })
 
+/* Top posts table */
+export const topPostsWrap = css({
+    border: "1px solid #e0e0e0",
+    borderRadius: "12px",
+    overflowX: "auto",
+    background: "#ffffff",
+})
+
+export const topPostsTable = css({
+    width: "100%",
+    borderCollapse: "collapse",
+})
+
+export const topPostsTh = css({
+    padding: "0.5rem 1rem",
+    textAlign: "left",
+    fontSize: "0.6875rem",
+    fontWeight: 600,
+    letterSpacing: "0.05em",
+    textTransform: "uppercase",
+    color: "textSecondary",
+    borderBottom: "1px solid #e0e0e0",
+    background: "#FAF9F7",
+    whiteSpace: "nowrap",
+})
+
+export const topPostsTr = css({
+    transition: "background 0.15s",
+    _hover: { background: "#FAF9F7" },
+    "& + &": { borderTop: "1px solid #f0efec" },
+})
+
+export const topPostsTd = css({
+    padding: "0.75rem 1rem",
+    verticalAlign: "middle",
+    fontSize: "0.875rem",
+})
+
+export const topPostsNumTd = css({
+    padding: "0.75rem 1rem",
+    verticalAlign: "middle",
+    textAlign: "right",
+    fontVariantNumeric: "tabular-nums",
+    whiteSpace: "nowrap",
+    fontSize: "0.875rem",
+})
+
 /* Shared */
 export const preWrap = css({ whiteSpace: "pre-wrap" })
 
