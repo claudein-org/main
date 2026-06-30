@@ -2,14 +2,10 @@ TODO:
   - providers:
   - common:
   - web:
-      - We need to track posts that were published. The current DB scheme is not sufficient for this.
-        The table only track the local id of the post and not the provider id.
-        Also if the user has multiple accounts for a specific provider, the current schema is not enough.
-        Please read the documents of each provider and suggest a better way to track published posts.
-        If possible or if we must to, track all the posts the user published (not just the ones that were published from this app).
-        Generate a report with your research and suggestions `posts.md`.
   - video:
 
 Done:
+  - web: Read posts.md + analytics.md and generate an operative plan for the analytics dashboard (provider-API-pulled metrics, new DB schema, cron sync, phased rollout). Full report written to `plan.v1.md`.
+  - web: Research how to track published posts and propose a better DB schema (provider post ids + multi-account + optional sync of all posts). Report written to `posts.md`.
   - web: remember my last tab (from the side bar) in a cookie then load it on page load.
   - web: Add analytics tab to the sidebar. The analytics view is empty for now, add a placeholder for it.
