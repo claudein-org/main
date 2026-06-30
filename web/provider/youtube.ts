@@ -11,7 +11,7 @@ const RefreshedToken = z.object({
 
 const FIVE_MINUTES = 5 * 60
 
-async function refreshedToken(user_id: number, channel_id: string) {
+export async function refreshedToken(user_id: number, channel_id: string) {
     const now = Math.floor(Date.now() / 1000)
     const row = await db
         .selectFrom('youtube')

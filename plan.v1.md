@@ -173,18 +173,23 @@ starts persisting ids; nothing reads them yet).
 
 ## 4. Provider analytics adapters (`web/provider/analytics/`)
 
-One module per provider, each exporting a single normaliser. Uniform contract so the sync loop is
-provider-agnostic and a missing/erroring provider is just a skipped entry.
+One module per provider, each exporting a single `fetchMetrics`. Uniform contract so the sync loop is
+provider-agnostic and a missing/erroring provider is just a skipped entry. The fetcher works **per
+account** (resolving its own credentials and batching that account's posts) and returns a map keyed
+by `published_posts.id` — this lets DEV.to satisfy a whole account in one `/me` call and YouTube
+batch 50 video ids per request. Posts with no data are simply omitted from the map.
 
 ```ts
-// web/provider/analytics/types.ts
+// web/provider/analytics/types.ts  (as implemented)
 export interface Metrics {
-  impressions?: number; reach?: number; reactions?: number; comments?: number
-  shares?: number; saves?: number; clicks?: number
-  extra?: Record<string, unknown>
+  impressions?: number | null; reach?: number | null; reactions?: number | null
+  comments?: number | null; shares?: number | null; saves?: number | null; clicks?: number | null
+  extra?: Record<string, unknown> | null
 }
-// account: the per-provider credential row; post: a published_posts row
-export type Fetcher = (account: AccountCreds, post: PublishedPost) => Promise<Metrics | null>
+export interface PublishedPost { id: number; account_id: string; provider_post_id: string; post_url: string }
+export type AccountFetcher = (
+  user_id: number, account_id: string, posts: PublishedPost[],
+) => Promise<Map<number, Metrics>>   // keyed by published_posts.id
 ```
 
 Build now (have access):
@@ -223,76 +228,69 @@ The whole sync lives here, exported as a function and self-invoked when run as t
 mirroring the repo's existing `if (import.meta.main)` script convention (`lib/db.ts`, `tools/app.ts`,
 run via `bun`).
 
-```ts
-// web/jobs/sync.ts
-import { db } from '@/lib/db'
-import * as facebook from '@/provider/analytics/facebook'
-import * as youtube from '@/provider/analytics/youtube'
-import * as devto from '@/provider/analytics/devto'
-// import * as instagram / linkedin  — stubs until their access lands
+All five providers are registered (Instagram/LinkedIn as stubs returning an empty map, so they're
+uniformly "attempted" then yield nothing until their access lands). The flow:
 
-const adapters: Record<number, Fetcher> = {
+```ts
+// web/jobs/sync.ts  (shape as implemented)
+const adapters: Record<number, AccountFetcher> = {
+  [Platform.LinkedIn]: linkedin.fetchMetrics,   // stub → empty map
   [Platform.Facebook]: facebook.fetchMetrics,
+  [Platform.Instagram]: instagram.fetchMetrics, // stub → empty map
   [Platform.YouTube]:  youtube.fetchMetrics,
   [Platform['DEV.to']]: devto.fetchMetrics,
-  // Instagram / LinkedIn omitted → those providers are simply skipped
 }
 
 export async function runAnalyticsSync() {
-  // posts to refresh: hot window (< 90d) every run; older rows only when their
-  // latest captured_on is stale — respects rate limits / historical windows (analytics.md §5)
-  const posts = await db.selectFrom('published_posts').selectAll()
-    .where('post_date', '>', sql`now() - interval '90 days'`).execute()
+  // hot window: posts < 90d refreshed every run (analytics.md §5)
+  const rows = await db.selectFrom('published_posts')
+    .select(['id','user_id','provider','account_id','provider_post_id','post_url'])
+    .where('post_date', '>', sql<Date>`now() - interval '90 days'`).execute()
 
-  // group by (provider, account_id); resolve each account's credential row once
-  for (const [{ provider, account_id }, group] of groupByAccount(posts)) {
-    const fetch = adapters[provider]
-    if (!fetch) continue                                   // not-yet-built provider → skip
-    const account = await resolveCreds(provider, account_id)
-    for (const post of group) {
-      let m: Metrics | null = null
-      try { m = await fetch(account, post) } catch { /* record + continue */ continue }
-      if (!m) continue
-      await db.insertInto('post_metrics')
-        .values({ published_post_id: post.id, captured_on: sql`current_date`, ...m, extra: m.extra ?? null })
-        .onConflict(oc => oc.columns(['published_post_id','captured_on']).doUpdateSet({ ...m, updated_at: sql`now()` }))
-        .execute()
+  // group by (user_id, provider, account_id); each adapter resolves its own creds + batches
+  for (const g of groupByAccount(rows)) {
+    const fetch = adapters[g.provider]; if (!fetch) continue
+    let metrics: Map<number, Metrics>
+    try { metrics = await fetch(g.user_id, g.account_id, g.posts) } catch { /* record + continue */ continue }
+    for (const [published_post_id, m] of metrics) {
+      // UPSERT post_metrics (published_post_id, captured_on = current_date, ...m)
+      //   ON CONFLICT (published_post_id, captured_on) DO UPDATE
     }
   }
-  return { ranAt: new Date().toISOString(), /* perProvider counts */ }
+  return { ranAt, accounts, posts, written, errors }
 }
 
-if (import.meta.main) {
-  const summary = await runAnalyticsSync()
-  console.log(JSON.stringify(summary))
-  process.exit(0)
-}
+if (import.meta.main) { console.log(JSON.stringify(await runAnalyticsSync())); process.exit(0) }
 ```
 
-Robustness: provider-level and post-level `try/catch`; the job always finishes (and logs a summary)
+Robustness: account-level and per-upsert `try/catch`; the job always finishes and returns a summary
 even if a whole provider is down. Idempotent on `(published_post_id, captured_on)` — safe to re-run.
 
-### 5.2 Wire it as a DO job (`web/app.yml`)
+### 5.2 Wire it as a DO job (`web/app.yml` + `Dockerfile.job`)
 
-Add a `jobs:` component that shares the existing image and DB envs; DigitalOcean runs it on its
-schedule. (The web service stays exactly as-is.)
+The web image (`/Dockerfile`) is a **Next.js standalone build** — it only bundles files Next traces
+from the server entry, so it does **not** contain `web/jobs/sync.ts`. The job therefore builds from a
+dedicated **`/Dockerfile.job`** (bun + full repo source + workspace deps, `CMD ["bun",
+"web/jobs/sync.ts"]`). Verified: `bun build web/jobs/sync.ts` resolves all 403 modules (the `@/` alias
+via `web/tsconfig.json`, `@claudein.org/common` via the workspace) from the repo root.
 
 ```yaml
 jobs:
   - name: analytics-sync
-    github:
-      branch: main
-      repo: claudein-org/main
+    kind: POST_DEPLOY              # in-spec trigger; recurring schedule set on the DO job (idempotent, safe to re-run)
+    github: { branch: main, deploy_on_push: true, repo: claudein-org/main }
     source_dir: /
-    dockerfile_path: /Dockerfile
-    run_command: bun web/jobs/sync.ts     # adjust to the image's working dir
-    instance_size_slug: basic-xxs
+    dockerfile_path: /Dockerfile.job
     instance_count: 1
-    # schedule/kind configured per the DO job (no app-level cron wiring needed)
+    instance_size_slug: basic-xxs
     envs:
-      - { key: DB_HOST, scope: RUN_TIME, type: SECRET }
-      # …same DB_* / token envs the web service uses…
+      - { key: SPACE_SECRET_KEY, scope: RUN_TIME, type: SECRET }
 ```
+
+The job imports `lib/env.ts`, which zod-validates **all** secrets at startup, so it needs the same env
+as the web service. `DB_*` and the OAuth/cookie secrets are app-level secrets (DO dashboard) and are
+inherited; `SPACE_SECRET_KEY` is per-component, so it's repeated. ⚠️ If any required var is not set
+app-level, add it to the job's `envs` or the job will crash at `env.parse`.
 
 The exact `kind`/schedule field is set on the DigitalOcean job; this plan deliberately leaves the
 cadence to DO and keeps the codebase cron-free. The job reads the same `published_posts` it writes at
@@ -380,10 +378,12 @@ Facebook and DEV.to need nothing new.
 | `web/lib/db.ts` | add `PublishedPosts`,`PostMetrics`; drop `Posts` (via `sync-sql-kysely`) | 1 |
 | `web/provider/instagram.ts` | `upload()` returns `media_id` | 1 |
 | `web/server/post.ts` | write `published_posts` w/ `account_id`+`provider_post_id`; capture DEV.to `id` | 1 |
-| `web/provider/analytics/{types,facebook,youtube,devto}.ts` | fetchers (FB/YT/DEV.to live) | 2 |
-| `web/provider/analytics/{instagram,linkedin}.ts` | stubs returning `null` | 2 |
+| `web/provider/youtube.ts` | export `refreshedToken` for the analytics adapter to reuse | 2 |
+| `web/provider/analytics/{types,facebook,youtube,devto}.ts` | contract + fetchers (FB/YT/DEV.to live) | 2 |
+| `web/provider/analytics/{instagram,linkedin}.ts` | stubs returning an empty map | 2 |
 | `web/jobs/sync.ts` | `runAnalyticsSync` orchestration + `import.meta.main` entrypoint | 2 |
-| `web/app.yml` | add `analytics-sync` DO job component (shares image + DB envs) | 2 |
+| `Dockerfile.job` | bun image with full source for the job (web image is a Next standalone build) | 2 |
+| `web/app.yml` | add `analytics-sync` DO job component (`/Dockerfile.job`, `kind: POST_DEPLOY`) | 2 |
 | `web/server/analytics.ts` | `getAnalytics` aggregation | 3 |
 | `web/app/dash/[port]/page.tsx` | fetch + thread `analytics` | 3 |
 | `web/component/Dashboard.tsx` | forward `analytics` prop | 3 |

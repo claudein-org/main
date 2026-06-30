@@ -57,15 +57,51 @@ create table if not exists instagram_containers (
   updated_at timestamp default current_timestamp
 );
 
-create table if not exists posts (
-  user_id int references users(user_id) on delete cascade,
-  
-  post_id varchar(16) not null,
-  -- App level enum
-  provider int not null,
+-- One row per published item (a post on a specific account). Carries the
+-- provider-native id every analytics API is keyed on; replaces the old `posts`
+-- table (which had no account_id and no provider_post_id).
+create table if not exists published_posts (
+  id               bigserial primary key,
+  user_id          int not null references users(user_id) on delete cascade,
 
-  post_date timestamp default current_timestamp,
-  post_url varchar(1000) not null,
+  -- App level enum (1 LinkedIn, 2 Facebook, 3 Instagram, 4 YouTube, 5 DEV.to)
+  provider         int not null,
+  -- author_urn / page_id / instagram_account_id / channel_id / devto_user_id
+  account_id       varchar(100) not null,
 
-  primary key (user_id, post_id, provider)
+  -- the provider's own id: URN / fb post id / ig media id / yt video id / devto article id
+  provider_post_id varchar(200) not null,
+  -- our local content hash; NULL for posts discovered via sync (not published by us)
+  local_post_id    varchar(16),
+  -- 1 = published by this app, 2 = discovered via provider sync
+  origin           int not null default 1,
+
+  post_url         varchar(1000) not null,
+  post_date        timestamp not null default current_timestamp,
+  synced_at        timestamp,
+
+  unique (user_id, provider, account_id, provider_post_id)
+);
+
+create index if not exists published_posts_local_idx
+  on published_posts (user_id, provider, account_id, local_post_id);
+
+-- Daily normalised metric snapshot, one row per published item per day. The
+-- analytics dashboard reads from here; the sync job writes here.
+create table if not exists post_metrics (
+  published_post_id bigint not null references published_posts(id) on delete cascade,
+  captured_on       date not null,
+
+  impressions int,
+  reach       int,
+  reactions   int,
+  comments    int,
+  shares      int,
+  saves       int,
+  clicks      int,
+
+  extra       jsonb,
+
+  updated_at  timestamp not null default current_timestamp,
+  primary key (published_post_id, captured_on)
 );

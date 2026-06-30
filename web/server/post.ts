@@ -13,6 +13,27 @@ import ky from "ky"
 import z from "zod"
 
 const MIN_MS = 1000 * 60
+
+// Records a published item in published_posts. The unique key
+// (user_id, provider, account_id, provider_post_id) makes this idempotent, so
+// re-publishing the same content to the same account updates rather than errors.
+async function publish(row: {
+    user_id: number
+    provider: number
+    account_id: string
+    provider_post_id: string
+    local_post_id: string
+    post_url: string
+}) {
+    await db
+        .insertInto('published_posts')
+        .values({ ...row, origin: 1 })
+        .onConflict((oc) => oc
+            .columns(['user_id', 'provider', 'account_id', 'provider_post_id'])
+            .doUpdateSet({ post_url: row.post_url, local_post_id: row.local_post_id }))
+        .execute()
+}
+
 export async function postToLinkedin(raw: proto.Payload) {
     const { hash, asset } = proto.Payload.parse(raw)
 
@@ -34,15 +55,14 @@ export async function postToLinkedin(raw: proto.Payload) {
 
     const post_url = `https://www.linkedin.com/feed/update/${urn}`
 
-    await db
-        .insertInto('posts')
-        .values({
-            post_id: hash,
-            post_url,
-            provider: Platform.LinkedIn,
-            user_id
-        })
-        .execute()
+    await publish({
+        user_id,
+        provider: Platform.LinkedIn,
+        account_id: author_urn,
+        provider_post_id: urn,
+        local_post_id: hash,
+        post_url,
+    })
 
     return { url: post_url }
 }
@@ -62,17 +82,21 @@ export async function postToInstagram(raw: proto.Payload, instagram_account_id: 
         .where('instagram_account_id', '=', instagram_account_id)
         .executeTakeFirstOrThrow()
 
-    const { url: post_url } = await instagram.upload({ access_token, instagram_account_id, user_id, post_id: hash }, asset)
+    const { url: post_url, media_id } = await instagram.upload({ access_token, instagram_account_id, user_id, post_id: hash }, asset)
 
-    await db
-        .insertInto('posts')
-        .values({ post_id: hash, post_url, provider: Platform.Instagram, user_id })
-        .execute()
+    await publish({
+        user_id,
+        provider: Platform.Instagram,
+        account_id: instagram_account_id,
+        provider_post_id: media_id,
+        local_post_id: hash,
+        post_url,
+    })
 
     return { url: post_url }
 }
 
-const DevtoArticle = z.object({ url: z.string() })
+const DevtoArticle = z.object({ id: z.number(), url: z.string() })
 
 export async function postToDevto(raw: proto.Payload) {
     const { hash, asset } = proto.Payload.parse(raw)
@@ -81,9 +105,9 @@ export async function postToDevto(raw: proto.Payload) {
     const { user_id } = await cook.get()
     assert(user_id, 'User not logged in')
 
-    const { api_key } = await db
+    const { api_key, devto_user_id } = await db
         .selectFrom('devto')
-        .select(['api_key'])
+        .select(['api_key', 'devto_user_id'])
         .where('user_id', '=', user_id)
         .executeTakeFirstOrThrow()
 
@@ -96,17 +120,21 @@ export async function postToDevto(raw: proto.Payload) {
         : (content.split('\n')[0]?.trim().slice(0, 100) || 'Post')
     const body_markdown = headingMatch ? content.slice(headingMatch[0].length).trimStart() : content
 
-    const { url: post_url } = DevtoArticle.parse(
+    const { id, url: post_url } = DevtoArticle.parse(
         await ky.post('https://dev.to/api/articles', {
             headers: { 'api-key': api_key, accept: 'application/vnd.forem.api-v1+json' },
             json: { article: { title, body_markdown, published: true } },
         }).json()
     )
 
-    await db
-        .insertInto('posts')
-        .values({ post_id: hash, post_url, provider: Platform['DEV.to'], user_id })
-        .execute()
+    await publish({
+        user_id,
+        provider: Platform['DEV.to'],
+        account_id: devto_user_id,
+        provider_post_id: String(id),
+        local_post_id: hash,
+        post_url,
+    })
 
     return { url: post_url }
 }
@@ -130,13 +158,16 @@ export async function postToYoutube(raw: proto.Payload, channel_id: string) {
 
     const post_url = `https://www.youtube.com/watch?v=${id}`
 
-    // The posts table tracks one URL per (user, post, provider); re-posting to
-    // another channel overwrites it rather than failing the unique constraint.
-    await db
-        .insertInto('posts')
-        .values({ post_id: hash, post_url, provider: Platform.YouTube, user_id })
-        .onConflict((oc) => oc.columns(['user_id', 'post_id', 'provider']).doUpdateSet({ post_url }))
-        .execute()
+    // account_id = channel_id, so posting the same video to another channel is a
+    // distinct row rather than an overwrite.
+    await publish({
+        user_id,
+        provider: Platform.YouTube,
+        account_id: channel_id,
+        provider_post_id: id,
+        local_post_id: hash,
+        post_url,
+    })
 
     return { url: post_url }
 }
@@ -159,6 +190,7 @@ export async function postToFacebook(raw: proto.Payload, page_id: string) {
         .executeTakeFirstOrThrow()
 
     let post_url: string
+    let provider_post_id: string
 
     if (asset.type === 'post') {
         const res = FbFeedResponse.parse(
@@ -166,6 +198,7 @@ export async function postToFacebook(raw: proto.Payload, page_id: string) {
                 searchParams: { access_token, message: asset.text },
             }).json()
         )
+        provider_post_id = res.id
         const [pid, nid] = res.id.split('_')
         post_url = `https://www.facebook.com/permalink.php?story_fbid=${nid}&id=${pid}`
     } else if (asset.type === 'image') {
@@ -178,6 +211,7 @@ export async function postToFacebook(raw: proto.Payload, page_id: string) {
                 }).json()
             )
             const postRef = res.post_id ?? res.id
+            provider_post_id = postRef
             const [pid, nid] = postRef.split('_')
             post_url = `https://www.facebook.com/permalink.php?story_fbid=${nid}&id=${pid}`
         } finally {
@@ -241,16 +275,20 @@ export async function postToFacebook(raw: proto.Payload, page_id: string) {
             timeout: 30000,
         }).json()
 
+        provider_post_id = session.video_id
         post_url = `https://www.facebook.com/watch/?v=${session.video_id}`
     } else {
         throw new Error('unreachable')
     }
 
-    await db
-        .insertInto('posts')
-        .values({ post_id: hash, post_url, provider: Platform.Facebook, user_id })
-        .onConflict((oc) => oc.columns(['user_id', 'post_id', 'provider']).doUpdateSet({ post_url }))
-        .execute()
+    await publish({
+        user_id,
+        provider: Platform.Facebook,
+        account_id: page_id,
+        provider_post_id,
+        local_post_id: hash,
+        post_url,
+    })
 
     return { url: post_url }
 }

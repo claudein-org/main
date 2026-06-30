@@ -46,3 +46,32 @@ services:
       - key: SPACE_SECRET_KEY
         scope: RUN_AND_BUILD_TIME
         type: SECRET
+
+# ANALYTICS SYNC JOB
+# Pulls per-post metrics from the provider APIs into post_metrics. Built from
+# /Dockerfile.job — the web image is a Next.js standalone build and does NOT
+# contain web/jobs/sync.ts. Recurring scheduling is configured on the
+# DigitalOcean job itself; `kind` below is the in-spec trigger (runs once after
+# each deploy — the sync is idempotent, so re-running is safe).
+#
+# The job needs the same env as the web service: DB_* and the OAuth/cookie
+# secrets are app-level secrets (set in the DO dashboard) and are inherited;
+# SPACE_SECRET_KEY is declared per-component, so it is repeated here.
+jobs:
+  - name: analytics-sync
+    kind: POST_DEPLOY
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: claudein-org/main
+
+    source_dir: /
+    dockerfile_path: /Dockerfile.job
+
+    instance_count: 1
+    instance_size_slug: basic-xxs
+
+    envs:
+      - key: SPACE_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET

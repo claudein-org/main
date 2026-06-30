@@ -164,7 +164,7 @@ export async function upload(
                 .where('creation_id', '=', creation_id)
                 .execute()
 
-            return { url: permalink }
+            return { url: permalink, media_id }
         } catch (err) {
             await db.updateTable('instagram_containers')
                 .set({

@@ -30,12 +30,13 @@ export default async function page({ params }: Params) {
     instagram.getStatus(user_id),
     youtube.getStatus(user_id),
     devto.getStatus(user_id),
-    db.selectFrom('posts').select(['post_id', 'post_url', 'provider']).where('user_id', '=', user_id).execute()
+    db.selectFrom('published_posts').select(['local_post_id', 'post_url', 'provider']).where('user_id', '=', user_id).execute()
       .then((res) => {
         const map: Record<string, Record<number, string>> = {}
-        for (const { post_id, post_url, provider } of res) {
-          if (!map[post_id]) map[post_id] = {}
-          map[post_id][provider] = post_url
+        for (const { local_post_id, post_url, provider } of res) {
+          if (!local_post_id) continue
+          if (!map[local_post_id]) map[local_post_id] = {}
+          map[local_post_id][provider] = post_url
         }
         return map
       }),

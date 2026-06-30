@@ -71,12 +71,31 @@ namespace db {
         updated_at: Generated<Date>
     }
 
-    interface Posts {
-        post_date: Generated<Date>
+    interface PublishedPosts {
+        id: Generated<number>
         user_id: number
-        post_id: string
         provider: number
+        account_id: string
+        provider_post_id: string
+        local_post_id: string | null
+        origin: number
         post_url: string
+        post_date: Generated<Date>
+        synced_at: Date | null
+    }
+
+    interface PostMetrics {
+        published_post_id: number
+        captured_on: Date
+        impressions: number | null
+        reach: number | null
+        reactions: number | null
+        comments: number | null
+        shares: number | null
+        saves: number | null
+        clicks: number | null
+        extra: Record<string, unknown> | null
+        updated_at: Generated<Date>
     }
 
     export interface DB {
@@ -87,7 +106,8 @@ namespace db {
         devto: Devto
         youtube: Youtube
         instagram_containers: InstagramContainers
-        posts: Posts
+        published_posts: PublishedPosts
+        post_metrics: PostMetrics
     }
 }
 
