@@ -69,6 +69,6 @@ jobs:
     kind: SCHEDULED
     run_command: cd web && bun jobs/sync.ts
     schedule:
-      cron: "*/60 * * * *"
+      cron: "0 0 * * *"
     source_dir: /
-    timeout: 600s
+    timeout: 900s

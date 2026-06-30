@@ -5,6 +5,11 @@ TODO:
   - providers:
   - common:
   - web:
+      - analytics:
+          - Dashboard should have:
+              - Overview (already implemented)
+              - A bar charts of posts in the last 30 days, for each day stack the number of posts by provider (Linkedin, Twitter, Facebook, Instagram, TikTok).
+              - A table of top posts (link, provider, date, impressions, engagement info)
   - video:
 
 Done:
