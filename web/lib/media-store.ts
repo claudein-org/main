@@ -8,7 +8,7 @@ const ENDPOINT = `https://${REGION}.digitaloceanspaces.com`
 
 function client() {
     return new S3Client({
-        region: 'us-east-1',
+        region: REGION,
         endpoint: ENDPOINT,
         credentials: {
             accessKeyId: SPACE_ACCESS_KEY,
