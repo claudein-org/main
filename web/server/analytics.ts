@@ -55,7 +55,7 @@ export interface Range {
 // not yet granted, so their adapters return nothing and the dashboard shows a
 // "connect analytics access" state instead of fake zeros.
 export const ANALYTICS_ACCESS: Record<number, boolean> = {
-    [Platform.LinkedIn]: false,
+    [Platform.LinkedIn]: true,
     [Platform.Facebook]: true,
     [Platform.Instagram]: false,
     [Platform.YouTube]: true,

@@ -1,11 +1,66 @@
-import type { AccountFetcher } from './types'
+import { db } from '@/lib/db'
+import ky from 'ky'
+import z from 'zod'
+import type { AccountFetcher, Metrics } from './types'
 
-// LinkedIn analytics are gated on the `r_member_postAnalytics` scope / product
-// approval (not yet granted — the longest lead time, analytics.md §5). Until it
-// lands this returns nothing, so the dashboard shows the "connect analytics
-// access" state instead of fake zeros.
-//
-// To wire: call the memberCreatorPostAnalytics `entity` finder keyed on the
-// share/ugcPost URN we store as provider_post_id, and map IMPRESSION /
-// MEMBERS_REACHED / REACTION / COMMENT / RESHARE onto Metrics (analytics.md §3.1).
-export const fetchMetrics: AccountFetcher = async () => new Map()
+const BASE = 'https://api.linkedin.com/rest'
+// Use the version that added POST_SAVE, LINK_CLICKS, etc. (analytics.md §3.1)
+const LINKEDIN_VERSION = '202504'
+
+const MetricsResponse = z.object({
+    elements: z.array(z.object({
+        metricType: z.string(),
+        value: z.number().nullable().optional(),
+    })).default([]),
+})
+
+export const fetchMetrics: AccountFetcher = async (user_id, _account_id, posts) => {
+    const out = new Map<number, Metrics>()
+
+    const row = await db.selectFrom('linkedin').select(['access_token'])
+        .where('user_id', '=', user_id).executeTakeFirst()
+    if (!row) return out
+
+    const { access_token } = row
+    const headers = {
+        Authorization: `Bearer ${access_token}`,
+        'Linkedin-Version': LINKEDIN_VERSION,
+        'X-Restli-Protocol-Version': '2.0.0',
+    }
+
+    for (const p of posts) {
+        try {
+            const data = MetricsResponse.parse(
+                await ky.get(`${BASE}/memberCreatorPostAnalytics`, {
+                    headers,
+                    searchParams: new URLSearchParams([
+                        ['q', 'entity'],
+                        ['entity', p.provider_post_id],
+                        ['metrics', 'List(IMPRESSION,MEMBERS_REACHED,REACTION,COMMENT,RESHARE,POST_SAVE,LINK_CLICKS)'],
+                        ['aggregation', 'TOTAL'],
+                    ]),
+                    timeout: 30000,
+                }).json()
+            )
+
+            const byType: Record<string, number | null> = {}
+            for (const el of data.elements) byType[el.metricType] = el.value ?? null
+
+            const m: Metrics = {
+                impressions: byType['IMPRESSION'] ?? null,
+                reach: byType['MEMBERS_REACHED'] ?? null,
+                reactions: byType['REACTION'] ?? null,
+                comments: byType['COMMENT'] ?? null,
+                shares: byType['RESHARE'] ?? null,
+                saves: byType['POST_SAVE'] ?? null,
+                clicks: byType['LINK_CLICKS'] ?? null,
+            }
+
+            if (Object.values(m).some(v => v != null)) out.set(p.id, m)
+        } catch {
+            // API error or scope not yet granted — leave this post absent
+        }
+    }
+
+    return out
+}

@@ -15,7 +15,7 @@ const linkedinParams = new URLSearchParams({
     response_type: "code",
     client_id: LINKEDIN_CLIENT_ID,
     redirect_uri: auth.getRedirectUri('linkedin'),
-    scope: "openid profile w_member_social",
+    scope: "openid profile w_member_social r_member_postAnalytics",
 })
 
 const facebookParams = new URLSearchParams({
