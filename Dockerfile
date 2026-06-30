@@ -1,6 +1,8 @@
 # BUILDER
 FROM oven/bun:latest AS builder
 
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
 
 COPY package.json bun.lock ./
@@ -10,11 +12,11 @@ COPY web/package.json ./web/
 COPY cli/package.json ./cli/
 COPY video/package.json ./video/
 
-RUN bun install --frozen-lockfile 
+RUN bun install --frozen-lockfile
 
-COPY . . 
+COPY . .
 
-RUN cd web && bun run build
+RUN cd web && NEXT_PUBLIC_VERSION=$(git rev-list --count HEAD) bun run build
 
 # RUNTIME
 FROM oven/bun

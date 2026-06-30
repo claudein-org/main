@@ -1,7 +1,8 @@
 'use client'
 
-import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarLogo, sidebarNav, sidebarSectionTitle, sidebarSpacer, ytAvatar } from "@/css/style.css"
+import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarLogo, sidebarNav, sidebarSectionTitle, sidebarSpacer, sidebarVersion, ytAvatar } from "@/css/style.css"
 import { app } from "@/lib/app"
+import { version } from "@/lib/version"
 import { btn } from "@/css/style.css"
 import { cx } from "@/styled-system/css"
 import type { Page } from "@/provider/facebook"
@@ -188,6 +189,8 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                         </div>
                     ))}
                 </div>
+
+                <span className={sidebarVersion}>v{version}</span>
             </aside>
 
             <div className={dashboardMain}>

@@ -296,6 +296,13 @@ export const navItem = cva({
 
 export const sidebarSpacer = css({ flexGrow: 1 })
 
+export const sidebarVersion = css({
+  fontSize: "0.6875rem",
+  color: "textSecondary",
+  padding: "0 0.75rem",
+  opacity: 0.6,
+})
+
 export const sidebarSectionTitle = css({
   fontSize: "0.6875rem",
   fontWeight: 600,
