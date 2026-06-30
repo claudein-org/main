@@ -38,7 +38,7 @@ interface Props {
     youtubeConnected: boolean
     youtubeChannels: Channel[]
     devtoConnected: boolean
-    published: Record<string, Record<number, string>>
+    published: Record<string, Record<number, Record<string, string>>>
 }
 
 interface ServiceRowProps {

@@ -9,7 +9,7 @@ import { cx } from "@/styled-system/css"
 import { Platform, PlatformSupport, proto } from "@claudein.org/common"
 import { useState } from "react"
 
-type Published = Record<string, Record<number, string>>
+type Published = Record<string, Record<number, Record<string, string>>>
 
 interface Props {
     payload: proto.Payload
@@ -26,9 +26,23 @@ interface Props {
 // per-card; `published` seeds any links already persisted in the posts table.
 export default function PostActions({ payload, published, linkedinConnected, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected }: Props) {
     const { hash, asset } = payload
-    // `published` seeds links already persisted in the posts table; it's a static
-    // server prop, so we read it once on mount rather than syncing via effect.
-    const [links, setLinks] = useState<Record<number, string>>(published[hash] ?? {})
+    // Links already persisted in the posts table, keyed provider -> account_id.
+    // It's a static server prop, so we read it once on mount rather than syncing
+    // via effect.
+    const accounts = published[hash] ?? {}
+    // Single-account providers (LinkedIn, dev.to) have one stored URL per provider.
+    const firstUrl = (provider: number) => {
+        const byAccount = accounts[provider]
+        return byAccount && Object.values(byAccount)[0]
+    }
+    const [links, setLinks] = useState<Record<number, string>>(() => {
+        const seed: Record<number, string> = {}
+        const li = firstUrl(Platform.LinkedIn)
+        if (li) seed[Platform.LinkedIn] = li
+        const dt = firstUrl(Platform['DEV.to'])
+        if (dt) seed[Platform['DEV.to']] = dt
+        return seed
+    })
     const [posting, setPosting] = useState<Set<string>>(new Set())
     // Instagram/YouTube/Facebook uploads tracked per `${hash}:${account_id}` since the same post can go to several accounts.
     const [igPosted, setIgPosted] = useState<Record<string, string>>({})
@@ -89,7 +103,6 @@ export default function PostActions({ payload, published, linkedinConnected, fac
     }
 
     const linkedinLink = links[Platform.LinkedIn]
-    const youtubeLink = links[Platform.YouTube]
     const devtoLink = links[Platform['DEV.to']]
     const isPostingLinkedin = posting.has(`${hash}:${Platform.LinkedIn}`)
     const isPostingDevto = posting.has(`${hash}:${Platform['DEV.to']}`)
@@ -108,7 +121,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
             {facebookPages.length > 0 && asset.target.includes('Facebook') && PlatformSupport.Facebook.includes(asset.type) && facebookPages.map(page => {
                 const key = `${hash}:${page.page_id}`
                 const isPosting = posting.has(key)
-                const url = fbPosted[key] ?? (facebookPages.length === 1 ? links[Platform.Facebook] : undefined)
+                const url = fbPosted[key] ?? accounts[Platform.Facebook]?.[page.page_id]
                 return url
                     ? <a key={page.page_id} href={url} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'facebook', size: 'sm' }))} title={page.page_name}>
                         View on Facebook
@@ -120,7 +133,7 @@ export default function PostActions({ payload, published, linkedinConnected, fac
             {instagramAccounts.length > 0 && asset.target.includes('Instagram') && PlatformSupport.Instagram.includes(asset.type) && instagramAccounts.map((account) => {
                 const key = `${hash}:${account.instagram_account_id}`
                 const isPosting = posting.has(key)
-                const url = igPosted[key] ?? (instagramAccounts.length === 1 ? links[Platform.Instagram] : undefined)
+                const url = igPosted[key] ?? accounts[Platform.Instagram]?.[account.instagram_account_id]
                 return url
                     ? <a key={account.instagram_account_id} href={url} target="_blank" rel="noopener noreferrer" className={cx(btn({ color: 'instagram', size: 'sm' }))} title={account.username}>
                         View on Instagram
@@ -141,9 +154,8 @@ export default function PostActions({ payload, published, linkedinConnected, fac
             {youtubeConnected && asset.target.includes('YouTube') && PlatformSupport.YouTube.includes(asset.type) && youtubeChannels.map((channel) => {
                 const key = `${hash}:${channel.channel_id}`
                 const isPosting = posting.has(key)
-                // Prefer this session's upload; fall back to the stored URL only with a single
-                // channel, since the posts table can't attribute history to a specific channel.
-                const url = ytPosted[key] ?? (youtubeChannels.length === 1 ? youtubeLink : undefined)
+                // Prefer this session's upload; otherwise the URL stored for this channel.
+                const url = ytPosted[key] ?? accounts[Platform.YouTube]?.[channel.channel_id]
                 const label = (
                     <span className={cx(row, align.center, gap.xs)}>
                         <img className={ytAvatar} src={channel.thumbnail} alt="" />

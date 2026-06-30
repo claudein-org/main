@@ -30,13 +30,17 @@ export default async function page({ params }: Params) {
     instagram.getStatus(user_id),
     youtube.getStatus(user_id),
     devto.getStatus(user_id),
-    db.selectFrom('published_posts').select(['local_post_id', 'post_url', 'provider']).where('user_id', '=', user_id).execute()
+    db.selectFrom('published_posts').select(['local_post_id', 'post_url', 'provider', 'account_id']).where('user_id', '=', user_id).execute()
       .then((res) => {
-        const map: Record<string, Record<number, string>> = {}
-        for (const { local_post_id, post_url, provider } of res) {
+        // hash -> provider -> account_id -> post_url. The account_id dimension lets
+        // multi-account providers (Facebook pages, Instagram accounts, YouTube
+        // channels) restore the right link per account after a reload.
+        const map: Record<string, Record<number, Record<string, string>>> = {}
+        for (const { local_post_id, post_url, provider, account_id } of res) {
           if (!local_post_id) continue
-          if (!map[local_post_id]) map[local_post_id] = {}
-          map[local_post_id][provider] = post_url
+          const byProvider = (map[local_post_id] ??= {})
+          const byAccount = (byProvider[provider] ??= {})
+          byAccount[account_id] = post_url
         }
         return map
       }),

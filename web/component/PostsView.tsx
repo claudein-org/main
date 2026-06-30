@@ -9,7 +9,7 @@ import { proto } from "@claudein.org/common"
 import PostActions from "./PostActions"
 
 
-type Published = Record<string, Record<number, string>>
+type Published = Record<string, Record<number, Record<string, string>>>
 interface Props {
     payloads: proto.Payload[]
     published: Published
