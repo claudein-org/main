@@ -8,11 +8,11 @@ TODO:
       - analytics:
           - Dashboard should have:
               - Overview (already implemented)
-              - A bar charts of posts in the last 30 days, for each day stack the number of posts by provider (Linkedin, Twitter, Facebook, Instagram, TikTok).
               - A table of top posts (link, provider, date, impressions, engagement info)
   - video:
 
 Done:
+  - web: Analytics dashboard — stacked bar chart of posts published per day by provider (last 30 days). Added `postsByDay` field to `Analytics` type, parallel DB query in `getAnalytics`, and `PostsBarChart` SVG component in `AnalyticsView`.
   - web: Read posts.md + analytics.md and generate an operative plan for the analytics dashboard (provider-API-pulled metrics, new DB schema, cron sync, phased rollout). Full report written to `plan.v1.md`.
   - web: Research how to track published posts and propose a better DB schema (provider post ids + multi-account + optional sync of all posts). Report written to `posts.md`.
   - web: remember my last tab (from the side bar) in a cookie then load it on page load.

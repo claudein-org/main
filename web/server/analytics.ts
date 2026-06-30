@@ -31,6 +31,11 @@ export interface TopPost {
     engagement: number
 }
 
+export interface PostsByDayPoint {
+    day: string
+    counts: Record<number, number>  // provider id -> post count
+}
+
 export interface ProviderSummary {
     hasAnalyticsAccess: boolean
     totals: Totals
@@ -43,6 +48,7 @@ export interface Analytics {
     trend: TrendPoint[]
     topPosts: TopPost[]
     perProvider: Record<number, ProviderSummary>
+    postsByDay: PostsByDayPoint[]
 }
 
 export interface Range {
@@ -76,28 +82,40 @@ export function defaultRange(): Range {
 const emptyTotals = (): Totals => ({ impressions: 0, reach: 0, engagement: 0, postCount: 0 })
 
 export async function getAnalytics(user_id: number, range: Range = defaultRange()): Promise<Analytics> {
-    // One round-trip: every metric snapshot in range, joined to its post for
-    // provider + url. `day` is rendered server-side as text so grouping is
-    // timezone-proof and sorts chronologically.
-    const rows = await db
-        .selectFrom('post_metrics as pm')
-        .innerJoin('published_posts as pp', 'pp.id', 'pm.published_post_id')
-        .where('pp.user_id', '=', user_id)
-        .where('pm.captured_on', '>=', range.from)
-        .where('pm.captured_on', '<=', range.to)
-        .select([
-            'pm.published_post_id',
-            'pp.provider',
-            'pp.post_url',
-            'pm.impressions',
-            'pm.reach',
-            'pm.reactions',
-            'pm.comments',
-            'pm.shares',
-            'pm.saves',
-            sql<string>`to_char(pm.captured_on, 'YYYY-MM-DD')`.as('day'),
-        ])
-        .execute()
+    // Two parallel queries:
+    // 1. metric snapshots in range (for totals / trend / top posts)
+    // 2. published posts in range (for the per-day publication bar chart)
+    const [rows, postRows] = await Promise.all([
+        db
+            .selectFrom('post_metrics as pm')
+            .innerJoin('published_posts as pp', 'pp.id', 'pm.published_post_id')
+            .where('pp.user_id', '=', user_id)
+            .where('pm.captured_on', '>=', range.from)
+            .where('pm.captured_on', '<=', range.to)
+            .select([
+                'pm.published_post_id',
+                'pp.provider',
+                'pp.post_url',
+                'pm.impressions',
+                'pm.reach',
+                'pm.reactions',
+                'pm.comments',
+                'pm.shares',
+                'pm.saves',
+                sql<string>`to_char(pm.captured_on, 'YYYY-MM-DD')`.as('day'),
+            ])
+            .execute(),
+        db
+            .selectFrom('published_posts')
+            .where('user_id', '=', user_id)
+            .where('post_date', '>=', range.from)
+            .where('post_date', '<=', range.to)
+            .select([
+                sql<string>`to_char(post_date, 'YYYY-MM-DD')`.as('day'),
+                'provider',
+            ])
+            .execute(),
+    ])
 
     const engagementOf = (r: typeof rows[number]) =>
         (r.reactions ?? 0) + (r.comments ?? 0) + (r.shares ?? 0) + (r.saves ?? 0)
@@ -146,6 +164,16 @@ export async function getAnalytics(user_id: number, range: Range = defaultRange(
     }
     const trend = [...byDay.values()].sort((a, b) => a.day.localeCompare(b.day))
 
+    const postsByDayMap = new Map<string, Record<number, number>>()
+    for (const r of postRows) {
+        let counts = postsByDayMap.get(r.day)
+        if (!counts) { counts = {}; postsByDayMap.set(r.day, counts) }
+        counts[r.provider] = (counts[r.provider] ?? 0) + 1
+    }
+    const postsByDay = [...postsByDayMap.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([day, counts]) => ({ day, counts }))
+
     return {
         from: range.from.toISOString().slice(0, 10),
         to: range.to.toISOString().slice(0, 10),
@@ -153,5 +181,6 @@ export async function getAnalytics(user_id: number, range: Range = defaultRange(
         trend,
         topPosts,
         perProvider,
+        postsByDay,
     }
 }

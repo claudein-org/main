@@ -46,6 +46,14 @@ const PROVIDERS: { id: number; name: string; color: SwatchColor }[] = [
 const IMPRESSIONS_COLOR = '#d97757' // claude
 const ENGAGEMENT_COLOR = '#0a66c2'  // linkedin
 
+const PROVIDER_COLORS: Record<number, string> = {
+    [Platform.LinkedIn]: '#0a66c2',
+    [Platform.Facebook]: '#1877F2',
+    [Platform.Instagram]: '#E1306C',
+    [Platform.YouTube]: '#FF0000',
+    [Platform['DEV.to']]: '#0A0A0A',
+}
+
 const nf = new Intl.NumberFormat()
 const fmt = (n: number) => nf.format(n)
 
@@ -55,7 +63,7 @@ interface Props {
 }
 
 export default function AnalyticsView({ analytics, connected }: Props) {
-    const { totals, trend, topPosts, perProvider } = analytics
+    const { totals, trend, topPosts, perProvider, postsByDay } = analytics
 
     return (
         <div className={analyticsPage}>
@@ -77,6 +85,23 @@ export default function AnalyticsView({ analytics, connected }: Props) {
                 <Metric label="Engagement" value={totals.engagement} />
                 <Metric label="Posts tracked" value={totals.postCount} />
             </div>
+
+            {postsByDay.length > 0 && (
+                <section>
+                    <div className={sectionTitle}>Posts published</div>
+                    <div className={chartFrame}>
+                        <PostsBarChart postsByDay={postsByDay} from={analytics.from} to={analytics.to} />
+                        <div className={chartLegend}>
+                            {PROVIDERS.map(prov => (
+                                <span key={prov.id} className={legendItem}>
+                                    <span className={providerSwatch({ color: prov.color })} />
+                                    {prov.name}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {trend.length >= 2 && (
                 <section>
@@ -200,6 +225,69 @@ function TrendChart({ trend }: { trend: Analytics['trend'] }) {
         <svg className={chartSvg} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Impressions and engagement trend">
             <path d={path('impressions')} fill="none" stroke={IMPRESSIONS_COLOR} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
             <path d={path('engagement')} fill="none" stroke={ENGAGEMENT_COLOR} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </svg>
+    )
+}
+
+function PostsBarChart({ postsByDay, from, to }: {
+    postsByDay: Analytics['postsByDay']
+    from: string
+    to: string
+}) {
+    const W = 720
+    const H = 120
+    const providerOrder = PROVIDERS.map(p => p.id)
+
+    const days: string[] = []
+    const d = new Date(from + 'T00:00:00Z')
+    const end = new Date(to + 'T00:00:00Z')
+    while (d <= end) {
+        days.push(d.toISOString().slice(0, 10))
+        d.setUTCDate(d.getUTCDate() + 1)
+    }
+
+    const byDay = new Map(postsByDay.map(p => [p.day, p.counts]))
+    const maxTotal = Math.max(1, ...days.map(day => {
+        const c = byDay.get(day) ?? {}
+        return Object.values(c).reduce((a, b) => a + b, 0)
+    }))
+
+    const barSlotW = W / days.length
+    const barGap = 1
+    const barInnerW = barSlotW - barGap
+
+    return (
+        <svg className={chartSvg} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none"
+            role="img" aria-label="Posts published per day by provider">
+            {days.map((day, i) => {
+                const counts = byDay.get(day) ?? {}
+                const total = Object.values(counts).reduce((a, b) => a + b, 0)
+                if (!total) return null
+
+                const x = i * barSlotW + barGap / 2
+                let y = H
+                const segs: { pid: number; sy: number; h: number }[] = []
+                for (const pid of providerOrder) {
+                    const count = counts[pid] ?? 0
+                    if (!count) continue
+                    const h = (count / maxTotal) * H
+                    y -= h
+                    segs.push({ pid, sy: y, h })
+                }
+
+                return (
+                    <g key={day}>
+                        <title>{day}: {total} post{total !== 1 ? 's' : ''}</title>
+                        {segs.map(({ pid, sy, h }) => (
+                            <rect key={pid}
+                                x={x.toFixed(2)} y={sy.toFixed(2)}
+                                width={barInnerW.toFixed(2)} height={h.toFixed(2)}
+                                fill={PROVIDER_COLORS[pid] ?? '#999'}
+                            />
+                        ))}
+                    </g>
+                )
+            })}
         </svg>
     )
 }
