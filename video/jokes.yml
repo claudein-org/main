@@ -3,10 +3,126 @@ jokes:
     q: "Why do programmers prefer dark mode?"
     a: "Because light attracts bugs."
 
-  - name: git-blame
-    q: "Why do programmers hate nature?"
-    a: "It has too many bugs."
+  - name: off-by-one
+    q: "Why do programmers always confuse Halloween and Christmas?"
+    a: "Because Oct 31 equals Dec 25."
 
-  - name: context-window
-    q: "Why did Claude forget the beginning of the conversation?"
-    a: "It ran out of context."
+  # - name: context-window
+  #   q: "Why did Claude forget the beginning of the conversation?"
+  #   a: "It ran out of context."
+
+  # - name: recursive
+  #   q: "What is a programmer's favorite place to go?"
+  #   a: "Recursion — see: Recursion."
+
+  # - name: git-blame
+  #   q: "Why do programmers hate nature?"
+  #   a: "It has too many bugs."
+
+  # - name: cache
+  #   q: "Why did the developer go broke?"
+  #   a: "Because they used up all their cache."
+
+  # - name: binary
+  #   q: "There are 10 types of people in the world."
+  #   a: "Those who understand binary and those who don't."
+
+  # - name: infinite-loop
+  #   q: "How do you keep a programmer in the shower forever?"
+  #   a: "Tell them to wash, rinse, and repeat."
+
+  # - name: regex
+  #   q: "A programmer had a problem. They decided to use regex."
+  #   a: "Now they have two problems."
+
+  # - name: git-push
+  #   q: "Why did the developer push to main on a Friday?"
+  #   a: "They didn't. They're not a monster."
+
+  # - name: meeting
+  #   q: "Why do programmers hate meetings?"
+  #   a: "Because they interrupt the flow."
+
+  # - name: null-pointer
+  #   q: "Why did Tony Hoare apologize?"
+  #   a: "He invented null — his billion-dollar mistake."
+
+  # - name: debugging
+  #   q: "What's a programmer's least favorite activity?"
+  #   a: "Debugging — it's like being the detective in a crime movie where you're also the murderer."
+
+  # - name: copy-paste
+  #   q: "How many programmers does it take to change a light bulb?"
+  #   a: "None. That's a hardware problem."
+
+  # - name: tabs-vs-spaces
+  #   q: "Why did the programmer get fired from the space agency?"
+  #   a: "They kept using tabs instead of spaces."
+
+  # - name: keyboard
+  #   q: "Why do programmers prefer keyboards over mice?"
+  #   a: "Because you can't Ctrl+Z a bad decision with a mouse."
+
+  # - name: estimating
+  #   q: "How long will this feature take?"
+  #   a: "Two weeks. (×3, ×3, ×3...)"
+
+  # - name: stack-overflow
+  #   q: "Where do programmers go when they're lost?"
+  #   a: "Stack Overflow — and they never come back."
+
+  # - name: variable-names
+  #   q: "What do programmers name their cats?"
+  #   a: "foo, bar, and baz."
+
+  # - name: legacy-code
+  #   q: "What's a programmer's version of a horror movie?"
+  #   a: "Opening a file with no author and no comments from 2009."
+
+  # - name: deployment
+  #   q: "Why do programmers confuse art and engineering?"
+  #   a: "Because they both involve a lot of 'it works on my machine'."
+
+  # - name: agile
+  #   q: "What's the difference between a sprint and a marathon?"
+  #   a: "In agile, they're the same thing — you just call it done after two weeks."
+
+  # - name: atoms
+  #   q: "Why can't you trust an atom?"
+  #   a: "They make up everything."
+
+  # - name: elevator
+  #   q: "I told my wife she was drawing her eyebrows too high."
+  #   a: "She looked surprised."
+
+  - name: skeleton
+    q: "Why didn't the skeleton go to the party?"
+    a: "He had no body to go with."
+
+  - name: ocean
+    q: "Why don't oysters share?"
+    a: "Because they're shellfish."
+
+  - name: clock
+    q: "Why did the man eat his clock?"
+    a: "It was time-consuming."
+
+  # - name: dog-sit
+  #   q: "What do you call a dog that does magic tricks?"
+  #   a: "A labracadabrador."
+
+  # - name: bank
+  #   q: "Why don't scientists trust atoms?"
+  #   a: "Because they make up everything. (Sorry, wrong joke.) Why did the bank robber take a bath? To make a clean getaway."
+
+  # - name: stairs
+  #   q: "I'm reading a book about anti-gravity."
+  #   a: "It's impossible to put down."
+
+  # - name: seagull
+  #   q: "Why do seagulls fly over the sea?"
+  #   a: "Because if they flew over the bay, they'd be bagels."
+
+  # - name: cheese
+  #   q: "What do you call cheese that isn't yours?"
+  #   a: "Nacho cheese."

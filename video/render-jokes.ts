@@ -1,4 +1,4 @@
-import { execSync } from "child_process"
+import { spawnSync } from "child_process"
 import * as fs from "fs"
 import * as yaml from "js-yaml"
 
@@ -19,9 +19,14 @@ const { jokes } = yaml.load(raw) as JokesFile
 for (const { name, q, a } of jokes) {
     const props = JSON.stringify({ q, a })
     const output = `out/ClaudeJoke-${name}.mp4`
+    if (fs.existsSync(output)) {
+        console.log(`\nSkipping: ${name} (already exists)`)
+        continue
+    }
     console.log(`\nRendering: ${name} → ${output}`)
-    execSync(
-        `bun run render ClaudeJoke --props '${props}' --output ${output}`,
+    spawnSync(
+        "bun",
+        ["run", "render", "ClaudeJoke", "--props", props, "--output", output],
         { stdio: "inherit" }
     )
 }
