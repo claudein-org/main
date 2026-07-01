@@ -7,6 +7,9 @@ TODO:
   - common:
   - web:
   - cli:
+
+Done:
+  - cli:
       - Update the cli:
           - remove the skills command and replace it with an "init" command.
           - The install command should do the following:
@@ -21,5 +24,3 @@ TODO:
                         It should update the existing claudein.yml file with project updates and with new posts.
 
               - All commands should understand the file structure, use the @common/index.ts tree output and embed it in the command .md file, so claude understands the file structure and can use it to generate the claudein.yml file.
-
-Done:

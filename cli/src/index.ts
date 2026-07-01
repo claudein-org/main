@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { A2A, AssetType, links, PlatformSupport, proto, yml } from '@claudein.org/common'
+import { A2A, AssetType, claudein, Folder, FS, FSNode, links, PlatformSupport, proto, tree, yml, type WithPath } from '@claudein.org/common'
 import type { Shell } from '@versecafe/zcli'
 import { cli, command, fmt, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
 import { watch } from 'fs'
-import { cp, mkdir, readdir, readFile, writeFile } from 'fs/promises'
+import { mkdir, readdir, readFile, writeFile } from 'fs/promises'
 import { createRequire } from 'module'
 import { atom } from 'nanostores'
 import open from 'open'
@@ -49,24 +49,17 @@ export function hash(asset: proto.Asset) {
     .substring(0, 16)
 }
 
-// A claudein project is a directory: claudein.yml at the root, brand.md for
-// the brand description, media (images / video) under media/, and article
-// markdown under articles/. The yml references assets by bare filename; these
-// helpers resolve them to real paths on disk.
-const ROOT = 'claudein'
-const FS = {
-  CLAUDIN_YML: `${ROOT}/claudein.yml`,
-  BRAND_MD: `${ROOT}/brand.md`,
-  MEDIA: `${ROOT}/media`,
-  ARTICLES: `${ROOT}/articles`,
-}
+// A claudein project is a directory: claudein.yml at the root, media (images
+// / video) under media/, and article markdown under articles/. The yml
+// references assets by bare filename; these helpers resolve them to real
+// paths on disk.
 
 
 
 const A2A: A2A = {
   async post(post) { return post },
   async article({ src, ...info }) {
-    const path = join(FS.ARTICLES, src)
+    const path = join(FS.articles, src)
     let markdown: string
     try {
       markdown = await readFile(path, 'utf-8')
@@ -78,7 +71,7 @@ const A2A: A2A = {
   },
 
   async image({ src, ...info }) {
-    const path = join(FS.MEDIA, src)
+    const path = join(FS.media, src)
     let base64: string
     try {
       base64 = await readFile(path).then(buf => buf.toString('base64'))
@@ -90,7 +83,7 @@ const A2A: A2A = {
   },
 
   async video({ src, ...info }) {
-    const path = join(FS.MEDIA, src)
+    const path = join(FS.media, src)
     let base64: string
     try {
       base64 = await readFile(path).then(buf => buf.toString('base64'))
@@ -125,9 +118,6 @@ A short description of your brand — what it is and who it is for.
 `
 
 const sampleYml: yml.YML = {
-  brand: {
-    src: 'brand.md',
-  },
   assets: [
     {
       type: 'post',
@@ -158,17 +148,44 @@ Edit this file — or ask Claude Code to write one for you — and the browser
 preview updates the moment you save.
 `
 
+// Create f and all its subfolders on disk under root, and touch (create if
+// missing, never overwrite) every file in the tree.
+
+type FSType = FSNode['type']
+const Toucher: { [key in FSType]: (child: Extract<FSNode, { type: key }>, path: string) => Promise<void> } = {
+  folder: (child, path) => touch(child, path),
+  file: async (child, path) => {
+    try {
+      await writeFile(join(path, child.name), '', { flag: 'wx' })
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err
+    }
+  }
+}
+
+function toucher<T extends FSType>(child: Extract<FSNode, { type: T }>, path: string) {
+  return Toucher[child.type](child, path)
+}
+
+async function touch(f: Folder, root: string = '.') {
+  const path = join(root, f.name)
+  await mkdir(path, { recursive: true })
+
+  for (const child of f.children ?? []) {
+    await toucher(child, path)
+  }
+}
+
 // Scaffold a fresh claudein/ project: claudein.yml + brand.md + empty media/
 // and articles/ folders, seeded with a sample post and example article.
 async function scaffold() {
-  await mkdir(FS.MEDIA, { recursive: true })
-  await mkdir(FS.ARTICLES, { recursive: true })
+  await touch(claudein)
 
-  await writeFile(FS.CLAUDIN_YML, sample, 'utf-8')
-  await writeFile(FS.BRAND_MD, sampleBrand, 'utf-8')
-  await writeFile(join(FS.ARTICLES, EXAMPLE_ARTICLE), exampleArticle, 'utf-8')
+  await writeFile(FS.claudein_yml, sample, 'utf-8')
 
-  console.log(`Created ${ROOT} with a sample post and article`)
+  await writeFile(join(FS.articles, EXAMPLE_ARTICLE), exampleArticle, 'utf-8')
+
+  console.log(`Created ${FS.root} with a sample post and article`)
 }
 
 // COMMANDS
@@ -182,7 +199,7 @@ const start = command('start')
   .action(async ({ inputs: { dir } }) => {
 
     try {
-      await readFile(FS.CLAUDIN_YML, 'utf-8')
+      await readFile(FS.claudein_yml, 'utf-8')
     } catch {
       await scaffold()
     }
@@ -196,7 +213,7 @@ const start = command('start')
     async function loadBundle() {
       try {
 
-        const data = await readFile(FS.CLAUDIN_YML, 'utf-8')
+        const data = await readFile(FS.claudein_yml, 'utf-8')
 
         let parsed: yml.YML
         try {
@@ -206,7 +223,7 @@ const start = command('start')
           console.error(`❌ Failed to parse claudein.yml: ${msg}`)
           return
         }
-        const { brand, assets } = parsed
+        const { assets } = parsed
 
         watchArray.forEach(w => w.close())
         watchArray.length = 0
@@ -221,9 +238,9 @@ const start = command('start')
 
         const Watcher: { [key in AssetType]: (asset: Extract<yml.Asset, { type: key }>) => string[] } = {
           post: () => [],
-          article: ({ src }) => [join(FS.ARTICLES, src)],
-          image: ({ src }) => [join(FS.MEDIA, src)],
-          video: ({ src }) => [join(FS.MEDIA, src)]
+          article: ({ src }) => [join(FS.articles, src)],
+          image: ({ src }) => [join(FS.media, src)],
+          video: ({ src }) => [join(FS.media, src)]
         }
 
         function watcher<T extends AssetType>(asset: Extract<yml.Asset, { type: T }>) {
@@ -231,7 +248,6 @@ const start = command('start')
         }
 
         const mediaPaths = [
-          join(ROOT, brand.src),
           ...assets.flatMap(watcher)
         ]
 
@@ -243,24 +259,12 @@ const start = command('start')
           }
         })
 
-        let brandMarkdown: string
-        try {
-          brandMarkdown = await readFile(FS.BRAND_MD, 'utf-8')
-        } catch {
-          console.warn(`⚠ ${FS.BRAND_MD} not found, using empty brand`)
-          brandMarkdown = ''
-        }
-        const protoBrand: proto.Brand = {
-          src: brand.src,
-          markdown: brandMarkdown,
-        }
-
         const protoAssets = await Promise.all(assets.map(a2a))
         const payloads = protoAssets
           .map<proto.Payload>((asset) => ({ hash: hash(asset), asset }))
           .sort((a, b) => b.asset.created.localeCompare(a.asset.created))
 
-        $bundle.set({ brand: protoBrand, payloads })
+        $bundle.set({ payloads })
       } catch (err) {
         console.error('Failed to load brand:', err)
       }
@@ -282,7 +286,7 @@ const start = command('start')
       })
     })
 
-    watch(FS.CLAUDIN_YML, loadBundle)
+    watch(FS.claudein_yml, loadBundle)
     await loadBundle()
 
     const { port } = wss.address() as AddressInfo
@@ -297,27 +301,46 @@ const versionCmd = command('version')
     console.log(generateVersion('cin', version))
   })
 
-const skillsInstallCmd = command('install')
-  .meta({ description: 'Install claudein skills into ~/.claude/skills/' })
+// Render a tree() listing as indented, commented text for embedding in a
+// Claude Code command file, e.g.:
+//   claudein/                # ClaudeIn root folder
+//     claudein.yml            # The main data file for claudein ...
+function renderTree(entries: WithPath[]) {
+  return entries
+    .map(({ name, type, description, path }) => {
+      const indent = '  '.repeat(path.length - 1)
+      const label = type === 'folder' ? `${name}/` : name
+      return `${indent}${label} — ${description}`
+    })
+    .join('\n')
+}
+
+const initCmd = command('init')
+  .meta({
+    description: 'Scaffold a claudein/ project and install the claudein-init / claudein-update Claude Code commands into ~/.claude/commands/',
+    examples: ['cin init'],
+  })
   .action(async () => {
+    await touch(claudein)
+    console.log(fmt.success(`Created ${FS.root}/ project structure`))
+
     const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
-    const skillsDir = join(pkgRoot, 'skills')
-    const targetBase = join(homedir(), '.claude', 'skills')
+    const commandsDir = join(pkgRoot, 'commands')
+    const targetBase = join(homedir(), '.claude', 'commands')
 
     await mkdir(targetBase, { recursive: true })
 
-    const entries = await readdir(skillsDir, { withFileTypes: true })
+    const treeText = renderTree(tree(claudein))
+
+    const entries = await readdir(commandsDir, { withFileTypes: true })
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue
+      if (!entry.isFile() || !entry.name.endsWith('.md')) continue
+      const raw = await readFile(join(commandsDir, entry.name), 'utf-8')
       const dst = join(targetBase, entry.name)
-      await cp(join(skillsDir, entry.name), dst, { recursive: true })
+      await writeFile(dst, raw.replaceAll('{{TREE}}', treeText), 'utf-8')
       console.log(fmt.success(`Installed ${entry.name} → ${dst}`))
     }
   })
-
-const skillsCmd = command('skills')
-  .meta({ description: 'Manage Claude Code skills' })
-  .use(skillsInstallCmd)
 
 let cinRef: ReturnType<typeof cli>
 
@@ -338,7 +361,7 @@ const completionCmd = command('completion')
 
 cinRef = cli('cin', { version })
   .use(start)
-  .use(skillsCmd)
+  .use(initCmd)
   .use(versionCmd)
   .use(completionCmd)
 

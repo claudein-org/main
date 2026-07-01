@@ -28,20 +28,21 @@ export const PlatformSupport: { [key in Platform]: AssetType[] } = {
     'DEV.to': ['article']
 }
 
-interface Folder {
+export interface Folder {
     type: 'folder'
     name: string
     description: string
     children?: Array<Folder | File>
 }
 
-interface File {
+export interface File {
     type: 'file'
     name: string
     description: string
 }
 
-export const claudein: Folder = {
+export type FSNode = Folder | File
+export const claudein = {
     type: 'folder',
     name: 'claudein',
     description: 'ClaudeIn root folder',
@@ -62,16 +63,49 @@ export const claudein: Folder = {
             description: 'A folder that contains .md files, each .md file is a full, self contained short article to be published on supported platforms.',
         },
     ]
-}
+} as const satisfies Folder
 
-function touch(f: Folder) {
-    // TODO: mkdir f and all subfolders, and touch all files
-}
+type Join<Prefix extends string, Name extends string> =
+    Prefix extends '' ? Name : `${Prefix}/${Name}`
 
-type Path = (File | Folder) & { path: string[] }
+type PathsOf<T extends FSNode, Prefix extends string = ''> =
+    T extends { name: infer N extends string }
+    ? T extends { type: 'file' }
+    ? Join<Prefix, N>
+    : T extends { type: 'folder'; children?: infer C }
+    ? C extends readonly FSNode[]
+    ? Join<Prefix, N> | PathsFromChildren<C, Join<Prefix, N>>
+    : Join<Prefix, N>
+    : never
+    : never
 
-function tree(f: Folder, root: string[] = []) {
-    // TODO: return a path array of all files and folders in the tree, with their paths
+type PathsFromChildren<T extends readonly FSNode[], Prefix extends string> =
+    T extends readonly [infer Head extends FSNode, ...infer Tail extends FSNode[]]
+    ? PathsOf<Head, Prefix> | PathsFromChildren<Tail, Prefix>
+    : never
+
+type Path = PathsOf<typeof claudein>
+
+export const FS = {
+    root: 'claudein',
+    claudein_yml: 'claudein/claudein.yml',
+    articles: 'claudein/articles',
+    media: 'claudein/media',
+} as const satisfies Record<string, Path>
+
+
+export type WithPath = (File | Folder) & { path: string[] }
+
+// Flatten f and all its descendants into a list of entries, each annotated
+// with its path (as name segments) from root down to that entry.
+export function tree(f: Folder, root: string[] = []): WithPath[] {
+    const path = [...root, f.name]
+    const children = (f.children ?? []).flatMap<WithPath>(child =>
+        child.type === 'folder'
+            ? tree(child, path)
+            : [{ ...child, path: [...path, child.name] }]
+    )
+    return [{ ...f, path }, ...children]
 }
 
 export namespace yml {
@@ -116,14 +150,8 @@ export namespace yml {
         Video
     ])
 
-    export type Brand = z.infer<typeof Brand>
-    export const Brand = z.object({
-        src: z.literal('brand.md'),
-    })
-
     export type YML = z.infer<typeof YML>
     export const YML = z.object({
-        brand: Brand,
         assets: z.array(Asset)
     })
 }
@@ -155,15 +183,9 @@ export namespace proto {
         asset: Asset
     })
 
-    export type Brand = z.infer<typeof Brand>
-    export const Brand = yml.Brand.extend({
-        markdown: z.string(),
-    })
-
     // The full brand bundle streamed to the web app over the websocket.
     export type Bundle = z.infer<typeof Bundle>
     export const Bundle = z.object({
-        brand: Brand,
         payloads: z.array(Payload),
     })
 }

@@ -322,60 +322,7 @@ export const dashboardMain = css({
   padding: "3rem 2rem 5rem",
 })
 
-/* Brand view */
-export const brandPage = css({
-  display: "flex",
-  flexDirection: "column",
-  gap: "3.5rem",
-  width: "100%",
-  maxWidth: "900px",
-})
-
 export const brandEmpty = css({ color: "textSecondary", padding: "4rem 0" })
-
-export const brandHero = css({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  textAlign: "center",
-  gap: "1.5rem",
-})
-
-export const brandLogo = css({ width: "min(140px, 30vw)", height: "auto" })
-
-export const brandDescription = css({ maxWidth: "640px" })
-
-export const brandFeatures = css({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-  gap: "1rem",
-})
-
-export const featureCard = css({
-  display: "flex",
-  alignItems: "flex-start",
-  gap: "0.875rem",
-  border: "1px solid #e0e0e0",
-  borderRadius: "12px",
-  padding: "1.25rem",
-  background: "#ffffff",
-})
-
-export const brandGallery = css({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-  gap: "1rem",
-})
-
-export const galleryImg = css({
-  width: "100%",
-  height: "200px",
-  objectFit: "contain",
-  padding: "1rem",
-  borderRadius: "12px",
-  border: "1px solid #e0e0e0",
-  background: "#FAF9F7",
-})
 
 /* Posts view — responsive grid: 1 column on mobile, 2 on tablet, 3 on desktop. */
 export const postsGrid = css({

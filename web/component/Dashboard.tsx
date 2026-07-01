@@ -15,7 +15,6 @@ import { Platform, proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
 import AnalyticsView from "./AnalyticsView"
 import ArticlesView from "./ArticlesView"
-import BrandView from "./BrandView"
 import MediaView from "./MediaView"
 import PostsView from "./PostsView"
 import Reload from "./Reload"
@@ -24,7 +23,6 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 const VIEWS = [
-    { id: 'brand', label: 'Brand' },
     { id: 'posts', label: 'Posts' },
     { id: 'images', label: 'Images' },
     { id: 'videos', label: 'Videos' },
@@ -72,7 +70,7 @@ function ServiceRow({ name, connected, href, color, pending }: ServiceRowProps) 
 export default function Dashboard({ port, expires_at, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published, analytics }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
-    const [view, setView] = useState<View>('brand')
+    const [view, setView] = useState<View>('posts')
     // Posts made during this visit, merged over the server-loaded `published`
     // map so card status and sidebar counts update immediately without a refetch.
     const [sessionPosted, setSessionPosted] = useState<PublishedMap>({})
@@ -107,7 +105,7 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
         return () => ws.close()
     }, [port])
 
-    // Up/Down arrows move between sidebar views (Brand, Posts, …).
+    // Up/Down arrows move between sidebar views (Posts, Images, …).
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
@@ -227,7 +225,6 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
             </aside>
 
             <div className={dashboardMain}>
-                {view === 'brand' && <BrandView brand={bundle?.brand} />}
                 {view === 'posts' && (
                     <PostsView payloads={postPayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
                 )}
