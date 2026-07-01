@@ -4,7 +4,15 @@ Linkedin:
 TODO:
   - providers:
   - common:
-  - web:
+  - web: Improve the UX/UI of the dashboard.
+      The problem is that it is hard to see quickly which card was already posted and to were.
+      Design a clean UI that is easy to understand.
+      A user watching the dashboard should see immediately which cards were posted and to which providers, and which cards are still pending.
+      Try to make a clear separation between the cards that were posted and the ones that are still pending.
+      Also in the card itself make a clear distinction between the providers that were posted to and the ones that are still pending.
+      Group assets (e.g. pages, accounts, etc.) by provider and show the status of each asset (posted, pending, failed, etc.) in a clear way.
+      A provider should be marked as posted once the card was posted to at least one of its assets (but still let the user post to the other assets as well).
+      On the sidebar show the number of "still need to post" cards for each provider.
   - video:
 
 Done:
