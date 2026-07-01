@@ -8,7 +8,7 @@ TODO:
   - web:
   - cli:
       - Update the cli:
-          - remove the skills command and replace it with an "install" command.
+          - remove the skills command and replace it with an "init" command.
           - The install command should do the following:
               - generates the folder structure for the claudein, see @common/index.ts (claudein, tree, touch, etc.)
               - install few Claude Code commands (.md files) into ~/.claude/commands:
