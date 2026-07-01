@@ -28,6 +28,51 @@ export const PlatformSupport: { [key in Platform]: AssetType[] } = {
     'DEV.to': ['article']
 }
 
+interface Folder {
+    type: 'folder'
+    name: string
+    description: string
+    children?: Array<Folder | File>
+}
+
+interface File {
+    type: 'file'
+    name: string
+    description: string
+}
+
+export const claudein: Folder = {
+    type: 'folder',
+    name: 'claudein',
+    description: 'ClaudeIn root folder',
+    children: [
+        {
+            type: 'file',
+            name: 'claudein.yml',
+            description: 'The main data file for claudein contains all the posts, articles, etc... with reference to the content files (media, articles .md files, etc...)',
+        },
+        {
+            type: 'folder',
+            name: 'media',
+            description: 'Media files for claudein. This folder contains soft links to relevant media files in the project and actual media files that was created especially for claudein.',
+        },
+        {
+            type: 'folder',
+            name: 'articles',
+            description: 'A folder that contains .md files, each .md file is a full, self contained short article to be published on supported platforms.',
+        },
+    ]
+}
+
+function touch(f: Folder) {
+    // TODO: mkdir f and all subfolders, and touch all files
+}
+
+type Path = (File | Folder) & { path: string[] }
+
+function tree(f: Folder, root: string[] = []) {
+    // TODO: return a path array of all files and folders in the tree, with their paths
+}
 
 export namespace yml {
     const ImageSrc = z.string().regex(/.*\.(jpg|jpeg|png)$/)
