@@ -192,12 +192,14 @@ const sampleYml: yml.YML = {
     {
       type: 'post',
       created: formatter.format(new Date()),
+      schedule: formatter.format(new Date()),
       target: ['LinkedIn'],
       text: "I'm using ClaudeIn to share my thoughts and ideas!"
     },
     {
       type: 'article',
       created: formatter.format(new Date()),
+      schedule: formatter.format(new Date()),
       target: ['DEV.to'],
       src: EXAMPLE_ARTICLE,
     },

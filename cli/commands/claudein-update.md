@@ -35,7 +35,7 @@ A claudein project is a directory with this structure:
    ln -s /absolute/path/to/file.png claudein/media/file.png
    ```
 5. **Add new articles** under `claudein/articles/*.md` for new longer-form content.
-6. **Append new posts** to `claudein/claudein.yml` for anything worth announcing — do not remove or rewrite existing posts unless they're clearly stale or incorrect.
+6. **Append new posts** to `claudein/claudein.yml` for anything worth announcing — do not remove or rewrite existing posts unless they're clearly stale or incorrect. Every asset needs both `created` (today, the authoring date) and `schedule` (the date it should go out — today for an immediate post, or a future date to queue it up). Pick `schedule` dates that come after the last existing post's schedule so new posts queue up in order rather than colliding.
 7. Tell the user to run `cin start` (if not already running) to preview and publish the new posts.
 
 ## Asset resolution rule

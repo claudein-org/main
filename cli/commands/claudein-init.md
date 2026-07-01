@@ -33,7 +33,7 @@ A claudein project is a directory with this structure:
    ln -s /absolute/path/to/file.png claudein/media/file.png
    ```
 6. **Write `claudein/articles/*.md`** for any longer-form content worth publishing as a `article` post (DEV.to).
-7. **Write `claudein/claudein.yml`** referencing a handful of seed posts (`post`, `image`, `video`, `article`) built from what was found — reference media/articles by bare filename, matching the schema.
+7. **Write `claudein/claudein.yml`** referencing a handful of seed posts (`post`, `image`, `video`, `article`) built from what was found — reference media/articles by bare filename, matching the schema. Every asset needs both `created` (today, the authoring date) and `schedule` (the date it should go out — today for an immediate post, or a future date to queue it up). Spread the `schedule` dates for the seed posts across the next 1-2 weeks so they don't all land on the same day.
 8. Tell the user to run `cin start` to preview and publish.
 
 ## Asset resolution rule

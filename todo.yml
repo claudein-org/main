@@ -26,8 +26,6 @@ TODO:
                 Show a count badge with unpublished posts for each of the views.
               - The Analytics view should show the same analytics as now.
 
-              - Update the claude commands in cli/commands/*.md to understand the new schedule field and generate posts with a schedule field.
-
   - web:
   - cli:
       - Update the commands in cli/commands/*.md to generate reach posts (images, videos, etc.) when possible.
@@ -51,3 +49,6 @@ Done:
                         It should update the existing claudein.yml file with project updates and with new posts.
 
               - All commands should understand the file structure, use the @common/index.ts tree output and embed it in the command .md file, so claude understands the file structure and can use it to generate the claudein.yml file.
+
+  - common:
+      - Update the claude commands in cli/commands/*.md to understand the new schedule field and generate posts with a schedule field.
