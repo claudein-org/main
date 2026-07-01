@@ -5,7 +5,6 @@ TODO:
   - providers:
   - video:
   - common:
-      - scan the entire codebase and update the README.md file
   - web:
       - update the homepage:
           - add a "Star On GitHub" clear CTA
@@ -14,6 +13,8 @@ TODO:
           - make the homepage more visually appealing and engaging design it for high conversion rate
   - cli:
 Done:
+  - common:
+      - scan the entire codebase and update the README.md file
   - web:
       - remove counter badges from the CONNECTIONS section.
       - Use Masonry layout for the web preview (all views).
