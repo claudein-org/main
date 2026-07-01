@@ -6,9 +6,11 @@ TODO:
   - video:
   - common:
   - web:
-      - Use Masonry layout for the web preview (all views).
+      - remove counter badges from the CONNECTIONS section.
   - cli:
 Done:
+  - web:
+      - Use Masonry layout for the web preview (all views).
   - cli:
       - Update the cli:
           - remove the skills command and replace it with an "init" command.

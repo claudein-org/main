@@ -330,15 +330,15 @@ export const dashboardMain = css({
 
 export const brandEmpty = css({ color: "textSecondary", padding: "4rem 0" })
 
-/* Posts view — responsive grid: 1 column on mobile, 2 on tablet, 3 on desktop. */
+/* Posts view — masonry via CSS columns: cards pack to their natural height
+   instead of stretching to match the tallest card in a grid row. */
 export const postsGrid = css({
-  display: "grid",
   width: "100%",
   maxWidth: "1100px",
-  gap: "1.25rem",
-  gridTemplateColumns: "1fr",
-  "@media (min-width: 640px)": { gridTemplateColumns: "repeat(2, 1fr)" },
-  "@media (min-width: 1024px)": { gridTemplateColumns: "repeat(3, 1fr)" },
+  columnGap: "1.25rem",
+  columnCount: 1,
+  "@media (min-width: 640px)": { columnCount: 2 },
+  "@media (min-width: 1024px)": { columnCount: 3 },
 })
 
 export const postCard = css({
@@ -349,7 +349,8 @@ export const postCard = css({
   flexDirection: "column",
   gap: "1rem",
   background: "#ffffff",
-  height: "100%",
+  breakInside: "avoid",
+  marginBottom: "1.25rem",
 })
 
 /* Articles view — responsive grid: 1 column on mobile, 2 on desktop. */
@@ -370,7 +371,8 @@ export const articleCard = css({
   flexDirection: "column",
   gap: "1rem",
   background: "#ffffff",
-  height: "100%",
+  breakInside: "avoid",
+  marginBottom: "1.25rem",
 })
 
 /* Rendered markdown — the full article body. */
