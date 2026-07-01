@@ -1,6 +1,12 @@
 import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion"
 import z from "zod"
 import ClaudeCode from "./ClaudeCode"
+/*
+1. Type faster.
+2. Add laugh.mp3 when Claude starts laughing.
+3. Fix Claude eyes when it laughs, they should be more visible (maybe like >.<)
+4. Use the funky.mp3 bg music as the background music for the video.
+*/
 
 // Timing (frames at 30fps, total 600 = 20s)
 const Q_TYPE: [number, number] = [30, 120]
