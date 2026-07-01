@@ -450,10 +450,97 @@ export const articleBody = css({
 export const postCardActions = css({
   marginTop: "auto",
   display: "flex",
-  flexWrap: "wrap",
+  flexDirection: "column",
+  gap: "0.625rem",
+  paddingTop: "0.25rem",
+})
+
+/* One provider's block within a card's actions — groups its accounts under a
+   single posted/pending status so multi-account providers (Facebook pages,
+   Instagram accounts, YouTube channels) read as one unit. */
+export const providerActionGroup = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.5rem",
+  border: "1px solid #e0e0e0",
+  borderRadius: "10px",
+  padding: "0.625rem 0.75rem",
+})
+
+export const providerActionHeader = css({
+  display: "flex",
   alignItems: "center",
   gap: "0.5rem",
-  paddingTop: "0.25rem",
+})
+
+export const providerActionName = css({ fontSize: "0.8125rem", fontWeight: 600, flexGrow: 1 })
+
+export const providerActionAccounts = css({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "0.5rem",
+})
+
+/* Posted/pending/failed status pill — used on provider groups within a card
+   and on the dashboard's card-section headers. */
+export const statusPill = cva({
+  base: {
+    display: "inline-flex",
+    alignItems: "center",
+    fontSize: "0.6875rem",
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    textTransform: "uppercase",
+    padding: "0.15rem 0.5rem",
+    borderRadius: "999px",
+    flexShrink: 0,
+  },
+  variants: {
+    tone: {
+      posted: { background: "#DCFCE7", color: "#166534" },
+      pending: { background: "#FEF3C7", color: "#92400E" },
+      failed: { background: "#FEE2E2", color: "#991B1B" },
+    },
+  },
+})
+
+/* Dashboard-level grouping of cards into "needs posting" vs "posted". */
+export const cardSection = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+  width: "100%",
+  maxWidth: "1100px",
+})
+
+export const cardSectionHeader = css({
+  display: "flex",
+  alignItems: "center",
+  gap: "0.625rem",
+})
+
+export const cardSectionTitle = css({
+  fontSize: "0.8125rem",
+  fontWeight: 600,
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+  color: "textSecondary",
+})
+
+/* Small count badge next to a connected provider in the sidebar, showing how
+   many cards still need to be posted to it. */
+export const sidebarPendingBadge = css({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: "1.125rem",
+  height: "1.125rem",
+  padding: "0 0.3rem",
+  borderRadius: "999px",
+  fontSize: "0.6875rem",
+  fontWeight: 700,
+  background: "#FEF3C7",
+  color: "#92400E",
 })
 
 /* Analytics view */

@@ -1,6 +1,7 @@
 'use client'
 
-import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarLogo, sidebarNav, sidebarSectionTitle, sidebarSpacer, sidebarVersion, ytAvatar } from "@/css/style.css"
+import { align, gap, row } from "@/css/layout.css"
+import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarLogo, sidebarNav, sidebarPendingBadge, sidebarSectionTitle, sidebarSpacer, sidebarVersion, ytAvatar } from "@/css/style.css"
 import { app } from "@/lib/app"
 import { version } from "@/lib/version"
 import { btn } from "@/css/style.css"
@@ -9,6 +10,7 @@ import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import type { Analytics } from "@/server/analytics"
+import { mergePublished, pendingCountsByProvider, type Connections, type PublishedMap } from "@/lib/postStatus"
 import { Platform, proto } from "@claudein.org/common"
 import { useEffect, useState } from "react"
 import AnalyticsView from "./AnalyticsView"
@@ -40,7 +42,7 @@ interface Props {
     youtubeConnected: boolean
     youtubeChannels: Channel[]
     devtoConnected: boolean
-    published: Record<string, Record<number, Record<string, string>>>
+    published: PublishedMap
     analytics: Analytics
 }
 
@@ -49,14 +51,18 @@ interface ServiceRowProps {
     connected: boolean
     href: string
     color: 'dark' | 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'claude' | 'devto'
+    pending?: number
 }
 
-function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
+function ServiceRow({ name, connected, href, color, pending }: ServiceRowProps) {
     return (
         <div className={connectMenuRow}>
             <span>{name}</span>
             {connected
-                ? <span className={connectedBadge}>✓ Connected</span>
+                ? <span className={cx(row, align.center, gap.xs)}>
+                    {!!pending && <span className={sidebarPendingBadge} title={`${pending} still need to post`}>{pending}</span>}
+                    <span className={connectedBadge}>✓ Connected</span>
+                </span>
                 : <a className={cx(btn({ color, size: 'sm' }))} href={href} target="_blank">Connect</a>
             }
         </div>
@@ -67,6 +73,16 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
     const [view, setView] = useState<View>('brand')
+    // Posts made during this visit, merged over the server-loaded `published`
+    // map so card status and sidebar counts update immediately without a refetch.
+    const [sessionPosted, setSessionPosted] = useState<PublishedMap>({})
+    const handlePosted = (hash: string, provider: number, accountId: string, url: string) => {
+        setSessionPosted(prev => ({
+            ...prev,
+            [hash]: { ...prev[hash], [provider]: { ...prev[hash]?.[provider], [accountId]: url } },
+        }))
+    }
+    const mergedPublished = mergePublished(published, sessionPosted)
 
     useEffect(() => {
         const match = document.cookie.match(/(?:^|;\s*)claudein_tab=([^;]+)/)
@@ -120,11 +136,19 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
         [Platform['DEV.to']]: devtoConnected,
     }
 
+    const connections: Connections = {
+        linkedinConnected, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected,
+    }
+
     const payloads = bundle?.payloads ?? []
     const postPayloads = payloads.filter(p => p.asset.type === 'post')
     const imagePayloads = payloads.filter(p => p.asset.type === 'image')
     const videoPayloads = payloads.filter(p => p.asset.type === 'video')
     const articlePayloads = payloads.filter(p => p.asset.type === 'article')
+
+    // "Still need to post" counts per provider, across every card — shown next
+    // to each connection in the sidebar.
+    const pendingCounts = pendingCountsByProvider(payloads, mergedPublished, connections)
 
     return (
         <div className={dashboardLayout}>
@@ -149,9 +173,12 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
 
                 <div>
                     <div className={sidebarSectionTitle}>Connections</div>
-                    <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" />
+                    <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" pending={pendingCounts[Platform.LinkedIn]} />
                     <div className={connectMenuRow}>
-                        <span>Facebook</span>
+                        <span className={cx(row, align.center, gap.xs)}>
+                            Facebook
+                            {!!pendingCounts[Platform.Facebook] && <span className={sidebarPendingBadge} title={`${pendingCounts[Platform.Facebook]} still need to post`}>{pendingCounts[Platform.Facebook]}</span>}
+                        </span>
                         <a className={cx(btn({ color: 'facebook', size: 'sm' }))} href={app.facebook} target="_blank">
                             {facebookPages.length > 0 ? 'Add page' : 'Connect'}
                         </a>
@@ -162,7 +189,10 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                         </div>
                     ))}
                     <div className={connectMenuRow}>
-                        <span>Instagram</span>
+                        <span className={cx(row, align.center, gap.xs)}>
+                            Instagram
+                            {!!pendingCounts[Platform.Instagram] && <span className={sidebarPendingBadge} title={`${pendingCounts[Platform.Instagram]} still need to post`}>{pendingCounts[Platform.Instagram]}</span>}
+                        </span>
                         <a className={cx(btn({ color: 'instagram', size: 'sm' }))} href={app.instagram} target="_blank">
                             {instagramAccounts.length > 0 ? 'Add account' : 'Connect'}
                         </a>
@@ -172,11 +202,14 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                             <span>@{account.username}</span>
                         </div>
                     ))}
-                    <ServiceRow name="dev.to" connected={devtoConnected} href={app.auth.devto} color="devto" />
+                    <ServiceRow name="dev.to" connected={devtoConnected} href={app.auth.devto} color="devto" pending={pendingCounts[Platform['DEV.to']]} />
 
                     {/* YouTube supports multiple channels, so it lists each connected channel and always offers to add another. */}
                     <div className={connectMenuRow}>
-                        <span>YouTube</span>
+                        <span className={cx(row, align.center, gap.xs)}>
+                            YouTube
+                            {!!pendingCounts[Platform.YouTube] && <span className={sidebarPendingBadge} title={`${pendingCounts[Platform.YouTube]} still need to post`}>{pendingCounts[Platform.YouTube]}</span>}
+                        </span>
                         <a className={cx(btn({ color: 'youtube', size: 'sm' }))} href={app.youtube} target="_blank">
                             {youtubeChannels.length > 0 ? 'Add channel' : 'Connect'}
                         </a>
@@ -196,54 +229,16 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
             <div className={dashboardMain}>
                 {view === 'brand' && <BrandView brand={bundle?.brand} />}
                 {view === 'posts' && (
-                    <PostsView
-                        payloads={postPayloads}
-                        published={published}
-                        linkedinConnected={linkedinConnected}
-                        facebookPages={facebookPages}
-                        instagramAccounts={instagramAccounts}
-                        youtubeConnected={youtubeConnected}
-                        youtubeChannels={youtubeChannels}
-                        devtoConnected={devtoConnected}
-                    />
+                    <PostsView payloads={postPayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
                 )}
                 {view === 'images' && (
-                    <MediaView
-                        kind="image"
-                        payloads={imagePayloads}
-                        published={published}
-                        linkedinConnected={linkedinConnected}
-                        facebookPages={facebookPages}
-                        instagramAccounts={instagramAccounts}
-                        youtubeConnected={youtubeConnected}
-                        youtubeChannels={youtubeChannels}
-                        devtoConnected={devtoConnected}
-                    />
+                    <MediaView kind="image" payloads={imagePayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
                 )}
                 {view === 'videos' && (
-                    <MediaView
-                        kind="video"
-                        payloads={videoPayloads}
-                        published={published}
-                        linkedinConnected={linkedinConnected}
-                        facebookPages={facebookPages}
-                        instagramAccounts={instagramAccounts}
-                        youtubeConnected={youtubeConnected}
-                        youtubeChannels={youtubeChannels}
-                        devtoConnected={devtoConnected}
-                    />
+                    <MediaView kind="video" payloads={videoPayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
                 )}
                 {view === 'articles' && (
-                    <ArticlesView
-                        payloads={articlePayloads}
-                        published={published}
-                        linkedinConnected={linkedinConnected}
-                        facebookPages={facebookPages}
-                        instagramAccounts={instagramAccounts}
-                        youtubeConnected={youtubeConnected}
-                        youtubeChannels={youtubeChannels}
-                        devtoConnected={devtoConnected}
-                    />
+                    <ArticlesView payloads={articlePayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
                 )}
                 {view === 'analytics' && <AnalyticsView analytics={analytics} connected={connected} />}
             </div>
