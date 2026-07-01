@@ -1,8 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/claudein-org/main/refs/heads/main/claudein.schema.yml
 
-brand:
-  src: brand.md
-
 assets:
   - type: post
     created: 2026-06-24
@@ -43,3 +40,8 @@ assets:
     target: [LinkedIn, YouTube, Instagram, Facebook]
     description: ClaudeIn is fun to use.
     src: ClaudeJoke-off-by-one.mp4
+
+  - type: post
+    created: 2026-07-01
+    target: [LinkedIn]
+    text: "Shipped: `cin init` now does it all — scaffolds your claudein/ project AND installs /claudein-init and /claudein-update as native Claude Code slash commands. No separate skills step. Also simplified the project format by dropping the brand.md requirement, so there's one less file between you and your first post."

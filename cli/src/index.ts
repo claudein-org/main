@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { A2A, AssetType, claudein, Folder, FS, FSNode, links, PlatformSupport, proto, tree, yml, type WithPath } from '@claudein.org/common'
+import { A2A, AssetType, links, PlatformSupport, proto, yml } from '@claudein.org/common'
 import type { Shell } from '@versecafe/zcli'
 import { cli, command, fmt, generateCompletionScript, generateVersion, positional } from '@versecafe/zcli'
 import crypto from 'crypto'
@@ -21,6 +21,86 @@ const { version } = createRequire(import.meta.url)('../package.json') as { versi
 
 const DOMAIN = process.env.CIN_ENV === 'dev' ? 'localhost:3000' : 'claudein.org'
 
+
+export interface Folder {
+  type: 'folder'
+  name: string
+  description: string
+  children?: Array<Folder | File>
+}
+
+export interface File {
+  type: 'file'
+  name: string
+  description: string
+}
+
+export type FSNode = Folder | File
+export const claudein = {
+  type: 'folder',
+  name: 'claudein',
+  description: 'ClaudeIn root folder',
+  children: [
+    {
+      type: 'file',
+      name: 'claudein.yml',
+      description: 'The main data file for claudein contains all the posts, articles, etc... with reference to the content files (media, articles .md files, etc...)',
+    },
+    {
+      type: 'folder',
+      name: 'media',
+      description: 'Media files for claudein. This folder contains soft links to relevant media files in the project and actual media files that was created especially for claudein.',
+    },
+    {
+      type: 'folder',
+      name: 'articles',
+      description: 'A folder that contains .md files, each .md file is a full, self contained short article to be published on supported platforms.',
+    },
+  ]
+} as const satisfies Folder
+
+type Join<Prefix extends string, Name extends string> =
+  Prefix extends '' ? Name : `${Prefix}/${Name}`
+
+type PathsOf<T extends FSNode, Prefix extends string = ''> =
+  T extends { name: infer N extends string }
+  ? T extends { type: 'file' }
+  ? Join<Prefix, N>
+  : T extends { type: 'folder'; children?: infer C }
+  ? C extends readonly FSNode[]
+  ? Join<Prefix, N> | PathsFromChildren<C, Join<Prefix, N>>
+  : Join<Prefix, N>
+  : never
+  : never
+
+type PathsFromChildren<T extends readonly FSNode[], Prefix extends string> =
+  T extends readonly [infer Head extends FSNode, ...infer Tail extends FSNode[]]
+  ? PathsOf<Head, Prefix> | PathsFromChildren<Tail, Prefix>
+  : never
+
+type Path = PathsOf<typeof claudein>
+
+const FS = {
+  root: 'claudein',
+  claudein_yml: 'claudein/claudein.yml',
+  articles: 'claudein/articles',
+  media: 'claudein/media',
+} as const satisfies Record<string, Path>
+
+
+export type WithPath = (File | Folder) & { path: string[] }
+
+// Flatten f and all its descendants into a list of entries, each annotated
+// with its path (as name segments) from root down to that entry.
+export function tree(f: Folder, root: string[] = []): WithPath[] {
+  const path = [...root, f.name]
+  const children = (f.children ?? []).flatMap<WithPath>(child =>
+    child.type === 'folder'
+      ? tree(child, path)
+      : [{ ...child, path: [...path, child.name] }]
+  )
+  return [{ ...f, path }, ...children]
+}
 
 const hasher: { [key in AssetType]: (asset: Extract<proto.Asset, { type: key }>) => (string | undefined)[] } = {
   post({ text }) {
@@ -107,16 +187,6 @@ const formatter = new Intl.DateTimeFormat('en-CA', {
 
 const EXAMPLE_ARTICLE = 'welcome.md'
 
-const sampleBrand = `# My Brand
-
-A short description of your brand — what it is and who it is for.
-
-## What makes it special
-
-- The first thing that makes your brand stand out
-- The second thing that makes your brand stand out
-`
-
 const sampleYml: yml.YML = {
   assets: [
     {
@@ -176,8 +246,8 @@ async function touch(f: Folder, root: string = '.') {
   }
 }
 
-// Scaffold a fresh claudein/ project: claudein.yml + brand.md + empty media/
-// and articles/ folders, seeded with a sample post and example article.
+// Scaffold a fresh claudein/ project: claudein.yml + empty media/ and
+// articles/ folders, seeded with a sample post and example article.
 async function scaffold() {
   await touch(claudein)
 
@@ -192,7 +262,7 @@ async function scaffold() {
 const start = command('start')
 
   .meta({
-    description: 'Start the live preview server. Claude Code writes your brand and posts to a claudein/ project (claudein.yml + media/ + articles/), you see the dashboard in the browser in real time, and can click to publish.',
+    description: 'Start the live preview server. Claude Code writes posts to a claudein/ project (claudein.yml + media/ + articles/), you see the dashboard in the browser in real time, and can click to publish.',
     examples: ['cin start'],
   })
 
@@ -266,7 +336,7 @@ const start = command('start')
 
         $bundle.set({ payloads })
       } catch (err) {
-        console.error('Failed to load brand:', err)
+        console.error('Failed to load bundle:', err)
       }
     }
 
@@ -340,6 +410,8 @@ const initCmd = command('init')
       await writeFile(dst, raw.replaceAll('{{TREE}}', treeText), 'utf-8')
       console.log(fmt.success(`Installed ${entry.name} → ${dst}`))
     }
+
+    console.log(fmt.success(`✅ ClaudeIn project initialized. Reload Claude Code for the new commands to take effect.`))
   })
 
 let cinRef: ReturnType<typeof cli>
