@@ -102,6 +102,19 @@ export function ClaudeLaughing({ laughing = true, size = 400 }: Props) {
                         height={squintAmount}
                         fill="#d97757"
                     />
+                    {/* >·< laugh eyes */}
+                    {laughing && <>
+                        <polyline
+                            points={`${LEFT_EYE.x - 0.5},${LEFT_EYE.y} ${LEFT_EYE.x + LEFT_EYE.w + 0.5},${LEFT_EYE.y + LEFT_EYE.h / 2} ${LEFT_EYE.x - 0.5},${LEFT_EYE.y + LEFT_EYE.h}`}
+                            fill="none" stroke="#1B1F24" strokeWidth="0.5"
+                            strokeLinecap="round" strokeLinejoin="round"
+                        />
+                        <polyline
+                            points={`${RIGHT_EYE.x + RIGHT_EYE.w + 0.5},${RIGHT_EYE.y} ${RIGHT_EYE.x - 0.5},${RIGHT_EYE.y + RIGHT_EYE.h / 2} ${RIGHT_EYE.x + RIGHT_EYE.w + 0.5},${RIGHT_EYE.y + RIGHT_EYE.h}`}
+                            fill="none" stroke="#1B1F24" strokeWidth="0.5"
+                            strokeLinecap="round" strokeLinejoin="round"
+                        />
+                    </>}
                 </g>
 
                 {/* Tears of joy — outside the squash group so they fall straight */}

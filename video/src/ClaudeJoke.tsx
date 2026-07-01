@@ -1,17 +1,10 @@
-import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion"
+import { AbsoluteFill, Audio, Easing, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion"
 import z from "zod"
 import ClaudeCode from "./ClaudeCode"
-/*
-1. Type faster.
-2. Add laugh.mp3 when Claude starts laughing.
-3. Fix Claude eyes when it laughs, they should be more visible (maybe like >.<)
-4. Use the funky.mp3 bg music as the background music for the video.
-*/
-
 // Timing (frames at 30fps, total 600 = 20s)
-const Q_TYPE: [number, number] = [30, 120]
+const Q_TYPE: [number, number] = [30, 75]
 const THINK: [number, number] = [150, 370]
-const A_TYPE: [number, number] = [390, 470]
+const A_TYPE: [number, number] = [390, 430]
 const LAUGH_START = 490
 
 const THINKING_SYMBOLS = ['+', '✦', '✧', '⊹', '◆', '✺', '⋆']
@@ -87,6 +80,10 @@ export function ClaudeJoke({ q, a }: Props) {
 
     return (
         <AbsoluteFill>
+            <Audio src={staticFile('funky.mp3')} volume={0.35} />
+            <Sequence from={LAUGH_START}>
+                <Audio src={staticFile('laugh.mp3')} />
+            </Sequence>
             <ClaudeCode laughing={laughing} ctx={ctx} tok={tok} cost={cost}>
                 <div style={{ whiteSpace: 'pre-wrap', visibility: frame >= Q_TYPE[0] ? 'visible' : 'hidden' }}>
                     {input}
