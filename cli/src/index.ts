@@ -389,7 +389,7 @@ function renderTree(entries: WithPath[]) {
 
 const initCmd = command('init')
   .meta({
-    description: 'Scaffold a claudein/ project and install the claudein-init / claudein-update Claude Code commands into ~/.claude/commands/',
+    description: 'Scaffold a claudein/ project and install the claudein-init / claudein-update / claudein-write-article Claude Code commands into ~/.claude/commands/',
     examples: ['cin init'],
   })
   .action(async () => {

@@ -5,6 +5,38 @@ TODO:
   - providers:
   - video:
   - common:
+  - web:
+      - Use Masonry layout for the web preview (all views).
+  - cli:
+Done:
+  - cli:
+      - Update the cli:
+          - remove the skills command and replace it with an "init" command.
+          - The install command should do the following:
+              - generates the folder structure for the claudein, see @common/index.ts (claudein, tree, touch, etc.)
+              - install few Claude Code commands (.md files) into ~/.claude/commands:
+                  - claudein-init:
+                      - This command tells claude to scan the current directory, understand what is it about, looks for media and textual files and generate an initial claudein.yml file.
+                        The claudein/media folder should have soft links to all relevant media files in the project.
+
+                  - claudein-update:
+                      - This command is very similar to claudein-init, but it assumes the claudein-init was already run.
+                        It should update the existing claudein.yml file with project updates and with new posts.
+
+              - All commands should understand the file structure, use the @common/index.ts tree output and embed it in the command .md file, so claude understands the file structure and can use it to generate the claudein.yml file.
+
+  - common:
+      - Update the claude commands in cli/commands/*.md to understand the new schedule field and generate posts with a schedule field.
+
+  - cli:
+      - Update the commands in cli/commands/*.md to generate reach posts (images, videos, etc.) when possible.
+
+  - cli:
+      - Add a new command "claudein-write-article" to create a new article post the command should take a synopsis as its argument and expand it to a full short article.
+        Article should be reach with media and links to the project homepage, github repository, etc...
+        All media in the article should be hosted on the web (e.g. public github repository, or other public media hosting service) and not in the claudein/media folder.
+
+  - common:
       - I updated the schema and added a schedule field:
           - update the web view:
               - Replace the sidebar menu with:
@@ -25,30 +57,3 @@ TODO:
               - Each of the (Today, Next 7 Days, Next 30 Days) view should show the posts that are scheduled for that time period (or past due),
                 Show a count badge with unpublished posts for each of the views.
               - The Analytics view should show the same analytics as now.
-
-  - web:
-  - cli:
-      - Update the commands in cli/commands/*.md to generate reach posts (images, videos, etc.) when possible.
-      - Add a new command "claudein-write-article" to create a new article post the command should take a synopsis as its argument and expand it to a full short article.
-        Article should be reach with media and links to the project homepage, github repository, etc...
-        All media in the article should be hosted on the web (e.g. public github repository, or other public media hosting service) and not in the claudein/media folder.
-
-Done:
-  - cli:
-      - Update the cli:
-          - remove the skills command and replace it with an "init" command.
-          - The install command should do the following:
-              - generates the folder structure for the claudein, see @common/index.ts (claudein, tree, touch, etc.)
-              - install few Claude Code commands (.md files) into ~/.claude/commands:
-                  - claudein-init:
-                      - This command tells claude to scan the current directory, understand what is it about, looks for media and textual files and generate an initial claudein.yml file.
-                        The claudein/media folder should have soft links to all relevant media files in the project.
-
-                  - claudein-update:
-                      - This command is very similar to claudein-init, but it assumes the claudein-init was already run.
-                        It should update the existing claudein.yml file with project updates and with new posts.
-
-              - All commands should understand the file structure, use the @common/index.ts tree output and embed it in the command .md file, so claude understands the file structure and can use it to generate the claudein.yml file.
-
-  - common:
-      - Update the claude commands in cli/commands/*.md to understand the new schedule field and generate posts with a schedule field.

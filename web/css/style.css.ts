@@ -294,6 +294,12 @@ export const navItem = cva({
   },
 })
 
+export const sidebarDivider = css({
+  height: "1px",
+  margin: "0.375rem 0.75rem",
+  background: "#E0DDD8",
+})
+
 export const sidebarSpacer = css({ flexGrow: 1 })
 
 export const sidebarVersion = css({

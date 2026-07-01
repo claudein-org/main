@@ -3,45 +3,53 @@
 assets:
   - type: post
     created: 2026-06-24
+    schedule: 2026-06-24
     target: [LinkedIn]
     text: "Claude Code + LinkedIn = ClaudeIn."
 
   - type: article
     created: 2026-06-29
+    schedule: 2026-06-29
     target: ["DEV.to"]
     src: what-is-claudein.md
 
   - type: video
     created: 2026-06-29
+    schedule: 2026-06-29
     target: [LinkedIn, YouTube, Instagram, Facebook]
     description: ClaudeIn is fun to use.
     src: ClaudeJoke-dark-mode.mp4
 
   - type: video
     created: 2026-07-01
+    schedule: 2026-07-01
     target: [LinkedIn, YouTube, Instagram, Facebook]
     description: ClaudeIn is fun to use.
     src: ClaudeJoke-ocean.mp4
 
   - type: video
     created: 2026-07-01
+    schedule: 2026-07-01
     target: [LinkedIn, YouTube, Instagram, Facebook]
     description: ClaudeIn is fun to use.
     src: ClaudeJoke-clock.mp4
 
   - type: video
     created: 2026-07-01
+    schedule: 2026-07-01
     target: [LinkedIn, YouTube, Instagram, Facebook]
     description: ClaudeIn is fun to use.
     src: ClaudeJoke-skeleton.mp4
 
   - type: video
     created: 2026-07-01
+    schedule: 2026-07-01
     target: [LinkedIn, YouTube, Instagram, Facebook]
     description: ClaudeIn is fun to use.
     src: ClaudeJoke-off-by-one.mp4
 
   - type: post
     created: 2026-07-01
+    schedule: 2026-07-01
     target: [LinkedIn]
     text: "Shipped: `cin init` now does it all — scaffolds your claudein/ project AND installs /claudein-init and /claudein-update as native Claude Code slash commands. No separate skills step. Also simplified the project format by dropping the brand.md requirement, so there's one less file between you and your first post."

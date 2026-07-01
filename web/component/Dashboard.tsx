@@ -1,7 +1,7 @@
 'use client'
 
-import { align, gap, row } from "@/css/layout.css"
-import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarLogo, sidebarNav, sidebarPendingBadge, sidebarSectionTitle, sidebarSpacer, sidebarVersion, ytAvatar } from "@/css/style.css"
+import { align, gap, justify, row } from "@/css/layout.css"
+import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarDivider, sidebarLogo, sidebarNav, sidebarPendingBadge, sidebarSectionTitle, sidebarSpacer, sidebarVersion, ytAvatar } from "@/css/style.css"
 import { app } from "@/lib/app"
 import { version } from "@/lib/version"
 import { btn } from "@/css/style.css"
@@ -10,23 +10,21 @@ import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import type { Analytics } from "@/server/analytics"
-import { mergePublished, pendingCountsByProvider, type Connections, type PublishedMap } from "@/lib/postStatus"
+import { isCardPending, mergePublished, pendingCountsByProvider, providerStatuses, type Connections, type PublishedMap } from "@/lib/postStatus"
+import { inWindow, type Window } from "@/lib/schedule"
 import { Platform, proto } from "@claudein.org/common"
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import AnalyticsView from "./AnalyticsView"
-import ArticlesView from "./ArticlesView"
-import MediaView from "./MediaView"
-import PostsView from "./PostsView"
 import Reload from "./Reload"
+import ScheduleView from "./ScheduleView"
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 const VIEWS = [
-    { id: 'posts', label: 'Posts' },
-    { id: 'images', label: 'Images' },
-    { id: 'videos', label: 'Videos' },
-    { id: 'articles', label: 'Articles' },
+    { id: 'today', label: 'Today' },
+    { id: 'next7', label: 'Next 7 Days' },
+    { id: 'next30', label: 'Next 30 Days' },
     { id: 'analytics', label: 'Analytics' },
 ] as const
 
@@ -70,7 +68,7 @@ function ServiceRow({ name, connected, href, color, pending }: ServiceRowProps) 
 export default function Dashboard({ port, expires_at, facebookPages, instagramAccounts, youtubeConnected, youtubeChannels, devtoConnected, published, analytics }: Props) {
     const [now, setNow] = useState(() => Date.now())
     const [bundle, setBundle] = useState<proto.Bundle | null>(null)
-    const [view, setView] = useState<View>('posts')
+    const [view, setView] = useState<View>('today')
     // Posts made during this visit, merged over the server-loaded `published`
     // map so card status and sidebar counts update immediately without a refetch.
     const [sessionPosted, setSessionPosted] = useState<PublishedMap>({})
@@ -105,7 +103,7 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
         return () => ws.close()
     }, [port])
 
-    // Up/Down arrows move between sidebar views (Posts, Images, …).
+    // Up/Down arrows move between sidebar views (Today, Next 7 Days, …).
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
@@ -139,14 +137,19 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
     }
 
     const payloads = bundle?.payloads ?? []
-    const postPayloads = payloads.filter(p => p.asset.type === 'post')
-    const imagePayloads = payloads.filter(p => p.asset.type === 'image')
-    const videoPayloads = payloads.filter(p => p.asset.type === 'video')
-    const articlePayloads = payloads.filter(p => p.asset.type === 'article')
 
     // "Still need to post" counts per provider, across every card — shown next
     // to each connection in the sidebar.
     const pendingCounts = pendingCountsByProvider(payloads, mergedPublished, connections)
+
+    // Unpublished-post counts per schedule window — shown next to the
+    // Today / Next 7 Days / Next 30 Days sidebar tabs.
+    const scheduleCounts: Record<Window, number> = { today: 0, next7: 0, next30: 0 }
+    for (const period of Object.keys(scheduleCounts) as Window[]) {
+        scheduleCounts[period] = payloads.filter(p =>
+            inWindow(p.asset.schedule, period, now) && isCardPending(providerStatuses(p, mergedPublished, connections))
+        ).length
+    }
 
     return (
         <div className={dashboardLayout}>
@@ -163,7 +166,15 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
 
                 <div className={sidebarNav}>
                     {VIEWS.map(v => (
-                        <button key={v.id} className={navItem({ active: view === v.id })} onClick={() => setView(v.id)}>{v.label}</button>
+                        <Fragment key={v.id}>
+                            {v.id === 'analytics' && <div className={sidebarDivider} />}
+                            <button className={cx(navItem({ active: view === v.id }), justify.between)} onClick={() => setView(v.id)}>
+                                <span>{v.label}</span>
+                                {v.id !== 'analytics' && !!scheduleCounts[v.id] && (
+                                    <span className={sidebarPendingBadge}>{scheduleCounts[v.id]}</span>
+                                )}
+                            </button>
+                        </Fragment>
                     ))}
                 </div>
 
@@ -225,17 +236,8 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
             </aside>
 
             <div className={dashboardMain}>
-                {view === 'posts' && (
-                    <PostsView payloads={postPayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
-                )}
-                {view === 'images' && (
-                    <MediaView kind="image" payloads={imagePayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
-                )}
-                {view === 'videos' && (
-                    <MediaView kind="video" payloads={videoPayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
-                )}
-                {view === 'articles' && (
-                    <ArticlesView payloads={articlePayloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
+                {(view === 'today' || view === 'next7' || view === 'next30') && (
+                    <ScheduleView period={view} now={now} payloads={payloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
                 )}
                 {view === 'analytics' && <AnalyticsView analytics={analytics} connected={connected} />}
             </div>
