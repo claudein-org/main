@@ -5,11 +5,17 @@ TODO:
   - providers:
   - video:
   - common:
+      - scan the entire codebase and update the README.md file
   - web:
-      - remove counter badges from the CONNECTIONS section.
+      - update the homepage:
+          - add a "Star On GitHub" clear CTA
+          - Explain all the features
+          - write a detailed "getting started" section
+          - make the homepage more visually appealing and engaging design it for high conversion rate
   - cli:
 Done:
   - web:
+      - remove counter badges from the CONNECTIONS section.
       - Use Masonry layout for the web preview (all views).
   - cli:
       - Update the cli:

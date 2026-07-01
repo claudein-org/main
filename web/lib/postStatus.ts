@@ -87,18 +87,6 @@ export function isCardPending(statuses: ProviderStatus[]): boolean {
     return statuses.some(s => !s.posted)
 }
 
-// Per-provider count of cards that still need posting, across a set of
-// payloads — powers the sidebar's "still need to post" badges.
-export function pendingCountsByProvider(payloads: proto.Payload[], published: PublishedMap, conn: Connections): Record<number, number> {
-    const counts: Record<number, number> = {}
-    for (const payload of payloads) {
-        for (const status of providerStatuses(payload, published, conn)) {
-            if (!status.posted) counts[status.provider] = (counts[status.provider] ?? 0) + 1
-        }
-    }
-    return counts
-}
-
 // Merges session-posted overrides (from posting during this visit) over the
 // server-loaded published map so status updates immediately without a refetch.
 export function mergePublished(base: PublishedMap, overrides: PublishedMap): PublishedMap {

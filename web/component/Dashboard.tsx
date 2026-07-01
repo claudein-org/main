@@ -1,6 +1,6 @@
 'use client'
 
-import { align, gap, justify, row } from "@/css/layout.css"
+import { justify } from "@/css/layout.css"
 import { channelRow, color, connectedBadge, connectMenuRow, dashboardLayout, dashboardMain, font, navItem, sidebar, sidebarBrand, sidebarDivider, sidebarLogo, sidebarNav, sidebarPendingBadge, sidebarSectionTitle, sidebarSpacer, sidebarVersion, ytAvatar } from "@/css/style.css"
 import { app } from "@/lib/app"
 import { version } from "@/lib/version"
@@ -10,7 +10,7 @@ import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import type { Analytics } from "@/server/analytics"
-import { isCardPending, mergePublished, pendingCountsByProvider, providerStatuses, type Connections, type PublishedMap } from "@/lib/postStatus"
+import { isCardPending, mergePublished, providerStatuses, type Connections, type PublishedMap } from "@/lib/postStatus"
 import { inWindow, type Window } from "@/lib/schedule"
 import { Platform, proto } from "@claudein.org/common"
 import { Fragment, useEffect, useState } from "react"
@@ -47,18 +47,14 @@ interface ServiceRowProps {
     connected: boolean
     href: string
     color: 'dark' | 'linkedin' | 'facebook' | 'instagram' | 'youtube' | 'claude' | 'devto'
-    pending?: number
 }
 
-function ServiceRow({ name, connected, href, color, pending }: ServiceRowProps) {
+function ServiceRow({ name, connected, href, color }: ServiceRowProps) {
     return (
         <div className={connectMenuRow}>
             <span>{name}</span>
             {connected
-                ? <span className={cx(row, align.center, gap.xs)}>
-                    {!!pending && <span className={sidebarPendingBadge} title={`${pending} still need to post`}>{pending}</span>}
-                    <span className={connectedBadge}>✓ Connected</span>
-                </span>
+                ? <span className={connectedBadge}>✓ Connected</span>
                 : <a className={cx(btn({ color, size: 'sm' }))} href={href} target="_blank">Connect</a>
             }
         </div>
@@ -138,10 +134,6 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
 
     const payloads = bundle?.payloads ?? []
 
-    // "Still need to post" counts per provider, across every card — shown next
-    // to each connection in the sidebar.
-    const pendingCounts = pendingCountsByProvider(payloads, mergedPublished, connections)
-
     // Unpublished-post counts per schedule window — shown next to the
     // Today / Next 7 Days / Next 30 Days sidebar tabs.
     const scheduleCounts: Record<Window, number> = { today: 0, next7: 0, next30: 0 }
@@ -182,12 +174,9 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
 
                 <div>
                     <div className={sidebarSectionTitle}>Connections</div>
-                    <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" pending={pendingCounts[Platform.LinkedIn]} />
+                    <ServiceRow name="LinkedIn" connected={linkedinConnected} href={app.linkedin} color="linkedin" />
                     <div className={connectMenuRow}>
-                        <span className={cx(row, align.center, gap.xs)}>
-                            Facebook
-                            {!!pendingCounts[Platform.Facebook] && <span className={sidebarPendingBadge} title={`${pendingCounts[Platform.Facebook]} still need to post`}>{pendingCounts[Platform.Facebook]}</span>}
-                        </span>
+                        <span>Facebook</span>
                         <a className={cx(btn({ color: 'facebook', size: 'sm' }))} href={app.facebook} target="_blank">
                             {facebookPages.length > 0 ? 'Add page' : 'Connect'}
                         </a>
@@ -198,10 +187,7 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                         </div>
                     ))}
                     <div className={connectMenuRow}>
-                        <span className={cx(row, align.center, gap.xs)}>
-                            Instagram
-                            {!!pendingCounts[Platform.Instagram] && <span className={sidebarPendingBadge} title={`${pendingCounts[Platform.Instagram]} still need to post`}>{pendingCounts[Platform.Instagram]}</span>}
-                        </span>
+                        <span>Instagram</span>
                         <a className={cx(btn({ color: 'instagram', size: 'sm' }))} href={app.instagram} target="_blank">
                             {instagramAccounts.length > 0 ? 'Add account' : 'Connect'}
                         </a>
@@ -211,14 +197,11 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                             <span>@{account.username}</span>
                         </div>
                     ))}
-                    <ServiceRow name="dev.to" connected={devtoConnected} href={app.auth.devto} color="devto" pending={pendingCounts[Platform['DEV.to']]} />
+                    <ServiceRow name="dev.to" connected={devtoConnected} href={app.auth.devto} color="devto" />
 
                     {/* YouTube supports multiple channels, so it lists each connected channel and always offers to add another. */}
                     <div className={connectMenuRow}>
-                        <span className={cx(row, align.center, gap.xs)}>
-                            YouTube
-                            {!!pendingCounts[Platform.YouTube] && <span className={sidebarPendingBadge} title={`${pendingCounts[Platform.YouTube]} still need to post`}>{pendingCounts[Platform.YouTube]}</span>}
-                        </span>
+                        <span>YouTube</span>
                         <a className={cx(btn({ color: 'youtube', size: 'sm' }))} href={app.youtube} target="_blank">
                             {youtubeChannels.length > 0 ? 'Add channel' : 'Connect'}
                         </a>
