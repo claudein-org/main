@@ -9,18 +9,6 @@ assets:
     target: [LinkedIn]
     text: "Claude Code + LinkedIn = ClaudeIn."
 
-  - type: video
-    created: 2026-06-24
-    target: [LinkedIn]
-    description: Claude Code + LinkedIn = ClaudeIn.
-    src: ClaudeInText.mp4
-
-  - type: video
-    created: 2026-06-28
-    target: [LinkedIn]
-    description: ClaudeIn turns your Claude Code into a social media manager.
-    src: Demo.mp4
-
   - type: article
     created: 2026-06-29
     target: ["DEV.to"]
@@ -29,17 +17,29 @@ assets:
   - type: video
     created: 2026-06-29
     target: [LinkedIn, YouTube, Instagram, Facebook]
-    description: "A typical Claude Code session."
+    description: ClaudeIn is fun to use.
     src: ClaudeJoke-dark-mode.mp4
 
   - type: video
-    created: 2026-06-29
-    target: [LinkedIn, YouTube, Instagram]
-    description: "A typical Claude Code session."
-    src: ClaudeJoke-git-blame.mp4
+    created: 2026-07-01
+    target: [LinkedIn, YouTube, Instagram, Facebook]
+    description: ClaudeIn is fun to use.
+    src: ClaudeJoke-ocean.mp4
 
   - type: video
-    created: 2026-06-29
-    target: [LinkedIn, YouTube, Instagram]
-    description: "A typical Claude Code session."
-    src: ClaudeJoke-context-window.mp4
+    created: 2026-07-01
+    target: [LinkedIn, YouTube, Instagram, Facebook]
+    description: ClaudeIn is fun to use.
+    src: ClaudeJoke-clock.mp4
+
+  - type: video
+    created: 2026-07-01
+    target: [LinkedIn, YouTube, Instagram, Facebook]
+    description: ClaudeIn is fun to use.
+    src: ClaudeJoke-skeleton.mp4
+
+  - type: video
+    created: 2026-07-01
+    target: [LinkedIn, YouTube, Instagram, Facebook]
+    description: ClaudeIn is fun to use.
+    src: ClaudeJoke-off-by-one.mp4
