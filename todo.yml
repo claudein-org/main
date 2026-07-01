@@ -5,8 +5,35 @@ TODO:
   - providers:
   - video:
   - common:
+      - I updated the schema and added a schedule field:
+          - update the web view:
+              - Replace the sidebar menu with:
+                  - Today
+                  - Next 7 Days
+                  - Next 30 Days
+                  - -----
+                  - Analytics
+                  - -----
+                  - Connections:
+                      - Linkedin
+                      - Facebook:
+                          - page 1
+                          - page 2
+                          - ...
+                      - ....
+
+              - Each of the (Today, Next 7 Days, Next 30 Days) view should show the posts that are scheduled for that time period (or past due),
+                Show a count badge with unpublished posts for each of the views.
+              - The Analytics view should show the same analytics as now.
+
+              - Update the claude commands in cli/commands/*.md to understand the new schedule field and generate posts with a schedule field.
+
   - web:
   - cli:
+      - Update the commands in cli/commands/*.md to generate reach posts (images, videos, etc.) when possible.
+      - Add a new command "claudein-write-article" to create a new article post the command should take a synopsis as its argument and expand it to a full short article.
+        Article should be reach with media and links to the project homepage, github repository, etc...
+        All media in the article should be hosted on the web (e.g. public github repository, or other public media hosting service) and not in the claudein/media folder.
 
 Done:
   - cli:
