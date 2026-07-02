@@ -137,6 +137,47 @@ export const heroRight = css({
   flex: "1 1 340px",
 })
 
+/* Marketing-page section container — matches nav/hero max width. */
+export const sectionWrap = css({
+  maxWidth: "1128px",
+  width: "100%",
+  margin: "0 auto",
+  padding: "4rem 2rem",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "3rem",
+})
+
+/* Column of numbered getting-started steps. */
+export const stepsList = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "2rem",
+  width: "100%",
+  maxWidth: "640px",
+})
+
+/* Overrides the site-wide fixed footer for the (much taller) homepage,
+   where a fixed-position footer would permanently overlap page content. */
+export const homeFooter = css({
+  position: "static",
+  transform: "none",
+  width: "100%",
+  textAlign: "center",
+  padding: "0 0 3rem",
+})
+
+/* Centered closing-CTA block. */
+export const ctaBlock = css({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "1.5rem",
+  width: "100%",
+  maxWidth: "560px",
+})
+
 /* Alternate-background section (LinkedIn #F3F2EF) */
 export const altSection = css({
   background: "#F3F2EF",
@@ -146,6 +187,74 @@ export const altSection = css({
   alignItems: "center",
   gap: "2.5rem",
   padding: "4rem 2rem 6rem",
+})
+
+/* Features grid — 1 col mobile, 2 col tablet, 3 col desktop. */
+export const featuresGrid = css({
+  display: "grid",
+  width: "100%",
+  gap: "1.25rem",
+  gridTemplateColumns: "1fr",
+  "@media (min-width: 640px)": { gridTemplateColumns: "repeat(2, 1fr)" },
+  "@media (min-width: 1024px)": { gridTemplateColumns: "repeat(3, 1fr)" },
+})
+
+export const featureCard = css({
+  border: "1px solid #e0e0e0",
+  borderRadius: "12px",
+  padding: "1.5rem",
+  background: "#ffffff",
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.625rem",
+})
+
+/* Small colored dot marking a feature card — cycles through the brand
+   palette so the features grid echoes the multi-platform pitch. */
+export const featureDot = cva({
+  base: { width: "10px", height: "10px", borderRadius: "50%", flexShrink: 0 },
+  variants: {
+    color: {
+      claude: { background: "claude" },
+      linkedin: { background: "linkedin" },
+      facebook: { background: "facebook" },
+      instagram: { background: "instagram" },
+      youtube: { background: "youtube" },
+      devto: { background: "devto" },
+    },
+  },
+})
+
+/* Single-line command snippet — a lighter-weight sibling of the full
+   terminal widget, used for inline install/run commands. */
+export const cmdLine = css({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.625rem",
+  width: "fit-content",
+  maxWidth: "100%",
+  overflowX: "auto",
+  background: "#1B1F24",
+  color: "#CDD9E5",
+  fontFamily: "mono",
+  fontSize: "0.8125rem",
+  padding: "0.625rem 1rem",
+  borderRadius: "8px",
+})
+
+/* Numbered getting-started step row. */
+export const stepRow = css({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "flex-start",
+  gap: "1.25rem",
+})
+
+export const stepBody = css({
+  display: "flex",
+  flexDirection: "column",
+  gap: "0.5rem",
+  flexGrow: 1,
 })
 
 /* Terminal widget */

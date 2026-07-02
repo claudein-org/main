@@ -6,13 +6,15 @@ TODO:
   - video:
   - common:
   - web:
+  - cli:
+Done:
+  - web:
       - update the homepage:
           - add a "Star On GitHub" clear CTA
           - Explain all the features
           - write a detailed "getting started" section
           - make the homepage more visually appealing and engaging design it for high conversion rate
-  - cli:
-Done:
+
   - common:
       - scan the entire codebase and update the README.md file
   - web:
