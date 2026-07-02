@@ -6,6 +6,24 @@ TODO:
   - video:
   - common:
   - web:
+      - Badge count should be for every post x target. So for example a single post with pending Linkedin and 2 Facebook pages should be counted as 3 pending posts.
+      - Update the sidebar:
+          - Overdue
+          - -----
+          - Today
+          - Next 7 Days
+          - Next 30 Days
+          - -----
+          - Analytics
+          - -----
+          - Connections:
+              - Linkedin
+              - Facebook:
+                  - page 1
+                  - page 2
+                  - ...
+              - ....
+
   - cli:
 Done:
   - web:
