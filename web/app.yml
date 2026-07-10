@@ -42,11 +42,6 @@ services:
     instance_count: 1
     instance_size_slug: basic-xs
 
-    envs:
-      - key: SPACE_SECRET_KEY
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-
 # ANALYTICS SYNC JOB
 # Pulls per-post metrics from the provider APIs into post_metrics. Built from
 # /Dockerfile.job — the web image is a Next.js standalone build and does NOT
@@ -54,9 +49,10 @@ services:
 # DigitalOcean job itself; `kind` below is the in-spec trigger (runs once after
 # each deploy — the sync is idempotent, so re-running is safe).
 #
-# The job needs the same env as the web service: DB_* and the OAuth/cookie
-# secrets are app-level secrets (set in the DO dashboard) and are inherited;
-# SPACE_SECRET_KEY is declared per-component, so it is repeated here.
+# Every secret — DB_*, the OAuth/cookie secrets, and SPACE_SECRET_KEY — is an
+# app-level secret set in the DO dashboard, so all components inherit it. Never
+# re-declare a secret under a component: a component-level `type: SECRET` with no
+# `value:` shadows the app-level one with an empty string.
 jobs:
   - name: analytics-sync
     dockerfile_path: /Dockerfile.job

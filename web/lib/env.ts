@@ -3,20 +3,20 @@ import z from "zod"
 type Env = z.infer<typeof Env>
 const Env = z.object({
 
-    DB_USER: z.string(),
-    DB_PASS: z.string(),
-    DB_HOST: z.string(),
+    DB_USER: z.string().min(1),
+    DB_PASS: z.string().min(1),
+    DB_HOST: z.string().min(1),
     DB_PORT: z.coerce.number(),
-    DB_NAME: z.string(),
+    DB_NAME: z.string().min(1),
 
-    COOKIE_SECRET: z.string(),
-    LINKEDIN_CLIENT_SECRET: z.string(),
-    GOOGLE_CLIENT_SECRET: z.string(),
-    META_CLIENT_SECRET: z.string(),
-    INSTAGRAM_CLIENT_SECRET: z.string(),
+    COOKIE_SECRET: z.string().min(1),
+    LINKEDIN_CLIENT_SECRET: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
+    META_CLIENT_SECRET: z.string().min(1),
+    INSTAGRAM_CLIENT_SECRET: z.string().min(1),
 
 
-    SPACE_SECRET_KEY: z.string(),
+    SPACE_SECRET_KEY: z.string().min(1),
 })
 
 const DUMMY: Env = {
