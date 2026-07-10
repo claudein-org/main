@@ -87,6 +87,12 @@ export function isCardPending(statuses: ProviderStatus[]): boolean {
     return statuses.some(s => !s.posted)
 }
 
+// Number of individual post x target combinations still pending for a card —
+// e.g. LinkedIn plus 2 unposted Facebook pages counts as 3, not 1.
+export function pendingTargetCount(statuses: ProviderStatus[]): number {
+    return statuses.reduce((sum, s) => sum + s.accounts.filter(a => !a.url).length, 0)
+}
+
 // Merges session-posted overrides (from posting during this visit) over the
 // server-loaded published map so status updates immediately without a refetch.
 export function mergePublished(base: PublishedMap, overrides: PublishedMap): PublishedMap {

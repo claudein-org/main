@@ -2,10 +2,11 @@
 // yml.BaseAsset). The sidebar's Today / Next 7 Days / Next 30 Days tabs are
 // cumulative windows: each includes everything due in the narrower windows
 // plus anything already past due, matching Today/Next-7/Next-30 conventions
-// elsewhere (e.g. Todoist).
-export type Window = 'today' | 'next7' | 'next30'
+// elsewhere (e.g. Todoist). Overdue is a separate, non-cumulative window for
+// items whose schedule date has already passed.
+export type Window = 'overdue' | 'today' | 'next7' | 'next30'
 
-const WINDOW_DAYS: Record<Window, number> = { today: 0, next7: 7, next30: 30 }
+const WINDOW_DAYS: Record<Window, number> = { overdue: 0, today: 0, next7: 7, next30: 30 }
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 
@@ -22,6 +23,7 @@ export function dateStr(when: number | Date): string {
 // `now` is a timestamp (ms) so callers can pass a value that only updates
 // periodically, rather than a fresh `Date.now()` on every render.
 export function inWindow(schedule: string, window: Window, now: number): boolean {
+    if (window === 'overdue') return schedule < dateStr(now)
     const cutoff = dateStr(now + WINDOW_DAYS[window] * ONE_DAY_MS)
     return schedule <= cutoff
 }

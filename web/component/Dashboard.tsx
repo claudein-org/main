@@ -10,7 +10,7 @@ import type { Page } from "@/provider/facebook"
 import type { Account } from "@/provider/instagram"
 import type { Channel } from "@/provider/youtube"
 import type { Analytics } from "@/server/analytics"
-import { isCardPending, mergePublished, providerStatuses, type Connections, type PublishedMap } from "@/lib/postStatus"
+import { mergePublished, pendingTargetCount, providerStatuses, type Connections, type PublishedMap } from "@/lib/postStatus"
 import { inWindow, type Window } from "@/lib/schedule"
 import { Platform, proto } from "@claudein.org/common"
 import { Fragment, useEffect, useState } from "react"
@@ -22,6 +22,7 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 const VIEWS = [
+    { id: 'overdue', label: 'Overdue' },
     { id: 'today', label: 'Today' },
     { id: 'next7', label: 'Next 7 Days' },
     { id: 'next30', label: 'Next 30 Days' },
@@ -134,13 +135,14 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
 
     const payloads = bundle?.payloads ?? []
 
-    // Unpublished-post counts per schedule window — shown next to the
-    // Today / Next 7 Days / Next 30 Days sidebar tabs.
-    const scheduleCounts: Record<Window, number> = { today: 0, next7: 0, next30: 0 }
+    // Unpublished post x target counts per schedule window — shown next to the
+    // Overdue / Today / Next 7 Days / Next 30 Days sidebar tabs. A single post
+    // pending on LinkedIn and 2 Facebook pages counts as 3.
+    const scheduleCounts: Record<Window, number> = { overdue: 0, today: 0, next7: 0, next30: 0 }
     for (const period of Object.keys(scheduleCounts) as Window[]) {
-        scheduleCounts[period] = payloads.filter(p =>
-            inWindow(p.asset.schedule, period, now) && isCardPending(providerStatuses(p, mergedPublished, connections))
-        ).length
+        scheduleCounts[period] = payloads
+            .filter(p => inWindow(p.asset.schedule, period, now))
+            .reduce((sum, p) => sum + pendingTargetCount(providerStatuses(p, mergedPublished, connections)), 0)
     }
 
     return (
@@ -159,7 +161,7 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
                 <div className={sidebarNav}>
                     {VIEWS.map(v => (
                         <Fragment key={v.id}>
-                            {v.id === 'analytics' && <div className={sidebarDivider} />}
+                            {(v.id === 'today' || v.id === 'analytics') && <div className={sidebarDivider} />}
                             <button className={cx(navItem({ active: view === v.id }), justify.between)} onClick={() => setView(v.id)}>
                                 <span>{v.label}</span>
                                 {v.id !== 'analytics' && !!scheduleCounts[v.id] && (
@@ -219,7 +221,7 @@ export default function Dashboard({ port, expires_at, facebookPages, instagramAc
             </aside>
 
             <div className={dashboardMain}>
-                {(view === 'today' || view === 'next7' || view === 'next30') && (
+                {(view === 'overdue' || view === 'today' || view === 'next7' || view === 'next30') && (
                     <ScheduleView period={view} now={now} payloads={payloads} published={mergedPublished} connections={connections} onPosted={handlePosted} />
                 )}
                 {view === 'analytics' && <AnalyticsView analytics={analytics} connected={connected} />}

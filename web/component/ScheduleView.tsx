@@ -22,6 +22,7 @@ interface Props extends CardProps {
 }
 
 const EMPTY_LABEL: Record<Window, string> = {
+    overdue: 'Nothing past due.',
     today: 'Nothing due today (or past due).',
     next7: 'Nothing due in the next 7 days (or past due).',
     next30: 'Nothing due in the next 30 days (or past due).',

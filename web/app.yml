@@ -72,3 +72,54 @@ jobs:
       cron: "0 0 * * *"
     source_dir: /
     timeout: 900s
+
+# cspell: disable
+envs:
+  - key: DB_USER
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:Gvr/JUsTF1WMffPbTYwc99mqsxwYMNZt:824pIiDBqdwNiCPrI+5+EiYvcLL4hsM=]
+  - key: DB_PASS
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:iEz5UJcFJ7/5Kb9F5WV2jV5OuxeJMzLu:rtvumzTSCkM6hhFh5EjhFhPDZNRenuUOMs+Lui2O76q4Jf2fPPIijA==]
+  - key: DB_HOST
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:B1VUlRLEOzSriIii6ZH3o/XDy/F/1Ilk:58V+tOwpCNZCGfK9NGjz5WYPZ8BljbDJOzpbMSeHlTmZRV5pN7592/GAEnJGY+royPvB/+FVJtb1TJ7/y7XdSGL6VWQ=]
+  - key: DB_PORT
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:LZ+HglEJA9ZKETWl7Rvuj/2ZrjbYwV2M:PDqz70FWm1d1cbfuWt5n8t3CodDh]
+  - key: DB_NAME
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:6SN+8VkTMUyNO30soSqA7FGKtLRfJzPW:wAvZy2hJWRJE8hinE7ypk5lLWQ5K5p8Gug==]
+  - key: COOKIE_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:XvDD5LyXerXl6qifPt/UhKelo9OH8M3y:xtHIV7CMBNKS5cprkWUBuVV5n78NQl9WZ6WxwXaoOds=]
+  - key: LINKEDIN_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:vkYoGJ2REORF86AfvMRE8f2zF7gb0m+w:hTNc4uElVrcHNjAzare32sljIWw/4AC94YkYXO858KtGroNKsi9H55xGEZrLHQMfSg==]
+  - key: GOOGLE_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:anqcQvLGt7AeW2LZTz2AgjxP8MCblgTL:L32x6gFslBuE+KfaKehGBjWiN4dnJz5Oqfs+aMVJQ0UU20V4QKUxcj3fQT27TFExeYec]
+  - key: META_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:VpWYgKfVKVeI6Gxdv1aqSJlFBb230ImT:Pn7rTswupFvMTxxxv+3xbD6scPJv3hCD4tfzv+8bmAgd0rhljWkeLynP3RsZe9GR]
+  - key: INSTAGRAM_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:TIBEQAOetEknITYcw5htSA2ZMQ/C9BOk:J2EpYM5NGyfXtfLYK8OBJIHyO3pceCXX0LOPBtwT01S9R6DDzuj758C0ffltP0yG]
+  - key: YOUTUBE_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:EcHjW1udIgDJNtCsySwxIOXRBth+KByD:KsajTwt8uwZjq+owepC0i9qIuGjIz15FK/Y8zoMjyIucpZwA6Ex4BgrAE60Yw2Rt88mz]
+  - key: SPACE_SECRET_KEY
+    scope: RUN_TIME
+    type: SECRET
+    value: EV[1:hZGAGZWcokq3iUachTcSb2nAYi0fvlw8:epUI2nhoYwBr/SkIjZ3P/mrKW9VlXtoaDKKYj7ofQwNjd5QxBZ36BvsMWbbfLbM1o+l85k4g7yVlvY4=]

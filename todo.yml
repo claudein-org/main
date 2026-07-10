@@ -6,7 +6,9 @@ TODO:
   - video:
   - common:
   - web:
-      - Badge count should be for every post x target. So for example a single post with pending Linkedin and 2 Facebook pages should be counted as 3 pending posts.
+  - cli:
+Done:
+  - web:
       - Update the sidebar:
           - Overdue
           - -----
@@ -23,9 +25,8 @@ TODO:
                   - page 2
                   - ...
               - ....
-
-  - cli:
-Done:
+  - web:
+      - Badge count should be for every post x target. So for example a single post with pending Linkedin and 2 Facebook pages should be counted as 3 pending posts.
   - web:
       - update the homepage:
           - add a "Star On GitHub" clear CTA
